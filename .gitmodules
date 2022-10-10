@@ -1,0 +1,3 @@
+[submodule "mcpi_block_structure"]
+	path = mcpi_block_structure
+	url = git@github.com:DaveGuenther/mcpi_block_structure.git
