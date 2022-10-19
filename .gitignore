@@ -1,2 +1,3 @@
 server.pkl
 .ipynb_checkpoints/
+*.ipynb
