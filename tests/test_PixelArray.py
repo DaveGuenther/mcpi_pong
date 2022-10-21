@@ -82,6 +82,21 @@ class TestPixelArray(unittest.TestCase):
         self.assertEqual(data.getHeight(),100)
 
 
+    def test_fillArray(self):
+        data = PixelArray(5, 5)
+        data.fillArray(9)
+        assert_val=np.array(
+            [
+                [9, 9, 9, 9, 9],
+                [9, 9, 9, 9, 9],
+                [9, 9, 9, 9, 9],
+                [9, 9, 9, 9, 9],
+                [9, 9, 9, 9, 9]                                
+            ]
+        )
+
+        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 test: 
-	python -m unittest discover -v tests/
+	python -m unittest -v tests/test_PixelArray.py tests/test_Color.py
 
 install:
 	pip install numpy
