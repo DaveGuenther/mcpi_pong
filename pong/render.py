@@ -1,19 +1,46 @@
 from mcpi.minecraft import Minecraft
+from pong.utility import PixelArray
 import numpy as np
 
 class Clipper:
     
-    def clip_object_with_edge(sprite, edge, normal_vec):
+    def __init__(self,my_pixel_array:PixelArray):
+        self.pixel_array=my_pixel_array
+
+    def clip_object_with_edge(self,sprite, edge, normal_vec):
         """
         sprite: (2d np.array)  This is a 2d array of pixels to render
         edge: (tuple) this is a 2d coordinate of a point that exists on the edge
         normal_vec: (tuple) this is a 2d coordinate that represents the unit vector of the normal of the edge line  (e.g. (1,0)
         """
     
-    def clip_object_with_screen:
+    def clip_object_with_screen(self, sprite):
+        edge_points = [
+            (0,self.pixel_array.getHeight()),  # bottom
+            (0,0), # left
+            (0,0), # top
+            (self.pixel_array.getWidth(),0)
+        ]
+        
+        edge_normals = [
+            (0,-1),
+            (1,0),
+            (0,1),
+            (-1,0)
+        ]
+        
+        for point, normal in zip(edge_points, edge_normals):
+            self.clip_object_with_edge(sprite, point, normal)
+            
+
         #clip with bottom edge
-        left_edge = 
+        bottom_edge = (0,0)
+        left_normal = (1,0)
+        
         #clip with left edge
+
+        left_edge = (0,0)
+        left_normal = (1,0)
         
         #clip with top edge
         
@@ -38,7 +65,7 @@ class Color:
     |    12    |   WOOL_LIME       |       (35,5)       |
     |    11    |   WOOL_PINK       |       (35,6)       |
     |    10    |   WOOL_GREY       |       (35,7)       |
-    |    9     |   WOOL_LIGHT_GREY |       (35,8)       |
+    |    16    |   WOOL_LIGHT_GREY |       (35,8)       |
     |    8     |   WOOL_CYAN       |       (35,9)       |
     |    7     |   WOOL_PURPLE     |       (35,10)      |
     |    2     |   WOOL_BLUE       |       (35,11)      |
@@ -55,10 +82,19 @@ class Color:
         (35,13), #1=green wool
         (35,11), #2=blue wool
         (35,14), #3=red wool
-        (35,0),  #4=white wool  (9=transparent alpha/skip drawing)
+        (35,0),  #4=white wool  
         (35,2),  #5=Magenta wool
-        (35,12), #6=Brown Wool
-        (35,
+        (35,12), #6=Brown wool
+        (35,10), #7=Purple wool
+        (35,9),  #8=Cyan wool
+        (0,0),   #9=Transparent/do not draw
+        (35,7),  #10=Grey wool
+        (35,6),  #11=Pink wool
+        (35,5),  #12=Lime wool
+        (35,4),  #13=Yellow wool
+        (35,3),  #14=Light Blue wool
+        (35,1),  #15=Orange wool
+        (35,8)   #16=Light Grey wool
     ] 
     
     get(color_num):
