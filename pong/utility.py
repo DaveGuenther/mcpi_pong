@@ -36,14 +36,57 @@ class PixelArray:
     16=Light Grey wool
     """
 
-    def __init__(self, rows, columns):
-        self.data = np.zeros((columns,rows),dtype=int)
+
+    def __init__(self, my_array, transpose=True):
+        """
+        Creates a new PixelArray from an existing array
+
+        my_array:   (numpy.ndarray)     1D or 2D array representing the pixelspace
+        transpose:  (boolean)           True if my_array is indexed with [row][col] (it needs to be flipped)
+                                        False if my_array is indexed with [col][row] (it gets copied as is)
+        """
+        if transpose:
+            self.data=np.swapaxes(my_array,0,1)
+        else:
+            self.data=my_array
+        
+    @classmethod
+    def fromDimensions(cls, rows, columns):
+        data = np.zeros((columns,rows),dtype=int)
+        return cls(data, False)
+    
     
     def getPoint(self, x, y):
         """
         Goes to x,y location in PixelArray and gets element there.  Returns that element
         """
         return self.data[y][x]
+
+    def filter(self, indices, axis:int):
+        """
+        This function will return a new PixelArray that is filtered with specific rows or columns based on an array of boolean values for each row/column
+
+        indices:    (np.array)  1D array with boolean values for each element in the axis.  True will keep the row, False will drop it
+        axis:       (int)       This indicates the axis by which to apply the indices boolean array.  value must be either 0 or 1.  0=Rows, 1=columns.
+        
+        returns a new PixelArray filtered based on boolean element-wise index
+        """
+        if np.all((indices==True)):
+            return self
+        else:
+            if axis==0: # indexing rows
+                this_arr_index =np.tile(indices,(self.getHeight(),1))
+                this_arr=self.data[this_arr_index]
+                this_arr = this_arr.reshape(self.getHeight(),int(len(this_arr)/self.getHeight()))
+                if this_arr.ndim==1: this_arr=np.array([this_arr])
+                return PixelArray(my_array=this_arr,transpose=False)
+            elif axis==1: # indexing columns
+                this_arr_index = np.tile(indices,(self.getWidth(),1)).T
+                this_arr=self.data[this_arr_index]
+                this_arr = this_arr.reshape(int(len(this_arr)/self.getWidth()),self.getWidth())
+                if this_arr.ndim==1: this_arr=np.array([this_arr])
+                return PixelArray(my_array=this_arr,transpose=False)
+            
 
     def getWidth(self):
         """
@@ -65,3 +108,6 @@ class PixelArray:
 
     def fillArray(self, color_code):
         self.data.fill(color_code)
+
+    def toString(self):
+        print(self.data.T)
