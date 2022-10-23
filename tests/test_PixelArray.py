@@ -5,7 +5,7 @@ from pong.utility import PixelArray
 
 class TestPixelArray(unittest.TestCase):
     def test_2x2array(self):
-        data = PixelArray(3, 4)
+        data = PixelArray.fromDimensions(3, 4)
         assert_val=np.array(
             [
                 [0,0,0],
@@ -17,15 +17,16 @@ class TestPixelArray(unittest.TestCase):
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val), f"2D Array with 3 rows and 4 columns failed")
 
     def test_4x1array(self):
-        data = PixelArray(4, 1)
+        data = PixelArray.fromDimensions(4,1)
         assert_val=np.array(
             [
                 [0,0,0,0]
             ]
         )
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+
     def test_1x4array(self):
-        data = PixelArray(1, 4)
+        data = PixelArray.fromDimensions(1, 4)
         assert_val=np.array(
             [
                 [0],
@@ -35,14 +36,16 @@ class TestPixelArray(unittest.TestCase):
             ]
         )
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+
     def test_0x1array(self):
-        data = PixelArray(0, 1)
+        data = PixelArray.fromDimensions(0, 1)
         assert_val=np.array(
             [[]]
         )
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+
     def test_setPoint(self):
-        data = PixelArray(3, 3)
+        data = PixelArray.fromDimensions(3, 3)
         assert_val=np.array(
             [
                 [1,0,0],
@@ -58,7 +61,7 @@ class TestPixelArray(unittest.TestCase):
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
     
     def test_getPoint(self):
-        data = PixelArray(3, 3)
+        data = PixelArray.fromDimensions(3, 3)
         assert_val=np.array(
             [
                 [1,0,0],
@@ -72,18 +75,18 @@ class TestPixelArray(unittest.TestCase):
         self.assertEqual(data.getPoint(0,0),1)
 
     def test_getWidth(self):
-        data = PixelArray(3, 1)
+        data = PixelArray.fromDimensions(3, 1)
 
         self.assertEqual(data.getWidth(),3)
 
     def test_getHeight(self):
-        data = PixelArray(33, 100)
+        data = PixelArray.fromDimensions(33, 100)
 
         self.assertEqual(data.getHeight(),100)
 
 
     def test_fillArray(self):
-        data = PixelArray(5, 5)
+        data = PixelArray.fromDimensions(5, 5)
         data.fillArray(9)
         assert_val=np.array(
             [
