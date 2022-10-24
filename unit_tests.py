@@ -52,3 +52,6 @@ c= PixelArray(np.array([[0,1,2,3]]),True)
 print(c.toString())
 d = c.filter([True, True, True, False],1)
 print(d.toString())
+
+index = np.append(index,True)
+print(index)
