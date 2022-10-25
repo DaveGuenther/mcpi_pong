@@ -84,7 +84,7 @@ class Screen:
         self.__front_virtual_page=PixelArray.fromDimensions(self.__width,self.__height)
         self.__back_virtual_page = PixelArray.fromDimensions(self.__width,self.__height)
         self.mc_connection = mc[0]
-        self.__clipper=Clipper(self) 
+        self.__clipper=Clipper([self]) 
         
 
     def fill(self, color):
@@ -137,8 +137,8 @@ class Screen:
         
 class Clipper:
     
-    def __init__(self,my_screen:Screen):
-        self.my_screen=my_screen
+    def __init__(self,my_screen:[Screen]):
+        self.my_screen=my_screen[0]
 
     def clip_sprite_with_single_edge(self,this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
         """
