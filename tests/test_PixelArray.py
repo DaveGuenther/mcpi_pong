@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from pong.utility import PixelArray
+from pong.render import PixelArray
 
 
 class TestPixelArray(unittest.TestCase):
