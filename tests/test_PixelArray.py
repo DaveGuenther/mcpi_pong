@@ -100,6 +100,42 @@ class TestPixelArray(unittest.TestCase):
 
         self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
 
+    def test_create_PixelArray_from_Array(self):
+        
+        assert_val=np.array([
+            [5, 5, 5, 5, 5],
+            [4, 4, 4, 4, 4],
+            [3, 3, 3, 3, 3],
+            [2, 2, 2, 2, 2],
+            [1, 1, 1, 1, 1]
+        ])
+        data = PixelArray(assert_val)
+        
+
+
+        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val.T))
+
+    def test_filter(self):
+        
+        initial_array=np.array([
+            [5, 5, 5, 5, 5],
+            [4, 4, 4, 4, 4],
+            [3, 3, 3, 3, 3],
+            [2, 2, 2, 2, 2],
+            [1, 1, 1, 1, 1]
+        ])
+        data = PixelArray(initial_array)
+        data = data.filter(np.array([True, True, False, False, False]), 0) # filter rows
+        data = data.filter(np.array([True, True, True, False, False]),1) # filter columns
+
+        assert_val=np.array([
+            [5, 5, 5],
+            [4, 4, 4]
+        ])
+
+        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val.T))
+
+
 
 
 if __name__ == '__main__':

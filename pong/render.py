@@ -149,10 +149,10 @@ class Clipper:
         
         returns a new PixelArray that has been reshaped after clipped with edge
         """
-        if normal_vec[1]!=0: #clipping sprite with either bottom or top edge of screen
+        if screen_edge_normal_vec[1]!=0: #clipping sprite with either bottom or top edge of screen
             elements_not_clipped=np.array([])
             for y in range(this_sprite.getHeight()):
-                row = screen_edge[1]+screen_edge_normal[1]*(sprite_start_pos[1]+y) #determines if the row of the sprite falls inside or outside clipped edge
+                row = screen_edge[1]+screen_edge_normal_vec[1]*(sprite_start_pos[1]+y) #determines if the row of the sprite falls inside or outside clipped edge
                 
                 elements_not_clipped = np.append(elements_not_clipped, True) if row>=0 else np.append(elements_not_clipped,False)
             if np.all((elements_not_clipped==True)):
@@ -160,9 +160,10 @@ class Clipper:
             else:
                 return this_sprite.filter(elements_not_clipped,0)   
                     
-        elif normal_vec[0]!=0: # clipping sprite with either left or right edge of screen
+        elif screen_edge_normal_vec[0]!=0: # clipping sprite with either left or right edge of screen
+            elements_not_clipped=np.array([])
             for x in range(this_sprite.getWidth()):
-                column = screen_edge[0]+screen_edge_normal[0]*(sprite_start_pos[0]+x) #determines if the column of the sprite falls inside or outside clipped edge
+                column = screen_edge[0]+screen_edge_normal_vec[0]*(sprite_start_pos[0]+x) #determines if the column of the sprite falls inside or outside clipped edge
                 elements_not_clipped = np.append(elements_not_clipped, True) if column>=0 else np.append(elements_not_clipped,False)
 
             if np.all((elements_not_clipped==True)):
