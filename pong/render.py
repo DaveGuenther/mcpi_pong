@@ -133,7 +133,12 @@ class Screen:
                 this_color = Color.get(clipped_object.getPoint(x,y))
                 if this_color!=(0,0): # skip if pixel is transparent
                     self.__back_virtual_page.setPoint(x, y, this_color)
-        
+    
+    def getWidth(self):
+        return self.__width
+
+    def getHeight(self):
+        return self.__height
         
 class Clipper:
     
@@ -149,27 +154,46 @@ class Clipper:
         
         returns a new PixelArray that has been reshaped after clipped with edge
         """
+        new_sprite_start_pos=sprite_start_pos
         if screen_edge_normal_vec[1]!=0: #clipping sprite with either bottom or top edge of screen
-            elements_not_clipped=np.array([])
+            elements_not_clipped=np.array([], dtype=bool)
             for y in range(this_sprite.getHeight()):
                 row = screen_edge[1]+screen_edge_normal_vec[1]*(sprite_start_pos[1]+y) #determines if the row of the sprite falls inside or outside clipped edge
                 
                 elements_not_clipped = np.append(elements_not_clipped, True) if row>=0 else np.append(elements_not_clipped,False)
+            
+            #offset start coordinate of sprite if clipping with plane requires it
+            amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
+            if (amount_to_offset>0)&(elements_not_clipped[0]==False):
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[0],
+                    new_sprite_start_pos[1]-(-1*screen_edge_normal_vec[1]*(amount_to_offset))
+                )
+
+
             if np.all((elements_not_clipped==True)):
-                return this_sprite # nothing was clipped
+                return (this_sprite, sprite_start_pos) # nothing was clipped
             else:
-                return this_sprite.filter(elements_not_clipped,0)   
+                return (this_sprite.filter(elements_not_clipped,1), new_sprite_start_pos)   
                     
         elif screen_edge_normal_vec[0]!=0: # clipping sprite with either left or right edge of screen
-            elements_not_clipped=np.array([])
+            elements_not_clipped=np.array([], dtype=bool)
             for x in range(this_sprite.getWidth()):
                 column = screen_edge[0]+screen_edge_normal_vec[0]*(sprite_start_pos[0]+x) #determines if the column of the sprite falls inside or outside clipped edge
                 elements_not_clipped = np.append(elements_not_clipped, True) if column>=0 else np.append(elements_not_clipped,False)
 
+            amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
+            if (amount_to_offset>0)&(elements_not_clipped[0]==False):
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[0]-(-1*screen_edge_normal_vec[0]*(amount_to_offset)),
+                    new_sprite_start_pos[1]
+                )
+
+
             if np.all((elements_not_clipped==True)):
-                return this_sprite # nothing was clipped
+                return (this_sprite, sprite_start_pos) # nothing was clipped
             else:
-                return this_sprite.filter(elements_not_clipped,1) 
+                return (this_sprite.filter(elements_not_clipped,0), new_sprite_start_pos)
         
     
     def clip_object_with_screen_edges(self, sprite, sprite_start_pos):
