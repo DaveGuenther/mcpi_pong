@@ -9,7 +9,7 @@ from pong.render import PixelArray
 
 class TestClipper(unittest.TestCase):
 
-    def test_clip_sprite_with_single_edge_noclip(self):
+    def test_clipSpriteWithSingleEdge_noclip(self):
         my_file= open( "server.pkl", "rb" ) 
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
@@ -30,34 +30,34 @@ class TestClipper(unittest.TestCase):
         screen_edge=(0,0)
         screen_edge_normal_vec=(1,0) # left
         sprite_start_pos=(1,1)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,my_sprite_array.T))
 
         screen_edge=(0,0)
         screen_edge_normal_vec=(0,1) # top
 
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,my_sprite_array.T))
 
         screen_edge=(this_screen.getWidth(),0)
         screen_edge_normal_vec=(-1,0) # right
 
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,my_sprite_array.T))
 
         screen_edge=(0,this_screen.getHeight())
         screen_edge_normal_vec=(0,-1) # bottom
 
-        clipped_sprite,sprite_start_pos = my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite,sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,my_sprite_array.T))
 
 
 
-    def test_clip_sprite_with_single_edge_top_left(self):
+    def test_clipSpriteWithSingleEdge_top_left(self):
         my_file= open( "server.pkl", "rb" ) 
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
@@ -87,18 +87,18 @@ class TestClipper(unittest.TestCase):
         screen_edge=(0,0)
         screen_edge_normal_vec=(1,0) # left
         sprite_start_pos=(-1,-1)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         screen_edge=(0,0)
         screen_edge_normal_vec=(0,1) # top
 
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(clipped_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(clipped_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,top_left_assert.T))
 
 
 
-    def test_clip_sprite_with_single_edge_bottom_right(self):
+    def test_clipSpriteWithSingleEdge_bottom_right(self):
         my_file= open( "server.pkl", "rb" ) 
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
@@ -125,11 +125,11 @@ class TestClipper(unittest.TestCase):
         screen_edge=(this_screen.getWidth(),0)
         screen_edge_normal_vec=(-1,0) # right
         sprite_start_pos=(3,4)
-        clipped_sprite, sprite_start_pos= my_clipper.clip_sprite_with_single_edge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos= my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         screen_edge=(0,this_screen.getHeight())
         screen_edge_normal_vec=(0,-1) # bottom
-        clipped_sprite, sprite_start_pos = my_clipper.clip_sprite_with_single_edge(clipped_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
+        clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(clipped_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,bot_right_assert.T), f"clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(3,4),f"Sprite Start Position is incorrect")
@@ -161,7 +161,7 @@ class TestClipper(unittest.TestCase):
         ])
 
         sprite_start_pos=(-2,-1)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 1: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,0),f"Assert 1: Sprite Start Position is incorrect")
 
@@ -172,14 +172,14 @@ class TestClipper(unittest.TestCase):
             [11,12,13]
         ])
         sprite_start_pos=(3,-1)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 2: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(3,0),f"Assert 2: Sprite Start Position is incorrect")
 
         # assert val 3
         assert_val=np.array([])
         sprite_start_pos=(-5,4)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 3: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,0),f"Assert 3: Sprite Start Position is incorrect")
 
@@ -192,7 +192,7 @@ class TestClipper(unittest.TestCase):
             [11,12,13]
         ])
         sprite_start_pos=(1,3)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 4: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(1,3),f"Assert 4: Sprite Start Position is incorrect")
 
@@ -205,14 +205,14 @@ class TestClipper(unittest.TestCase):
             [11,12,13]
         ])
         sprite_start_pos=(5,3)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 5: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(5,3),f"Assert 5: Sprite Start Position is incorrect")
 
         # assert val 6
         assert_val=np.array([])
         sprite_start_pos=(10,3)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 6: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,3),f"Assert 6: Sprite Start Position is incorrect")
 
@@ -224,7 +224,7 @@ class TestClipper(unittest.TestCase):
             [11,12,13]
         ])
         sprite_start_pos=(0,7)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 7: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,7),f"Assert 7: Sprite Start Position is incorrect")
 
@@ -235,7 +235,7 @@ class TestClipper(unittest.TestCase):
             [7,8]
         ])
         sprite_start_pos=(6,9)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 8: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(6,9),f"Assert 8: Sprite Start Position is incorrect")
 
@@ -245,21 +245,21 @@ class TestClipper(unittest.TestCase):
             [3]
         ])
         sprite_start_pos=(-2,11)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 9: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,11),f"Assert 9: Sprite Start Position is incorrect")
 
         # assert val 10
         assert_val=np.array([])
         sprite_start_pos=(3,12)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 10: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,0),f"Assert 10: Sprite Start Position is incorrect")
 
         # assert val 11
         assert_val=np.array([])
         sprite_start_pos=(2,16)
-        clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+        clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.data,assert_val.T), f"Assert 11: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,0),f"Assert 11: Sprite Start Position is incorrect")
 

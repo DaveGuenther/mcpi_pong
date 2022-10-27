@@ -36,7 +36,7 @@ assert_val=np.array([
 ])
 
 sprite_start_pos=(-2,-1)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 2
@@ -46,7 +46,7 @@ assert_val=np.array([
     [11,12,13]
 ])
 sprite_start_pos=(3,-1)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 3
@@ -54,7 +54,7 @@ assert_val=np.array([
     []
 ])
 sprite_start_pos=(-5,4)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 
@@ -66,7 +66,7 @@ assert_val=np.array([
     [11,12,13]
 ])
 sprite_start_pos=(1,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 
@@ -78,7 +78,7 @@ assert_val=np.array([
     [11,12,13]
 ])
 sprite_start_pos=(5,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 6
@@ -86,7 +86,7 @@ assert_val=np.array([
     []
 ])
 sprite_start_pos=(10,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 7
@@ -97,7 +97,7 @@ assert_val=np.array([
     [11,12,13]
 ])
 sprite_start_pos=(0,7)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 8
@@ -107,7 +107,7 @@ assert_val=np.array([
     [7,8]
 ])
 sprite_start_pos=(6,9)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 
@@ -116,7 +116,7 @@ assert_val=np.array([
     [3]
 ])
 sprite_start_pos=(-2,11)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 10
@@ -124,7 +124,7 @@ assert_val=np.array([
     []
 ])
 sprite_start_pos=(3,12)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 # assert val 11
@@ -132,7 +132,7 @@ assert_val=np.array([
     []
 ])
 sprite_start_pos=(2,16)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
 
 
 data=PixelArray(np.array([[]]))

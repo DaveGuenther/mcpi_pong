@@ -121,7 +121,7 @@ class Screen:
         sprite:             PixelArray      This can be any size pixel array (including 1x1)
         sprite_start_pos:   tuple           this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
         """
-        clipped_object = self.__clipper.clip_object_with_screen_edges(sprite, sprite_start_pos)
+        clipped_object = self.__clipper.clipObjectWithScreenEdges(sprite, sprite_start_pos)
         #draw front page
         for x in range(clipped_object.getWidth()):
             for y in range(clipped_object.getHeight()):
@@ -140,7 +140,7 @@ class Clipper:
     def __init__(self,my_screen:[Screen]):
         self.my_screen=my_screen[0]
 
-    def clip_sprite_with_single_edge(self,this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
+    def clipSpriteWithSingleEdge(self,this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
         """
         sprite:                 PixelArray    This is a 2d array of pixels to render
         sprite_start_pos:       tuple         this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
@@ -210,7 +210,7 @@ class Clipper:
         else:
             return (this_sprite, (0,0))
     
-    def clip_object_with_screen_edges(self, sprite, sprite_start_pos):
+    def clipObjectWithScreenEdges(self, sprite, sprite_start_pos):
         """
         This function will take a sprite and start position of the sprite on the vitrual page and clip it with all 4 screen edges, returning at the end a new clipped sprite and start position that will be drawn against the screen.
         sprite:             PixelArray      sprite to be clipped with the screen edges
@@ -237,7 +237,7 @@ class Clipper:
         #clip sprite with each edge
         clipped_sprite=sprite
         for point, normal in zip(edge_points, edge_normals):
-            clipped_sprite, sprite_start_pos = self.clip_sprite_with_single_edge(clipped_sprite, sprite_start_pos, point, normal)
+            clipped_sprite, sprite_start_pos = self.clipSpriteWithSingleEdge(clipped_sprite, sprite_start_pos, point, normal)
         
         return (clipped_sprite, sprite_start_pos)
             
@@ -355,3 +355,11 @@ class PixelArray:
     def toString(self):
         print(self.data.T)
 
+class Painter:
+
+    def __init__(self,my_screen:[Screen]):
+        self.my_screen=my_screen[0]
+    
+    def paintSprite(self):
+        pass
+    
