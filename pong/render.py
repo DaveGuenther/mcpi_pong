@@ -356,10 +356,17 @@ class PixelArray:
         print(self.data.T)
 
 class Painter:
+    """
+    This class accepts a Screen object, creates a Clipper object, and then manages the application of sprites through the clipper onto the screen.
+    """
 
     def __init__(self,my_screen:[Screen]):
-        self.my_screen=my_screen[0]
+        self.__my_screen=my_screen[0]
+        self.__clipper=Clipper(self.__my_screen) 
     
     def paintSprite(self):
+        """
+        This method takes a 
+        """
         pass
-    
+
