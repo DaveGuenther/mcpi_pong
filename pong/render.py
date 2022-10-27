@@ -152,10 +152,12 @@ class Clipper:
         screen_edge:            tuple         this is a 2d coordinate of a point that exists on the edge
         screen_edge_normal_vec: tuple         this is a 2d coordinate that represents the unit vector of the normal of the edge line  (e.g. (1,0)
         
-        returns a new PixelArray that has been reshaped after clipped with edge
+        returns a tuple (PixelArray, tuple): 
+            - The PixelArray represents the clipped sprite with the screen edge
+            - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)
         """
         new_sprite_start_pos=sprite_start_pos
-        if screen_edge_normal_vec[1]!=0: #clipping sprite with either bottom or top edge of screen
+        if (screen_edge_normal_vec[1]!=0)&(this_sprite.getSize()>0): #clipping rows of sprite with either bottom or top edge of screen
             elements_not_clipped=np.array([], dtype=bool)
             for y in range(this_sprite.getHeight()):
                 row = screen_edge[1]+screen_edge_normal_vec[1]*(sprite_start_pos[1]+y) #determines if the row of the sprite falls inside or outside clipped edge
@@ -164,28 +166,44 @@ class Clipper:
             
             #offset start coordinate of sprite if clipping with plane requires it
             amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
-            if (amount_to_offset>0)&(elements_not_clipped[0]==False):
+            if (
+                (amount_to_offset>0)&
+                (amount_to_offset!=this_sprite.getHeight())&
+                (elements_not_clipped[0]==False)):
                 new_sprite_start_pos = (
                     new_sprite_start_pos[0],
                     new_sprite_start_pos[1]-(-1*screen_edge_normal_vec[1]*(amount_to_offset))
                 )
-
+            elif (amount_to_offset==this_sprite.getHeight()): #all columns are clipped and nothing should be shown
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[1],
+                    0
+                )
 
             if np.all((elements_not_clipped==True)):
                 return (this_sprite, sprite_start_pos) # nothing was clipped
             else:
-                return (this_sprite.filter(elements_not_clipped,1), new_sprite_start_pos)   
+                return (this_sprite.filter(elements_not_clipped,0), new_sprite_start_pos)   # clipping rows
                     
-        elif screen_edge_normal_vec[0]!=0: # clipping sprite with either left or right edge of screen
+        elif (screen_edge_normal_vec[0]!=0)&(this_sprite.getSize()>0): # clipping columns of sprite with either left or right edge of screen
             elements_not_clipped=np.array([], dtype=bool)
             for x in range(this_sprite.getWidth()):
                 column = screen_edge[0]+screen_edge_normal_vec[0]*(sprite_start_pos[0]+x) #determines if the column of the sprite falls inside or outside clipped edge
                 elements_not_clipped = np.append(elements_not_clipped, True) if column>=0 else np.append(elements_not_clipped,False)
 
             amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
-            if (amount_to_offset>0)&(elements_not_clipped[0]==False):
+            if (
+                (amount_to_offset>0)&
+                (amount_to_offset!=this_sprite.getWidth())&
+                (elements_not_clipped[0]==False)
+                ):
                 new_sprite_start_pos = (
                     new_sprite_start_pos[0]-(-1*screen_edge_normal_vec[0]*(amount_to_offset)),
+                    new_sprite_start_pos[1]
+                )
+            elif (amount_to_offset==this_sprite.getWidth()): #all columns are clipped and nothing should be shown
+                new_sprite_start_pos = (
+                    0,
                     new_sprite_start_pos[1]
                 )
 
@@ -193,18 +211,25 @@ class Clipper:
             if np.all((elements_not_clipped==True)):
                 return (this_sprite, sprite_start_pos) # nothing was clipped
             else:
-                return (this_sprite.filter(elements_not_clipped,0), new_sprite_start_pos)
-        
+                return (this_sprite.filter(elements_not_clipped,1), new_sprite_start_pos) # clipping columns
+        else:
+            return (this_sprite, (0,0))
     
     def clip_object_with_screen_edges(self, sprite, sprite_start_pos):
         """
-        This function will take a sprite and clipt it with all 4 screen edges, returning at the end a new clipped sprite that will be drawn against the screen.
+        This function will take a sprite and start position of the sprite on the vitrual page and clip it with all 4 screen edges, returning at the end a new clipped sprite and start position that will be drawn against the screen.
+        sprite:             PixelArray      sprite to be clipped with the screen edges
+        sprite_start_pos:   tuple           this is a coordinate representing the top left corner of the sprite
+
+        returns a tuple (PixelArray, tuple)
+            - The PixelArray represents the clipped sprite with the screen edge
+            - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)        
         """
         edge_points = [
-            (0,self.pixel_array.getHeight()-1),     # bottom
+            (0,self.my_screen.getHeight()-1),     # bottom
             (0,0),                                  # left
             (0,0),                                  # top
-            (self.pixel_array.getWidth()-1,0)       # right
+            (self.my_screen.getWidth()-1,0)       # right
         ]
         
         edge_normals = [
@@ -215,11 +240,11 @@ class Clipper:
         ]
         
         #clip sprite with each edge
-        clipped_sprite=sprite.copy()
+        clipped_sprite=sprite
         for point, normal in zip(edge_points, edge_normals):
-            clipped_sprite = self.clip_sprite_with_single_edge(clipped_sprite, point, normal)
+            clipped_sprite, sprite_start_pos = self.clip_sprite_with_single_edge(clipped_sprite, sprite_start_pos, point, normal)
         
-        return clipped_sprite
+        return (clipped_sprite, sprite_start_pos)
             
 
 class PixelArray:
@@ -262,7 +287,7 @@ class PixelArray:
     @classmethod
     def fromDimensions(cls, rows, columns):
         data = np.zeros((columns,rows),dtype=int)
-        return cls(data, False)
+        return cls(data, True)
     
     
     def getPoint(self, x, y):
@@ -280,19 +305,22 @@ class PixelArray:
         
         returns a new PixelArray filtered based on boolean element-wise index
         """
-        if np.all((indices==True)):
+        if np.all((indices==True)): # none of sprite is clipped
             return self
-        else:
+        elif np.all((indices==False)): # whole sprite is clipped
+            empty_array=np.array([])
+            return PixelArray(my_array=empty_array,transpose=False)
+        else: # some part of sprite is clipped
             if axis==0: # indexing rows
-                this_arr_index =np.tile(indices,(self.getHeight(),1))
+                this_arr_index =np.tile(indices,(self.getWidth(),1))
                 this_arr=self.data[this_arr_index]
-                this_arr = this_arr.reshape(self.getHeight(),int(len(this_arr)/self.getHeight()))
+                this_arr = this_arr.reshape(self.getWidth(),int(len(this_arr)/self.getWidth()))
                 if this_arr.ndim==1: this_arr=np.array([this_arr])
                 return PixelArray(my_array=this_arr,transpose=False)
             elif axis==1: # indexing columns
-                this_arr_index = np.tile(indices,(self.getWidth(),1)).T
+                this_arr_index = np.tile(indices,(self.getHeight(),1)).T
                 this_arr=self.data[this_arr_index]
-                this_arr = this_arr.reshape(int(len(this_arr)/self.getWidth()),self.getWidth())
+                this_arr = this_arr.reshape(int(len(this_arr)/self.getHeight()),self.getHeight())
                 if this_arr.ndim==1: this_arr=np.array([this_arr])
                 return PixelArray(my_array=this_arr,transpose=False)
             
@@ -301,13 +329,16 @@ class PixelArray:
         """
         returns the width of the PixelArray
         """
-        return self.data.shape[1]
+        return self.data.shape[0]
 
     def getHeight(self):
         """
         returns the height of the PixelArray
         """
-        return self.data.shape[0]
+        return self.data.shape[1]
+
+    def getSize(self):
+        return self.data.size
 
     def setPoint(self, x, y, value):
         """

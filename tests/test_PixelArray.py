@@ -4,7 +4,7 @@ from pong.render import PixelArray
 
 
 class TestPixelArray(unittest.TestCase):
-    def test_2x2array(self):
+    def test_3x4array(self):
         data = PixelArray.fromDimensions(3, 4)
         assert_val=np.array(
             [
@@ -14,7 +14,7 @@ class TestPixelArray(unittest.TestCase):
                 [0,0,0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val), f"2D Array with 3 rows and 4 columns failed")
+        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val), f"2D Array with 3 rows and 4 columns failed")
 
     def test_4x1array(self):
         data = PixelArray.fromDimensions(4,1)
@@ -23,7 +23,7 @@ class TestPixelArray(unittest.TestCase):
                 [0,0,0,0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
 
     def test_1x4array(self):
         data = PixelArray.fromDimensions(1, 4)
@@ -35,14 +35,14 @@ class TestPixelArray(unittest.TestCase):
                 [0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
 
     def test_0x1array(self):
         data = PixelArray.fromDimensions(0, 1)
         assert_val=np.array(
             [[]]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
 
     def test_setPoint(self):
         data = PixelArray.fromDimensions(3, 3)
