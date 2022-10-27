@@ -364,9 +364,13 @@ class Painter:
         self.__my_screen=my_screen[0]
         self.__clipper=Clipper(self.__my_screen) 
     
-    def paintSprite(self):
+    def paintSprite(self, my_sprite, sprite_pos):
         """
-        This method takes a 
+        This method takes a sprite object, passes it through the Clipper class and then finally applies it to the Screen's active virtual page
+        my_sprite:          PixelArray      This is the sprite object to paint
+        sprite_pos:         tuple           This is the top left coordinate of the sprite object in Screen space
+        
         """
-        pass
-
+        
+        my_clipped_sprite, clipped_sprite_pos = self.__clipper.clipObjectWithScreenEdges(my_sprite, sprite_pos)
+        self.__my_screen.
