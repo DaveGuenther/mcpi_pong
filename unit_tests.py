@@ -1,54 +1,138 @@
 import unittest
 import numpy as np
-from pong.utility import PixelArray
+import pickle
+from pong import utility
+from mcpi.minecraft import Minecraft
 from pong.render import Color
-
-data = PixelArray.fromDimensions(3, 4)
-other_data = np.array(
-    [
-        [0,0,0],
-        [0,1,0],
-        [0,0,0]
-    ]
-)
-more_other_data= np.array(
-    [
-        [0,0,0],
-        [0,2,0],
-        [0,0,0]
-    ]
-)
+from pong.render import Screen
+from pong.render import PixelArray
+from pong.render import Clipper
 
 
-print(other_data-more_other_data)
-a=Color.get(0)
+my_pickle = open( "server.pkl", "rb" )
+server_ip, server_port = pickle.load(my_pickle)
+my_pickle.close()
 
-b=(35,15)
-assert a==b,f"not equal"
+mc = Minecraft.create(server_ip,server_port)
+top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+
+this_screen = Screen([mc],top_left_screen_coord,8,12)
+my_clipper = Clipper([this_screen])        
+# Create Sprite
+my_sprite_array=np.array([
+    [1,2,3],
+    [4,5,6],
+    [7,8,10],
+    [11,12,13]
+])
+
+this_sprite = PixelArray(my_sprite_array)
+
+# assert val 1
+assert_val=np.array([
+    [6],
+    [10],
+    [13]
+])
+
+sprite_start_pos=(-2,-1)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
 
 
-reg= np.array(
-    [
-        [1,2,3],
-        [4,5,6],
-        [7,8,9],
-        [0,0,0]
-    ]
-)
-x = np.array([[1,2,3]])
-flip = reg.T
+# assert val 2
+assert_val=np.array([
+    [4,5,6],
+    [7,8,10],
+    [11,12,13]
+])
+sprite_start_pos=(3,-1)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
 
-index = np.array([True, True, False])
 
-new_index = np.tile(index,(4,1))
-print(new_index)
+# assert val 3
+assert_val=np.array([
+    []
+])
+sprite_start_pos=(-5,4)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
 
-a = PixelArray(reg,True)
-print(a.toString())
-b = a.filter(np.array([False, True, True, False]), 0)
-print(b.toString())
 
-c= PixelArray(np.array([[0,1,2,3]]),True)
-print(c.toString())
-d = c.filter([True, True, True, False],1)
-print(d.toString())
+
+# assert val 4
+assert_val=np.array([
+    [1,2,3],
+    [4,5,6],
+    [7,8,10],
+    [11,12,13]
+])
+sprite_start_pos=(1,3)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+
+# assert val 5
+assert_val=np.array([
+    [1,2,3],
+    [4,5,6],
+    [7,8,10],
+    [11,12,13]
+])
+sprite_start_pos=(5,3)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+# assert val 6
+assert_val=np.array([
+    []
+])
+sprite_start_pos=(10,3)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+# assert val 7
+assert_val=np.array([
+    [1,2,3],
+    [4,5,6],
+    [7,8,10],
+    [11,12,13]
+])
+sprite_start_pos=(0,7)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+# assert val 8
+assert_val=np.array([
+    [1,2],
+    [4,5],
+    [7,8]
+])
+sprite_start_pos=(6,9)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+
+# assert val 9
+assert_val=np.array([
+    [3]
+])
+sprite_start_pos=(-2,11)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+# assert val 10
+assert_val=np.array([
+    []
+])
+sprite_start_pos=(3,12)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+# assert val 11
+assert_val=np.array([
+    []
+])
+sprite_start_pos=(2,16)
+clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
+
+
+print("Hello Minecraft!")

@@ -1,6 +1,5 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
-from pong.utility import PixelArray
 import numpy as np
 
 
@@ -72,62 +71,165 @@ class Screen:
 
     changes = np.array([])
 
-    def __init__(self, mc:Minecraft, start_pos:vec3.Vec3, width, height):
-        self.start_position = start_pos
-        self.width=width
-        self.height=height
-        self.current_screen_array=PixelArray(self.width,self.height)
-        self.new_screen_array = PixelArray(self.width,self.height)
-        self.mc_connection = mc
-        self._clipper=Clipper(self)
-        cls
-
-    def cls(self):
-        color=0
-        for x in range(self.width):
-            for y in range(self.height):
-                self.mc_connection.setBlock(self.start_position.x,self.start_position.y-y,self.start_position.z+x,Color.pixel_color[color[0]], self.pixel_color[color[1]])        
+    def __init__(self, mc:[Minecraft], start_pos:vec3.Vec3, width, height):
+        """
+        mc:             [mcpi.minecraft.Minecraft]  This is an mcpi object wrapped into an array so that it can be mutable (the same mcpi object declared in your program is the same one used in this class, not a copy).
+        start_pos:      vec3.Vec3                   This represents the x,y,z coordinates of the top left corner of the screen
+        width:          int                         Width in pixels of the screen
+        height:         int                         Height in pixels of the screen
+        """
+        self.__start_position = start_pos
+        self.__width=width
+        self.__height=height
+        self.__front_virtual_page=PixelArray.fromDimensions(self.__width,self.__height)
+        self.__back_virtual_page = PixelArray.fromDimensions(self.__width,self.__height)
+        self.mc_connection = mc[0]
+        self.__clipper=Clipper([self]) 
         
 
-    def draw(self):
-        print('Drawing')
+    def fill(self, color):
+        """
+        This function fills the back virtual page with whatever color is provided.
+
+        color:      tuple   This is a value provided from Color.get() function to render a specific color of wool, or nothing at all.
+        """
+        for x in range(self.width):
+            for y in range(self.height):
+                self.__back_virtual_page.setPoint(x, y, color)        
+        
+    def flipVirtualPage(self):
+        """
+        This function will take whatever is on the back virtual page and flip it to the front, drawing the pixels on the front page to the as blocks in the minecraft world.
+        This is the only function that directly sets blocks in the minecraft world 2D screen in the pong library
+        """
+
+        # swap front/back pages
+        temp_page = self._back_virtual_page
+        self.__back_virtual_page = self._front_virtual_page
+        self.__front_virtual_page=temp_page
+
+        #draw front page
+        for x in range(self.__width):
+            for y in range(self.__height):
+                this_color = Color.get(self.__front_virtual_page.getPoint(x, y))
+                if this_color!=(0,0): # skip if pixel is transparent
+                    self.mc_connection.setBlock(
+                        self.__start_position.x,
+                        self.__start_position.y-y,
+                        self.__start_position.z+x,
+                        this_color)
+
+    def drawObject(self, sprite, sprite_start_pos):
+        """
+        This function draws a sprite to the back virtual page.
+
+        sprite:             PixelArray      This can be any size pixel array (including 1x1)
+        sprite_start_pos:   tuple           this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
+        """
+        clipped_object = self.__clipper.clip_object_with_screen_edges(sprite, sprite_start_pos)
+        #draw front page
+        for x in range(clipped_object.getWidth()):
+            for y in range(clipped_object.getHeight()):
+                this_color = Color.get(clipped_object.getPoint(x,y))
+                if this_color!=(0,0): # skip if pixel is transparent
+                    self.__back_virtual_page.setPoint(x, y, this_color)
+    
+    def getWidth(self):
+        return self.__width
+
+    def getHeight(self):
+        return self.__height
         
 class Clipper:
     
-    def __init__(self,my_screen:Screen):
-        self.my_screen=my_screen
+    def __init__(self,my_screen:[Screen]):
+        self.my_screen=my_screen[0]
 
-    def clip_object_with_edge(self,sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
+    def clip_sprite_with_single_edge(self,this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
         """
-        sprite:                 (PixelArray)    This is a 2d array of pixels to render
-        sprite_start_pos:       (tuple)         this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
-        screen_edge:            (tuple)         this is a 2d coordinate of a point that exists on the edge
-        screen_edge_normal_vec: (tuple)         this is a 2d coordinate that represents the unit vector of the normal of the edge line  (e.g. (1,0)
+        sprite:                 PixelArray    This is a 2d array of pixels to render
+        sprite_start_pos:       tuple         this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
+        screen_edge:            tuple         this is a 2d coordinate of a point that exists on the edge
+        screen_edge_normal_vec: tuple         this is a 2d coordinate that represents the unit vector of the normal of the edge line  (e.g. (1,0)
         
-        returns a new PixelArray that has been reshaped after clipped with edge
+        returns a tuple (PixelArray, tuple): 
+            - The PixelArray represents the clipped sprite with the screen edge
+            - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)
         """
-        if normal_vec[1]!=0: #clipping sprite with either bottom or top edge of screen
-            rows_not_clipped=np.array([])
-            for y in range(sprite.getHeight()):
-                row = screen_edge[1]+screen_edge_normal[1]*(sprite_start_pos[1]+y)
-                np.append(True) if row>=0 else np.append(False)
-            if np.all((rows_not_clipped==True)):
-                return sprite # nothing was clipped
+        new_sprite_start_pos=sprite_start_pos
+        if (screen_edge_normal_vec[1]!=0)&(this_sprite.getSize()>0): #clipping rows of sprite with either bottom or top edge of screen
+            elements_not_clipped=np.array([], dtype=bool)
+            for y in range(this_sprite.getHeight()):
+                row = screen_edge[1]+screen_edge_normal_vec[1]*(sprite_start_pos[1]+y) #determines if the row of the sprite falls inside or outside clipped edge
+                
+                elements_not_clipped = np.append(elements_not_clipped, True) if row>=0 else np.append(elements_not_clipped,False)
+            
+            #offset start coordinate of sprite if clipping with plane requires it
+            amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
+            if (
+                (amount_to_offset>0)&
+                (amount_to_offset!=this_sprite.getHeight())&
+                (elements_not_clipped[0]==False)):
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[0],
+                    new_sprite_start_pos[1]-(-1*screen_edge_normal_vec[1]*(amount_to_offset))
+                )
+            elif (amount_to_offset==this_sprite.getHeight()): #all columns are clipped and nothing should be shown
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[1],
+                    0
+                )
+
+            if np.all((elements_not_clipped==True)):
+                return (this_sprite, sprite_start_pos) # nothing was clipped
             else:
-                pass    
+                return (this_sprite.filter(elements_not_clipped,0), new_sprite_start_pos)   # clipping rows
                     
-        elif normal_vec[0]!=0: # clipping sprite with either left or right edge of screen
-            for x in range(sprite.getWidth()):
-                column = screen_edge[0]+screen_edge_normal[0]*(sprite_start_pos[0]+x)
+        elif (screen_edge_normal_vec[0]!=0)&(this_sprite.getSize()>0): # clipping columns of sprite with either left or right edge of screen
+            elements_not_clipped=np.array([], dtype=bool)
+            for x in range(this_sprite.getWidth()):
+                column = screen_edge[0]+screen_edge_normal_vec[0]*(sprite_start_pos[0]+x) #determines if the column of the sprite falls inside or outside clipped edge
+                elements_not_clipped = np.append(elements_not_clipped, True) if column>=0 else np.append(elements_not_clipped,False)
 
-        
+            amount_to_offset = len(elements_not_clipped)-elements_not_clipped.sum()
+            if (
+                (amount_to_offset>0)&
+                (amount_to_offset!=this_sprite.getWidth())&
+                (elements_not_clipped[0]==False)
+                ):
+                new_sprite_start_pos = (
+                    new_sprite_start_pos[0]-(-1*screen_edge_normal_vec[0]*(amount_to_offset)),
+                    new_sprite_start_pos[1]
+                )
+            elif (amount_to_offset==this_sprite.getWidth()): #all columns are clipped and nothing should be shown
+                new_sprite_start_pos = (
+                    0,
+                    new_sprite_start_pos[1]
+                )
+
+
+            if np.all((elements_not_clipped==True)):
+                return (this_sprite, sprite_start_pos) # nothing was clipped
+            else:
+                return (this_sprite.filter(elements_not_clipped,1), new_sprite_start_pos) # clipping columns
+        else:
+            return (this_sprite, (0,0))
     
-    def clip_object_with_screen(self, sprite):
+    def clip_object_with_screen_edges(self, sprite, sprite_start_pos):
+        """
+        This function will take a sprite and start position of the sprite on the vitrual page and clip it with all 4 screen edges, returning at the end a new clipped sprite and start position that will be drawn against the screen.
+        sprite:             PixelArray      sprite to be clipped with the screen edges
+        sprite_start_pos:   tuple           this is a coordinate representing the top left corner of the sprite
+
+        returns a tuple (PixelArray, tuple)
+            - The PixelArray represents the clipped sprite with the screen edge
+            - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)        
+        """
         edge_points = [
-            (0,self.pixel_array.getHeight()-1),     # bottom
+            (0,self.my_screen.getHeight()-1),     # bottom
             (0,0),                                  # left
             (0,0),                                  # top
-            (self.pixel_array.getWidth()-1,0)       # right
+            (self.my_screen.getWidth()-1,0)       # right
         ]
         
         edge_normals = [
@@ -137,19 +239,115 @@ class Clipper:
             (-1,0)                              # right
         ]
         
+        #clip sprite with each edge
+        clipped_sprite=sprite
         for point, normal in zip(edge_points, edge_normals):
-            self.clip_object_with_edge(sprite, point, normal)
+            clipped_sprite, sprite_start_pos = self.clip_sprite_with_single_edge(clipped_sprite, sprite_start_pos, point, normal)
+        
+        return (clipped_sprite, sprite_start_pos)
             
 
-        #clip with bottom edge
-        bottom_edge = (0,0)
-        left_normal = (1,0)
-        
-        #clip with left edge
+class PixelArray:
+    """
+    This class creates an manages a raster of pixels.  Each pixel spot holds an encoded color as shown below:
 
-        left_edge = (0,0)
-        left_normal = (1,0)
+    0=black wool
+    1=green wool
+    2=blue wool
+    3=red wool
+    4=white wool  
+    5=Magenta wool
+    6=Brown wool
+    7=Purple wool
+    8=Cyan wool
+    9=Transparent/do not draw
+    10=Grey wool
+    11=Pink wool
+    12=Lime wool
+    13=Yellow wool
+    14=Light Blue wool
+    15=Orange wool
+    16=Light Grey wool
+    """
+
+
+    def __init__(self, my_array, transpose=True):
+        """
+        Creates a new PixelArray from an existing array
+
+        my_array:   (numpy.ndarray)     1D or 2D array representing the pixelspace
+        transpose:  (boolean)           True if my_array is indexed with [row][col] (it needs to be flipped)
+                                        False if my_array is indexed with [col][row] (it gets copied as is)
+        """
+        if transpose:
+            self.data=np.swapaxes(my_array,0,1)
+        else:
+            self.data=my_array
         
-        #clip with top edge
+    @classmethod
+    def fromDimensions(cls, rows, columns):
+        data = np.zeros((columns,rows),dtype=int)
+        return cls(data, True)
+    
+    
+    def getPoint(self, x, y):
+        """
+        Goes to x,y location in PixelArray and gets color there.  Returns that color
+        """
+        return self.data[y][x]
+
+    def filter(self, indices, axis:int):
+        """
+        This function will return a new PixelArray that is filtered with specific rows or columns based on an array of boolean values for each row/column
+
+        indices:    (np.array)  1D array with boolean values for each element in the axis.  True will keep the row, False will drop it
+        axis:       (int)       This indicates the axis by which to apply the indices boolean array.  value must be either 0 or 1.  0=Rows, 1=columns.
         
-        #clip with right edge
+        returns a new PixelArray filtered based on boolean element-wise index
+        """
+        if np.all((indices==True)): # none of sprite is clipped
+            return self
+        elif np.all((indices==False)): # whole sprite is clipped
+            empty_array=np.array([])
+            return PixelArray(my_array=empty_array,transpose=False)
+        else: # some part of sprite is clipped
+            if axis==0: # indexing rows
+                this_arr_index =np.tile(indices,(self.getWidth(),1))
+                this_arr=self.data[this_arr_index]
+                this_arr = this_arr.reshape(self.getWidth(),int(len(this_arr)/self.getWidth()))
+                if this_arr.ndim==1: this_arr=np.array([this_arr])
+                return PixelArray(my_array=this_arr,transpose=False)
+            elif axis==1: # indexing columns
+                this_arr_index = np.tile(indices,(self.getHeight(),1)).T
+                this_arr=self.data[this_arr_index]
+                this_arr = this_arr.reshape(int(len(this_arr)/self.getHeight()),self.getHeight())
+                if this_arr.ndim==1: this_arr=np.array([this_arr])
+                return PixelArray(my_array=this_arr,transpose=False)
+            
+
+    def getWidth(self):
+        """
+        returns the width of the PixelArray
+        """
+        return self.data.shape[0]
+
+    def getHeight(self):
+        """
+        returns the height of the PixelArray
+        """
+        return self.data.shape[1]
+
+    def getSize(self):
+        return self.data.size
+
+    def setPoint(self, x, y, value):
+        """
+        Goes to x,y location in array and sets element to value.  Value should be an integer from 0-16
+        """
+        self.data[y][x]=int(value)
+
+    def fillArray(self, color_code):
+        self.data.fill(color_code)
+
+    def toString(self):
+        print(self.data.T)
