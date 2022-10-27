@@ -2,12 +2,7 @@ from mcpi.minecraft import Minecraft
 from mcpi import vec3
 import numpy as np
 
-
-class Renderable:
-    def __init__(self, this_array, x, y):
-        self.x = x
-        self.y= y
-        
+      
 class Color:
     """
     The Color class uses a Wool block (id=35), to represent the colors of the pixels.  According to the reference: 
@@ -279,7 +274,7 @@ class PixelArray:
         transpose:  (boolean)           True if my_array is indexed with [row][col] (it needs to be flipped)
                                         False if my_array is indexed with [col][row] (it gets copied as is)
         """
-        if transpose:
+        if (transpose)&(my_array.ndim>1):
             self.data=np.swapaxes(my_array,0,1)
         else:
             self.data=my_array
@@ -329,13 +324,21 @@ class PixelArray:
         """
         returns the width of the PixelArray
         """
-        return self.data.shape[0]
+        if self.data.size>0:
+            return self.data.shape[0]
+        else:
+            return 0
+
 
     def getHeight(self):
         """
         returns the height of the PixelArray
         """
-        return self.data.shape[1]
+        if self.data.size>0:
+            return self.data.shape[1]
+        else:
+            return 0
+
 
     def getSize(self):
         return self.data.size
@@ -351,3 +354,4 @@ class PixelArray:
 
     def toString(self):
         print(self.data.T)
+

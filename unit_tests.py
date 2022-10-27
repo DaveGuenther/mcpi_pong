@@ -135,4 +135,6 @@ sprite_start_pos=(2,16)
 clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
 
 
+data=PixelArray(np.array([[]]))
+
 print("Hello Minecraft!")

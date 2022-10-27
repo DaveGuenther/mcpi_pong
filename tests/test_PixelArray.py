@@ -76,13 +76,41 @@ class TestPixelArray(unittest.TestCase):
 
     def test_getWidth(self):
         data = PixelArray.fromDimensions(3, 1)
-
         self.assertEqual(data.getWidth(),3)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray.fromDimensions(3,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray(np.array([]))
+        self.assertEqual(data.getWidth(),0)        
+
+        data = PixelArray(np.array([[]]))
+        self.assertEqual(data.getWidth(),0)  
 
     def test_getHeight(self):
         data = PixelArray.fromDimensions(33, 100)
-
         self.assertEqual(data.getHeight(),100)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray.fromDimensions(3,0)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray.fromDimensions(0,3)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray(np.array([]))
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray(np.array([[]]))
+        self.assertEqual(data.getHeight(),0)  
 
 
     def test_fillArray(self):
