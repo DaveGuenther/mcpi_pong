@@ -182,7 +182,7 @@ assert_val=np.array(
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 3, 4, 5, 0, 0, 0],
         [0, 0, 6, 7, 8, 0, 0, 0],
-        [0, 0, 0,10,11, 0, 0, 0],
+        [0, 0, 9,10,11, 0, 0, 0],
         [0, 0,12,13,14, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -194,6 +194,8 @@ assert_val=np.array(
     ]
 )
 my_screen.drawObject(sprite,sprite_start_pos)
+data = my_screen.getBackVirtualPage()
+my_screen.removeUnchangedBlocksFromRedraw()
 data = my_screen.getBackVirtualPage()
 
 
