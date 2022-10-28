@@ -59,9 +59,11 @@ class Color:
         
 class Screen:
     """
-    Manages the Screen that we will draw on.  We can place pixels anywhere, but it will only draw on the screen dimensions that we have provided.
-    The screen has three virtual pages to help optimize drawing.  A current state, a new state, and a changes array to identify any pixel changes.  When moving
+    Manages the Screen that we will draw on.  Pixels must all fall within the x,y coordinates of the defined screen space.
+    The screen has two virtual pages to help optimize drawing.  A back page and a front page.  When moving
     from the current state to new state, we only adjust the pixels that have changed and nother else.  This way we limit the number of drawn blocks in Minecraft
+    
+    The term "Active" page, refers to the page that is active for drawing on.  This is the Back Page at all times.  The Front Page, while shown to the user is not available for drawing
     """
 
     changes = np.array([])
@@ -82,16 +84,25 @@ class Screen:
         self.__clipper=Clipper([self]) 
         
 
-    def fill(self, color):
+    def fill(self, color:int):
         """
         This function fills the back virtual page with whatever color is provided.
 
-        color:      tuple   This is a value provided from Color.get() function to render a specific color of wool, or nothing at all.
+        color:      int   This is a encoded color value from Color class.  It represents a specific color of wool, or nothing at all.
         """
-        for x in range(self.width):
-            for y in range(self.height):
+        for x in range(self.getWidth()):
+            for y in range(self.getHeight()):
                 self.__back_virtual_page.setPoint(x, y, color)        
         
+    def removeUnchangedBlocksFromRedraw(self):
+        """
+        This method should be called just before calling flipVirtualPage.  It does a pixel-for-pixel comparison of the back page and front page.  For each position that hasn't changed its Color value, the screen puts in its place on the back page a Color value of 9 (transparent).  This eliminates redrawing of pixels.
+        """
+        for x in range(self.getWidth()):
+            for y in range(self.getHeight()):
+                if self.__front_virtual_page.getPoint(x,y)==self.__back_virtual_page.getPoint(x, y):
+                    self.__back_virtual_page.setPoint(x, y, 9) # Set pixel to transparent
+
     def flipVirtualPage(self):
         """
         This function will take whatever is on the back virtual page and flip it to the front, drawing the pixels on the front page to the as blocks in the minecraft world.
@@ -99,41 +110,47 @@ class Screen:
         """
 
         # swap front/back pages
-        temp_page = self._back_virtual_page
-        self.__back_virtual_page = self._front_virtual_page
+        temp_page = self.__back_virtual_page
+        self.__back_virtual_page = self.__front_virtual_page
         self.__front_virtual_page=temp_page
 
         #draw front page
-        for x in range(self.__width):
-            for y in range(self.__height):
+        for x in range(self.getWidth()):
+            for y in range(self.getHeight()):
                 this_color = Color.get(self.__front_virtual_page.getPoint(x, y))
-                if this_color!=(0,0): # skip if pixel is transparent
-                    self.mc_connection.setBlock(
-                        self.__start_position.x,
-                        self.__start_position.y-y,
-                        self.__start_position.z+x,
-                        this_color)
+                #if this_color!=(0,0): # skip if pixel is transparent
+                #    self.mc_connection.setBlock(
+                #        self.__start_position.x,
+                #        self.__start_position.y-y,
+                #        self.__start_position.z+x,
+                #        this_color)
 
-    def drawObject(self, sprite, sprite_start_pos):
+    def drawObject(self, clipped_sprite, sprite_start_pos):
         """
         This function draws a sprite to the back virtual page.
 
         sprite:             PixelArray      This can be any size pixel array (including 1x1)
         sprite_start_pos:   tuple           this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
         """
-        clipped_object = self.__clipper.clipObjectWithScreenEdges(sprite, sprite_start_pos)
-        #draw front page
-        for x in range(clipped_object.getWidth()):
-            for y in range(clipped_object.getHeight()):
-                this_color = Color.get(clipped_object.getPoint(x,y))
-                if this_color!=(0,0): # skip if pixel is transparent
-                    self.__back_virtual_page.setPoint(x, y, this_color)
+        #clipped_object = self.__clipper.clipObjectWithScreenEdges(sprite, sprite_start_pos)
+        #draw on back (active) page
+        for x in range(clipped_sprite.getWidth()):
+            for y in range(clipped_sprite.getHeight()):
+                this_encoded_color = clipped_sprite.getPoint(x,y)
+                this_decoded_color = Color.get(this_encoded_color)
+                self.__back_virtual_page.setPoint(x+sprite_start_pos[0], y+sprite_start_pos[1], this_encoded_color)
     
     def getWidth(self):
         return self.__width
 
     def getHeight(self):
         return self.__height
+
+    def getBackVirtualPage(self):
+        return self.__back_virtual_page
+
+    def getFrontVirtualPage(self):
+        return self.__front_virtual_page   
         
 class Clipper:
     
@@ -275,9 +292,9 @@ class PixelArray:
                                         False if my_array is indexed with [col][row] (it gets copied as is)
         """
         if (transpose)&(my_array.ndim>1):
-            self.data=np.swapaxes(my_array,0,1)
+            self.__data=np.swapaxes(my_array,0,1)
         else:
-            self.data=my_array
+            self.__data=my_array
         
     @classmethod
     def fromDimensions(cls, rows, columns):
@@ -289,7 +306,7 @@ class PixelArray:
         """
         Goes to x,y location in PixelArray and gets color there.  Returns that color
         """
-        return self.data[y][x]
+        return self.__data[x][y]
 
     def filter(self, indices, axis:int):
         """
@@ -308,13 +325,13 @@ class PixelArray:
         else: # some part of sprite is clipped
             if axis==0: # indexing rows
                 this_arr_index =np.tile(indices,(self.getWidth(),1))
-                this_arr=self.data[this_arr_index]
+                this_arr=self.__data[this_arr_index]
                 this_arr = this_arr.reshape(self.getWidth(),int(len(this_arr)/self.getWidth()))
                 if this_arr.ndim==1: this_arr=np.array([this_arr])
                 return PixelArray(my_array=this_arr,transpose=False)
             elif axis==1: # indexing columns
                 this_arr_index = np.tile(indices,(self.getHeight(),1)).T
-                this_arr=self.data[this_arr_index]
+                this_arr=self.__data[this_arr_index]
                 this_arr = this_arr.reshape(int(len(this_arr)/self.getHeight()),self.getHeight())
                 if this_arr.ndim==1: this_arr=np.array([this_arr])
                 return PixelArray(my_array=this_arr,transpose=False)
@@ -324,8 +341,8 @@ class PixelArray:
         """
         returns the width of the PixelArray
         """
-        if self.data.size>0:
-            return self.data.shape[0]
+        if self.__data.size>0:
+            return self.__data.shape[0]
         else:
             return 0
 
@@ -334,26 +351,29 @@ class PixelArray:
         """
         returns the height of the PixelArray
         """
-        if self.data.size>0:
-            return self.data.shape[1]
+        if self.__data.size>0:
+            return self.__data.shape[1]
         else:
             return 0
 
 
     def getSize(self):
-        return self.data.size
+        return self.__data.size
 
-    def setPoint(self, x, y, value):
+    def setPoint(self, x:int, y:int, value:int):
         """
         Goes to x,y location in array and sets element to value.  Value should be an integer from 0-16
         """
-        self.data[y][x]=int(value)
+        self.__data[x][y]=int(value)
 
     def fillArray(self, color_code):
-        self.data.fill(color_code)
+        self.__data.fill(color_code)
+
+    def getData(self):
+        return self.__data
 
     def toString(self):
-        print(self.data.T)
+        print(self.__data.T)
 
 class Painter:
     """
@@ -373,4 +393,4 @@ class Painter:
         """
         
         my_clipped_sprite, clipped_sprite_pos = self.__clipper.clipObjectWithScreenEdges(my_sprite, sprite_pos)
-        self.__my_screen.
+        
