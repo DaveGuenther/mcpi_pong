@@ -13,20 +13,35 @@ class TestPainter(unittest.TestCase):
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
         top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
-        my_screen = Screen([mc],top_left_screen_coord,8,12)
-        this_painter = Painter
+        this_painter = Painter([mc], top_left_screen_coord, 8, 12)
 
-        self.assertIs(my_screen.mc_connection, mc, f"mcpi objects do not occupy same memory address")
-       
-
+        self.assertIsInstance(this_painter, Painter, f"Painter class failed to initialize")
 
     def test_paintSprite(self):
-        pass
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
+        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        this_painter = Painter([mc], top_left_screen_coord, 8,12)
+
+        this_painter.putPixel((3,4), 6)
+        ret_val = this_painter.getColorAt((3,4),1)
+
+        self.assertEqual(ret_val, 6,f"Pixel color values do not match")
 
 
     def test_fillCanvas(self):
-        pass
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
+        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        this_painter = Painter([mc], top_left_screen_coord, 8, 12)
 
+        this_painter.fillCanvas(7)
+        ret_val = this_painter.getColorAt((3,4),1)        
+        self.assertEqual(ret_val, 7)
 
 if __name__ == '__main__':
     unittest.main()

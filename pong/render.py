@@ -106,7 +106,8 @@ class PixelArray:
         """
         Goes to x,y location in PixelArray and gets color there.  Returns that color
         """
-        return self.__data[x][y]
+        ret_val = self.__data[x][y]
+        return ret_val
 
     def filter(self, indices, axis:int):
         """
@@ -270,6 +271,18 @@ class Screen:
 
     def getFrontVirtualPage(self):
         return self.__front_virtual_page   
+
+    def getColorAt(self, virtual_page:int, x:int, y:int):
+        """
+        This method extracts a color form the specified x/y location on the screen and returns the encoded color value.  Use virtual_page to specify the the virtual page to look at
+
+        x,y             int     This represents the x, y, location for the pixel that you wish to read the color
+        virtual_page    int     This value itdentifies the virtual page to read from.  0=front (rendered), 1=back (active)
+        """
+        if virtual_page==0:
+            return self.__front_virtual_page.getPoint(x, y)
+        elif virtual_page==1:
+            return self.__back_virtual_page.getPoint(x, y)
         
 class Clipper:
     
@@ -385,9 +398,9 @@ class Painter:
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
 
-    def __init__(self,mc:[Minecraft],start_screen_pos):
-        self.__my_screen=Screen([mc],start_screen_pos)
-        self.__clipper=Clipper(self.__my_screen) 
+    def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int):
+        self.__my_screen=Screen([mc],start_screen_pos,width,height)
+        self.__clipper=Clipper([self.__my_screen]) 
     
     def paintSprite(self, my_sprite, sprite_pos):
         """
@@ -399,6 +412,27 @@ class Painter:
         
         my_clipped_sprite, clipped_sprite_pos = self.__clipper.clipObjectWithScreenEdges(my_sprite, sprite_pos)
         self.__my_screen.drawObject(my_clipped_sprite, clipped_sprite_pos)
+
+    def putPixel(self, pixel_pos, color):
+        """
+        This method will place a pixel anywhere on the visible screen.
+
+        pixel_pos:          tuple           This is the x, y coordinate of the sprite object in screen space.  (x,y)
+        color:              int             This is the encoded color (0-1)
+        """
+        pixel_sprite = PixelArray.fromDimensions(1, 1)
+        pixel_sprite.fillArray(color)
+        
+        self.paintSprite(pixel_sprite, pixel_pos)
+
+    def getColorAt(self, pixel_pos, virtual_page=0):
+        """
+        This method extracts a color form the specified x/y location on the screen and returns the encoded color value.  Use virtual_page to specify the the virtual page to look at
+
+        pixel_pos       tuple   This represents the x, y, location for the pixel that you wish to read the color.  (x,y)
+        virtual_page    int     This value itdentifies the virtual page to read from.  0=front (rendered), 1=back (active)        
+        """
+        return self.__my_screen.getColorAt(virtual_page, pixel_pos[0], pixel_pos[1])
 
     def fillCanvas(self, color:int):
         self.__my_screen.fill(color)
