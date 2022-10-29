@@ -382,11 +382,11 @@ class Clipper:
 
 class Painter:
     """
-    This class accepts a Screen object, creates a Clipper object, and then manages the application of sprites through the clipper onto the screen.
+    This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
 
-    def __init__(self,my_screen:[Screen]):
-        self.__my_screen=my_screen[0]
+    def __init__(self,mc:[Minecraft],start_screen_pos):
+        self.__my_screen=Screen([mc],start_screen_pos)
         self.__clipper=Clipper(self.__my_screen) 
     
     def paintSprite(self, my_sprite, sprite_pos):
