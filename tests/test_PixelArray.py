@@ -14,7 +14,7 @@ class TestPixelArray(unittest.TestCase):
                 [0,0,0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val), f"2D Array with 3 rows and 4 columns failed")
+        self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val), f"2D Array with 3 rows and 4 columns failed")
 
     def test_4x1array(self):
         data = PixelArray.fromDimensions(4,1)
@@ -23,7 +23,7 @@ class TestPixelArray(unittest.TestCase):
                 [0,0,0,0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
 
     def test_1x4array(self):
         data = PixelArray.fromDimensions(1, 4)
@@ -35,14 +35,14 @@ class TestPixelArray(unittest.TestCase):
                 [0]
             ]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
 
     def test_0x1array(self):
         data = PixelArray.fromDimensions(0, 1)
         assert_val=np.array(
             [[]]
         )
-        self.assertIsNone(np.testing.assert_array_equal(data.data.T,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
 
     def test_setPoint(self):
         data = PixelArray.fromDimensions(3, 3)
@@ -58,31 +58,59 @@ class TestPixelArray(unittest.TestCase):
         data.setPoint(2,1,4)
         data.setPoint(1,2,3)
 
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
     
     def test_getPoint(self):
-        data = PixelArray.fromDimensions(3, 3)
-        assert_val=np.array(
+        data = PixelArray(np.array(
             [
-                [1,0,0],
-                [0,2,4],
-                [5,3,0]
+                [1,0,5],
+                [0,2,3],
+                [0,4,0]
             ]
-        )
-        data.data=assert_val
-        self.assertEqual(data.getPoint(0,2),5)
-        self.assertEqual(data.getPoint(2,1),4)
+        ))
+
+
+        self.assertEqual(data.getPoint(0,2),0)
+        self.assertEqual(data.getPoint(2,1),3)
         self.assertEqual(data.getPoint(0,0),1)
 
     def test_getWidth(self):
         data = PixelArray.fromDimensions(3, 1)
-
         self.assertEqual(data.getWidth(),3)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray.fromDimensions(3,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getWidth(),0)
+
+        data = PixelArray(np.array([]))
+        self.assertEqual(data.getWidth(),0)        
+
+        data = PixelArray(np.array([[]]))
+        self.assertEqual(data.getWidth(),0)  
 
     def test_getHeight(self):
         data = PixelArray.fromDimensions(33, 100)
-
         self.assertEqual(data.getHeight(),100)
+
+        data = PixelArray.fromDimensions(0,0)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray.fromDimensions(3,0)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray.fromDimensions(0,3)
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray(np.array([]))
+        self.assertEqual(data.getHeight(),0)
+
+        data = PixelArray(np.array([[]]))
+        self.assertEqual(data.getHeight(),0)  
 
 
     def test_fillArray(self):
@@ -98,7 +126,7 @@ class TestPixelArray(unittest.TestCase):
             ]
         )
 
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData(),assert_val))
 
     def test_create_PixelArray_from_Array(self):
         
@@ -113,7 +141,7 @@ class TestPixelArray(unittest.TestCase):
         
 
 
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val.T))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData(),assert_val.T))
 
     def test_filter(self):
         
@@ -133,7 +161,7 @@ class TestPixelArray(unittest.TestCase):
             [4, 4, 4]
         ])
 
-        self.assertIsNone(np.testing.assert_array_equal(data.data,assert_val.T))
+        self.assertIsNone(np.testing.assert_array_equal(data.getData(),assert_val.T))
 
 
 

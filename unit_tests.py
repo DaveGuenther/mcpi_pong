@@ -3,136 +3,35 @@ import numpy as np
 import pickle
 from pong import utility
 from mcpi.minecraft import Minecraft
-from pong.render import Color
-from pong.render import Screen
 from pong.render import PixelArray
-from pong.render import Clipper
+from pong.render import Painter
 
 
-my_pickle = open( "server.pkl", "rb" )
-server_ip, server_port = pickle.load(my_pickle)
-my_pickle.close()
-
+my_file= open( "server.pkl", "rb" ) 
+server_ip, server_port = pickle.load(my_file)
+my_file.close()
 mc = Minecraft.create(server_ip,server_port)
 top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+this_painter = Painter([mc], top_left_screen_coord, 16,32)
 
-this_screen = Screen([mc],top_left_screen_coord,8,12)
-my_clipper = Clipper([this_screen])        
-# Create Sprite
-my_sprite_array=np.array([
-    [1,2,3],
-    [4,5,6],
-    [7,8,10],
-    [11,12,13]
-])
+this_painter.putPixel((3,4), 6)
+ret_val = this_painter.getColorAt((3,4),1)
+this_painter.flipVirtualPage()
 
-this_sprite = PixelArray(my_sprite_array)
+my_sprite = PixelArray(np.array(
+    [
+        [16,16,16,16,16],
+        [16, 1,16, 1,16],
+        [16,16,10,16,16],
+        [16, 3,16, 3,16],
+        [16,16, 3,16,16]
+    ]
+))
 
-# assert val 1
-assert_val=np.array([
-    [6],
-    [10],
-    [13]
-])
-
-sprite_start_pos=(-2,-1)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 2
-assert_val=np.array([
-    [4,5,6],
-    [7,8,10],
-    [11,12,13]
-])
-sprite_start_pos=(3,-1)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 3
-assert_val=np.array([
-    []
-])
-sprite_start_pos=(-5,4)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-
-# assert val 4
-assert_val=np.array([
-    [1,2,3],
-    [4,5,6],
-    [7,8,10],
-    [11,12,13]
-])
-sprite_start_pos=(1,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-
-# assert val 5
-assert_val=np.array([
-    [1,2,3],
-    [4,5,6],
-    [7,8,10],
-    [11,12,13]
-])
-sprite_start_pos=(5,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 6
-assert_val=np.array([
-    []
-])
-sprite_start_pos=(10,3)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 7
-assert_val=np.array([
-    [1,2,3],
-    [4,5,6],
-    [7,8,10],
-    [11,12,13]
-])
-sprite_start_pos=(0,7)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 8
-assert_val=np.array([
-    [1,2],
-    [4,5],
-    [7,8]
-])
-sprite_start_pos=(6,9)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-
-# assert val 9
-assert_val=np.array([
-    [3]
-])
-sprite_start_pos=(-2,11)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 10
-assert_val=np.array([
-    []
-])
-sprite_start_pos=(3,12)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
-
-# assert val 11
-assert_val=np.array([
-    []
-])
-sprite_start_pos=(2,16)
-clipped_sprite, sprite_start_pos = my_clipper.clip_object_with_screen_edges(this_sprite, sprite_start_pos)
-
+this_painter.paintSprite(my_sprite, (2,2))
+ret_val = this_painter.getColorAt((4,7),1)
+this_painter.flipVirtualPage()
+this_painter.fillCanvas(0)
+this_painter.flipVirtualPage()
 
 print("Hello Minecraft!")
