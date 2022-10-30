@@ -136,7 +136,7 @@ class PixelArray:
                 this_arr = this_arr.reshape(int(len(this_arr)/self.getHeight()),self.getHeight())
                 if this_arr.ndim==1: this_arr=np.array([this_arr])
                 return PixelArray(my_array=this_arr,transpose=False)
-            
+
 
     def getWidth(self):
         """
@@ -238,12 +238,12 @@ class Screen:
         for x in range(self.getWidth()):
             for y in range(self.getHeight()):
                 this_color = Color.get(self.__front_virtual_page.getPoint(x, y))
-                #if this_color!=(0,0): # skip if pixel is transparent
-                #    self.mc_connection.setBlock(
-                #        self.__start_position.x,
-                #        self.__start_position.y-y,
-                #        self.__start_position.z+x,
-                #        this_color)
+                if this_color!=9: # skip if pixel is transparent (9=encoded transparent color)
+                    self.mc_connection.setBlock(
+                        self.__start_position.x,
+                        self.__start_position.y-y,
+                        self.__start_position.z+x,
+                        this_color)
 
     def drawObject(self, clipped_sprite, sprite_start_pos):
         """
@@ -291,6 +291,10 @@ class Clipper:
 
     def clipSpriteWithSingleEdge(self,this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec):
         """
+        This is the workhorse of the clipper class.  This method will clip a 2d sprite (note that a single pixel represented as a PixelArray is still a 2d sprite) with a single screen edge.  The 'edge' is defined by a point and a normal vector extruding from the edge.  The point must exist somewhere on the edge and the normal vector must point toward the center of the screen.  
+
+        This method is called by Clipper.clipObjectWithScreenEdges() four times, once for each edge.
+
         sprite:                 PixelArray    This is a 2d array of pixels to render
         sprite_start_pos:       tuple         this is the 2d x,y location on the screen that represents the upper left hand corner of the sprite
         screen_edge:            tuple         this is a 2d coordinate of a point that exists on the edge
@@ -300,6 +304,63 @@ class Clipper:
             - The PixelArray represents the clipped sprite with the screen edge
             - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)
         """
+        # If you are reading this, you've entered what I think is the most fun part of the graphics engine.  Welcome :)
+        #
+        #  Consider the following 2D sprite with each number representing a color:
+        #
+        #  234
+        #  567
+        #  212
+        #   
+        #  If you place it on the 18x7 screen below so that part of it would be drawn off screen, it will clip against each of those edges (one edge at a time)
+        #    +----------------+
+        #    |                |
+        #    |                |
+        #    |                |
+        #    |                |
+        #    |               23*
+        #    +---------------56*
+        #                    ***
+        #
+        #  This occurs through 4 calls to this function from Clipper.clipObjectWithScreenEdges():
+        #
+        # Call 1: Passing in bottom edge as argument.  The sprite is clipped against just the bottom edge and returned.  Bottom row is clipped
+        #
+        #                    234                 ^
+        #    ----------------567-------------    | Normal (0,-1) pointing up to center of screen
+        #                    ***           
+        # 
+        # Call 2: Passing in Left edge as argument.  The newly clipped sprite is then clipped against the left edge.  Nothing is clipped
+        # 
+        #    |
+        #    |               234
+        #    |               567       --> Normal (1,0) pointing right to center of screen
+        #    |                   
+        # 
+        #
+        # Call 3: Passing in Top edge as argument.  Nothing is clipped
+        #
+        #
+        #    --------------------------
+        #    
+        #        | Normal (0,1) pointing down to  center of screen
+        #        v 
+        #    
+        #                    234
+        #                    567
+        #    
+        # Call 4: Passing in Right edge as argument. Right edge is clipped and clipping is complete.  Final clipped sprite returned for screen rendering
+        # 
+        #                     |
+        #            <--      |
+        #     Normal (-1,0)   |      Normal is pointing left torward center of screen
+        #                    23*
+        #                    56*
+        #                     |
+        #                     |
+        #
+        #  Fun, right? 
+
         new_sprite_start_pos=sprite_start_pos
         if (screen_edge_normal_vec[1]!=0)&(this_sprite.getSize()>0): #clipping rows of sprite with either bottom or top edge of screen
             elements_not_clipped=np.array([], dtype=bool)
@@ -361,7 +422,10 @@ class Clipper:
     
     def clipObjectWithScreenEdges(self, sprite, sprite_start_pos):
         """
-        This function will take a sprite and start position of the sprite on the vitrual page and clip it with all 4 screen edges, returning at the end a new clipped sprite and start position that will be drawn against the screen.
+        This function will take a sprite and start position of the sprite on the vitrual page and clip it with all 4 screen edges, returning at the end a new clipped sprite and start position that can be drawn against the Screen without risk of running out of bounds.
+        
+        For more information about how clipping works, check out the source code for Clipper.clipObjectWithScreenEdges() and Clipper.clipSpriteWithSingleEdge() to see additional comments.
+
         sprite:             PixelArray      sprite to be clipped with the screen edges
         sprite_start_pos:   tuple           this is a coordinate representing the top left corner of the sprite
 
@@ -369,6 +433,9 @@ class Clipper:
             - The PixelArray represents the clipped sprite with the screen edge
             - The tuple is an adjusted sprite_start_pos coordinate (it's only adjusted if the top or left of the sprite were clipped)        
         """
+
+        # An edge can defined by a point that lies on the edge and a normal vector protruding from that edge.
+        # Each point below exists on the bottom, left, top, and right edge respectively
         edge_points = [
             (0,self.my_screen.getHeight()-1),     # bottom
             (0,0),                                  # left
@@ -376,14 +443,17 @@ class Clipper:
             (self.my_screen.getWidth()-1,0)       # right
         ]
         
+        # Each normal vector must point toward the center of the screen.
         edge_normals = [
             (0,-1),                             # bottom
             (1,0),                              # left
             (0,1),                              # top
             (-1,0)                              # right
         ]
+
+        ## we can zip these point/normal data points to use for calls to the Clipper.clipWithSingleEdge() method.
         
-        #clip sprite with each edge
+        # clip sprite with each edge
         clipped_sprite=sprite
         for point, normal in zip(edge_points, edge_normals):
             clipped_sprite, sprite_start_pos = self.clipSpriteWithSingleEdge(clipped_sprite, sprite_start_pos, point, normal)
@@ -399,7 +469,7 @@ class Painter:
     """
 
     def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int):
-        self.__my_screen=Screen([mc],start_screen_pos,width,height)
+        self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
     
     def paintSprite(self, my_sprite, sprite_pos):
@@ -436,5 +506,8 @@ class Painter:
 
     def fillCanvas(self, color:int):
         self.__my_screen.fill(color)
+    
+    def flipVirtualPage(self):
+        self.__my_screen.flipVirtualPage()
 
    
