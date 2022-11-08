@@ -1,4 +1,4 @@
-class CartisianPlane:
+class CartisianConverter:
     
     def __init__(self, screen):
         self.my_screen = screen[0]
@@ -29,16 +29,3 @@ class CartisianPlane:
         screen_x=(self.width/2)+(vec[0]*(self.screen_width/self.screen_height))
         screen_y=(screen.height/2)+vec[1]
         return (screen_x, screen_y)
-
-my_vec = (0,0)
-screen_width=16
-screen_height=32
-
-
-cart_x=(my_vec[0]-(screen_width/2))/(screen_width/screen_height)
-cart_y=(my_vec[1]-(screen_height/2))
-print (cart_x, cart_y)
-
-screen_x=(screen_width/2)+(my_vec[0]*(screen_width/screen_height))
-screen_y=(screen_height/2)+my_vec[1]
-print (screen_x, screen_y)
