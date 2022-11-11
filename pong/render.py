@@ -1,7 +1,7 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
 import numpy as np
-from cartesian_converter import CartisianConverter
+from .coordinate_tools import CoordinateTools
 
 
  
@@ -481,7 +481,7 @@ class Painter:
         """
         self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
-        self.__my_cartesian_converter=CartisianConverter(mc)
+        #self.__my_cartesian_converter=CoordinateTools([self.__my_screen])
         self.__renderer_type=type
 
     def paintSprite(self, my_sprite, sprite_pos):
