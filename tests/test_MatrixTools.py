@@ -71,9 +71,9 @@ class TestMatrixTools(unittest.TestCase):
 def testGetOrthogonalForceVector(self):
         my_vec = np.array([0.01,6.01])
         my_force_vec = MatrixTools.getOrthogonalForceVector(my_vec, 1)
-        my_vec = my_vec+my_force_vec
-        my_vec = MatrixTools.getUnitVector(my_vec)
-        print(my_vec)
+        self.assertAlmostEqual(my_force_vec[0], .999998)  
+        self.assertAlmostEqual(my_force_vec[1], .001666389)  
+
 
 if __name__ == '__main__':
     unittest.main()

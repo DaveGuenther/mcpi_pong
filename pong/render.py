@@ -464,7 +464,7 @@ class Clipper:
 
       
 
-class Painter:
+class Renderer:
     """
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
@@ -481,7 +481,7 @@ class Painter:
         """
         self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
-        #self.__my_cartesian_converter=CoordinateTools([self.__my_screen])
+        self.__my_cartesian_converter=CoordinateTools([self.__my_screen])
         self.__renderer_type=type
 
     def paintSprite(self, my_sprite, sprite_pos):
@@ -491,7 +491,7 @@ class Painter:
         sprite_pos:         tuple           This is the top left coordinate of the sprite object in Screen space
 
         """
-        
+        sprite_pos = self.__my_cartesian_converter.cartToScreen(sprite_pos) if self.__renderer_type=='cart' else sprite_pos
         my_clipped_sprite, clipped_sprite_pos = self.__clipper.clipObjectWithScreenEdges(my_sprite, sprite_pos)
         self.__my_screen.drawObject(my_clipped_sprite, clipped_sprite_pos)
 
@@ -505,7 +505,7 @@ class Painter:
         """
         pixel_sprite = PixelArray.fromDimensions(1, 1)
         pixel_sprite.fillArray(color)
-        
+        pixel_pos = self.__my_cartesian_converter.cartToScreen(pixel_pos) if self.__renderer_type=='cart' else pixel_pos
         self.paintSprite(pixel_sprite, pixel_pos)
 
     def getColorAt(self, pixel_pos, virtual_page=0):

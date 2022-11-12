@@ -4,7 +4,7 @@ import pickle
 from pong import utility
 from mcpi.minecraft import Minecraft
 from pong.render import PixelArray
-from pong.render import Painter
+from pong.render import Renderer
 
 
 my_file= open( "server.pkl", "rb" ) 
@@ -12,7 +12,7 @@ server_ip, server_port = pickle.load(my_file)
 my_file.close()
 mc = Minecraft.create(server_ip,server_port)
 top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
-this_painter = Painter([mc], top_left_screen_coord, 16,32)
+this_painter = Renderer([mc], top_left_screen_coord, 16,32)
 
 this_painter.putPixel((3,4), 6)
 ret_val = this_painter.getColorAt((3,4),1)
