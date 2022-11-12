@@ -1,6 +1,7 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
 import numpy as np
+from .coordinate_tools import CoordinateTools
 
 
  
@@ -463,25 +464,37 @@ class Clipper:
 
       
 
-class Painter:
+class Renderer:
     """
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
 
-    def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int):
+    def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int, type='screen'):
+        """
+        mc:                 [Minecraft]     Instance of mcpi.Minecraft wrapped in a list
+        start_screen_pos:   vec.Vec3d       This is the mcpi Vec3d of the top left pixel coordinate of the renderer
+        width:              int             Width in pixels of Renderer
+        height:             int             Height in pixels of Renderer 
+        type:               string          Possible values are one of ['screen','cart'].  
+                                                - 'screen' coordinates mean that (0,0) is at the top left of the renderer
+                                                - 'cart' coordinates mean that (0,0) is at the middle of the renderer        
+        """
         self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
-    
+        self.__my_cartesian_converter=CoordinateTools([self.__my_screen])
+        self.__renderer_type=type
+
     def paintSprite(self, my_sprite, sprite_pos):
         """
         This method takes a sprite object, passes it through the Clipper class and then finally applies it to the Screen's active virtual page
         my_sprite:          PixelArray      This is the sprite object to paint
         sprite_pos:         tuple           This is the top left coordinate of the sprite object in Screen space
-        
+
         """
-        
+        sprite_pos = self.__my_cartesian_converter.cartToScreen(sprite_pos) if self.__renderer_type=='cart' else sprite_pos
         my_clipped_sprite, clipped_sprite_pos = self.__clipper.clipObjectWithScreenEdges(my_sprite, sprite_pos)
         self.__my_screen.drawObject(my_clipped_sprite, clipped_sprite_pos)
+
 
     def putPixel(self, pixel_pos, color):
         """
@@ -492,7 +505,7 @@ class Painter:
         """
         pixel_sprite = PixelArray.fromDimensions(1, 1)
         pixel_sprite.fillArray(color)
-        
+        pixel_pos = self.__my_cartesian_converter.cartToScreen(pixel_pos) if self.__renderer_type=='cart' else pixel_pos
         self.paintSprite(pixel_sprite, pixel_pos)
 
     def getColorAt(self, pixel_pos, virtual_page=0):
