@@ -38,3 +38,25 @@ new_coords = my_coord_tools.cartToScreen(np.array([4,-2]))
 print(new_coords)
 new_coords = my_coord_tools.screenToCart(np.array([10,14]))
 print(new_coords)
+
+
+from pong.render import PixelArray
+import pong.game_object as GO
+
+my_sprite = PixelArray(np.array(
+    [
+        [1,0,5],
+        [0,2,3],
+        [0,4,0]
+    ]
+))
+my_PC_Minecraft_Controller=None
+my_base_object = GO.GameObject(np.array([0,1]), my_sprite)
+my_VirtualObject = GO.MovableVirtualGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1)
+my_InputGameObject = GO.MovablePhysicalGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1, my_PC_Minecraft_Controller)
+print(my_InputGameObject.getCartPos())
+print(my_InputGameObject.getDirection())
+print(my_InputGameObject.getForceVector())
+print(my_InputGameObject.getSpeed())
+print(my_InputGameObject.getSprite().toString())
+print(my_InputGameObject.getInput())
