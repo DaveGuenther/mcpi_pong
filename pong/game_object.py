@@ -61,16 +61,16 @@ class MovableVirtualGameObject(GameObject):
     def getDirection(self):
         return self._direction
 
-    def getForceVector(self):
+    def getLateralForceVector(self):
         return self._lateral_force_vector
     
-    def setSpeed(speed):
+    def setSpeed(self, speed):
         self._speed=speed
 
-    def setDirection(direction):
+    def setDirection(self, direction):
         self._direction=direction
 
-    def setForceVector(force_vector):
+    def setLateralForceVector(self, lateral_force_vector):
         self._lateral_force_vector=lateral_force_vector
 
     def collide(self):
