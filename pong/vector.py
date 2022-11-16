@@ -60,7 +60,7 @@ class Vector:
         self.__mcpi_vec=Vector.__world_to_mcpi(world_vec)
         self.__world_to_mcpi=world_vec
 
-    def from_mcpi_Vec(self, mcpi_vec):
+    def set_mcpi_Vec(self, mcpi_vec):
         self.__world_vec=Vector.__mcpi_to_world(mcpi_vec)
         self.__mcpi_vec=mcpi_vec
 
@@ -78,7 +78,8 @@ my_mcpi_vec = Vector.from_MCWorld_XYZ(
     my_world_vec.get_MCWorld_Vec().x, 
     my_world_vec.get_MCWorld_Vec().y, 
     my_world_vec.get_MCWorld_Vec().z)
-my_world_vec2 = Vector.from_mcpi_Vec(vec3.Vec3(1,1,1))
+my_vec = vec3.Vec3(1,1,1)
+my_world_vec2 = Vector.from_mcpi_Vec(my_vec)
 my_mcpi_vec2 = Vector.from_MCWorld_Vec(
     vec3.Vec3(
         my_world_vec.get_MCWorld_Vec().x, 
