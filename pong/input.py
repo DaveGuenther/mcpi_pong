@@ -1,5 +1,6 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
+from pong.vector import MCVector
 import abc
 
 class InputInterface(abc.ABC):
@@ -46,8 +47,8 @@ class TactileInput(InputInterface):
         """
         This takes a start and end MC World Coordinate (can be the same coordinage for tactile button) and stores input block range as start and end coordinates of input
         
-        start_coord:            MCWorldVec      Start coordinate (MC World Coordinate) for input block range
-        end_coord:              MCWorldVec      End coordinate (MC World Coordinate) for input block range
+        start_coord:            Vector      Start coordinate (MC World Coordinate) for input block range
+        end_coord:              Vector      End coordinate (MC World Coordinate) for input block range
         """
         #convert World to mcpi Vecs
         self._start_block = start_coord

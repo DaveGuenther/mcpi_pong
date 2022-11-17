@@ -2,7 +2,7 @@ from mcpi import vec3
 import numpy as np
 from . import constant
 
-class Vector:
+class MCVector:
     WORLD_TO_MCPI_OFFSET = constant.Constant(vec3.Vec3(-32,66,128))
 
     def __init__(self, world_vec3, mcpi_vec3):
@@ -12,39 +12,39 @@ class Vector:
     @classmethod
     def from_MCWorld_XYZ(cls, x,y,z):
         world_vec = vec3.Vec3(x,y,z)
-        mcpi_vec=Vector.__world_to_mcpi(Vector,world_vec)
+        mcpi_vec=MCVector.__world_to_mcpi(MCVector,world_vec)
         return cls(world_vec, mcpi_vec)
 
     @classmethod
     def from_mcpi_XYZ(cls, x,y,z):
         mcpi_vec = vec3.Vec3(x,y,z)
-        world_vec=Vector.__mcpi_to_world(Vector,mcpi_vec)
+        world_vec=MCVector.__mcpi_to_world(MCVector,mcpi_vec)
         return cls(world_vec, mcpi_vec)
 
     @classmethod
     def from_MCWorld_Vec(cls, world_vec):
-        mcpi_vec=Vector.__world_to_mcpi(Vector,world_vec)
+        mcpi_vec=MCVector.__world_to_mcpi(MCVector,world_vec)
         return cls(world_vec, mcpi_vec)
 
     @classmethod
     def from_mcpi_Vec(cls, mcpi_vec):
-        world_vec=Vector.__mcpi_to_world(Vector,mcpi_vec)
+        world_vec=MCVector.__mcpi_to_world(MCVector,mcpi_vec)
         return cls(world_vec, mcpi_vec)
 
     def __mcpi_to_world(self, mcpi_vec):
         world_vec = vec3.Vec3(
-            mcpi_vec.x+Vector.WORLD_TO_MCPI_OFFSET.get().x,
-            mcpi_vec.y+Vector.WORLD_TO_MCPI_OFFSET.get().y,
-            mcpi_vec.z+Vector.WORLD_TO_MCPI_OFFSET.get().z
+            mcpi_vec.x+MCVector.WORLD_TO_MCPI_OFFSET.get().x,
+            mcpi_vec.y+MCVector.WORLD_TO_MCPI_OFFSET.get().y,
+            mcpi_vec.z+MCVector.WORLD_TO_MCPI_OFFSET.get().z
         )
 
         return world_vec    
 
     def __world_to_mcpi(self, world_vec):
         mcpi_vec = vec3.Vec3(
-            world_vec.x-Vector.WORLD_TO_MCPI_OFFSET.get().x,
-            world_vec.y-Vector.WORLD_TO_MCPI_OFFSET.get().y,
-            world_vec.z-Vector.WORLD_TO_MCPI_OFFSET.get().z
+            world_vec.x-MCVector.WORLD_TO_MCPI_OFFSET.get().x,
+            world_vec.y-MCVector.WORLD_TO_MCPI_OFFSET.get().y,
+            world_vec.z-MCVector.WORLD_TO_MCPI_OFFSET.get().z
         )
         return mcpi_vec
     
