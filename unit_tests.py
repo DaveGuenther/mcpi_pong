@@ -5,6 +5,7 @@ from pong import utility
 from mcpi.minecraft import Minecraft
 from pong.render import PixelArray
 from pong.render import Renderer
+from mcpi import vec3
 
 
 my_file= open( "server.pkl", "rb" ) 
@@ -35,3 +36,8 @@ this_painter.fillCanvas(0)
 this_painter.flipVirtualPage()
 
 print("Hello Minecraft!")
+
+from pong import input
+from pong.vector import MCVector
+
+my_controller = input.TactileInput(MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 78, 39954)), MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 79, 39954)))
