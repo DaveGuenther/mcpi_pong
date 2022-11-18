@@ -50,6 +50,12 @@ class InputInterface(abc.ABC):
         """
         pass
 
+    def _vec_swap(vec_1, vec_2):
+        temp=vec_1
+        vec_1=self.vec_2
+        vec_2=temp
+        return (vec1, vec2)
+
     @abc.abstractclassmethod
     def getBlockRange():
         pass
@@ -76,7 +82,16 @@ class TactileInput(InputInterface):
         """
         Pads can be defined with arbitrary dimensions.  While we hope they exist as a single slick or a line of blocks, we will define them as planes with two corner blocks (start_block_ and end_block).  This function will build an np.array of MCVectors that contains all the blocks in the virtual pad, which is an xy plane.
         """
-        x_range = self._end_block.x - self._start_block.x
+        #re-order blocks so that start block is less or equal to end block
+        if self._end_block.x<self._start_block.x: 
+            self._start_block, self._end_block=self._vec_swap(self._start_block, self._end_block)
+        if self._end_block.y<self._start_block.y:
+            self._start_block, self._end_block=self._vec_swap(self._start_block, self._end_block)
+
+        x_range = self._end_block.x - self._start_block.x+1
+        y_range = self._end_block.y-self._start_block.y+1
+
+
 
     def getPressed():
         """
