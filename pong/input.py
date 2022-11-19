@@ -4,9 +4,13 @@ from .vector import MCVector
 import numpy as np
 import abc
 
+
+class MCVectorError(RuntimeError):
+    pass
+
 class InputInterface(abc.ABC):
     @abc.abstractclassmethod
-    def __init__(self,MC,start_coord, end_coord):
+    def __init__(self, MC:[Minecraft], start_coord:MCVector, end_coord:MCVector):
         """
         This takes a start and end MC World Coordinate (can be the same coordinage for tactile button) and stores input block range as start and end coordinates of input
         
@@ -16,50 +20,61 @@ class InputInterface(abc.ABC):
         """
         pass
 
-    @abc.abstractclassmethod
     def _constructVirtualPadFromEndBlocks(self):
         """
         Pads can be defined with arbitrary dimensions.  While we hope they exist as a single slick or a line of blocks, we will define them as planes with two corner blocks (start_block_ and end_block).  This function will build an np.array of MCVectors that contains all the blocks in the virtual pad, which is an xy plane.
         """
-        pass
+        #determine direction of block vector, number of blocks in block vector, using MCworldcoords
+        start_block = self._start_block.get_MCWorld_Vec()
+        end_block = self._end_block.get_MCWorld_Vec()
+        unit_vec = vec3.Vec3(end_block.x-start_block.x,end_block.y-start_block.y, end_block.z-start_block.z)
+        blockrange=0
+        increment=1
+        axis=vec3.Vec3(0,0,0)
+        if ((unit_vec.x==0)&(unit_vec.y==0)):
+            blockrange=unit_vec.z
+            increment=1 if blockrange>=0 else -1
+            axis.z = 1 # z axis
+        elif ((unit_vec.z==0)&(unit_vec.y==0)):
+            blockrange=unit_vec.x
+            increment=-1 if blockrange<0 else 1
+            axis.x = 1 #x axis
+        else:
+            raise MCVectorError('Failed to initialize a virtual controller surface from start and end coordiates.  Start and end vector y values must match.  Similarly one other axis in both vectors must match.')
+
+        #create array of vec3.Vec3 coordinates
+        self._block_array = np.empty(abs(blockrange)+1, dtype=object)
+        for offset,i in zip(range(0,blockrange+increment,increment),range(0,abs(blockrange)+1,1)):
+            self._block_array[i]=MCVector.from_MCWorld_Vec(vec3.Vec3(start_block.x+(offset*axis.x), start_block.y+(offset*axis.y), start_block.z+(offset*axis.z)))
 
     @abc.abstractclassmethod
-    def getPressed(self):
+    def getInputValue(self):
         """
         Get current state of the input controller (from private data)
         """
         pass
 
-    @abc.abstractclassmethod
     def scanInput(self):
         """
-        Get input data by querying MC
+        Get input data by querying MC and stores the input value (accessible by getInvputValue())
         """
         pass
 
-    @abc.abstractclassmethod
-    def getBlockRange(self):
-        pass
 
-    @abc.abstractclassmethod
-    def setBlockRange(start_coord, end_coord):
+    def setBlockRange(self, start_coord:MCVector, end_coord:MCVector):
         """
-        This takes a start and end MC World Coordinate (can be the same coordinage for tactile button) and stores input block range as start and end coordinates of input
+        This takes a start and end MC World Coordinate (can be the same coordinate for tactile button) and stores input block range as start and end coordinates of input
         
         start_coord:            MCWorldVec      Start coordinate (MC World Coordinate) for input block range
         end_coord:              MCWorldVec      End coordinate (MC World Coordinate) for input block range
         """
-        pass
+        self._start_block=start_coord
+        self._end_block=end_coord
+        self._constructVirtualPadFromEndBlocks()
 
-    def _vec_swap(self, vec_1, vec_2):
-        temp=vec_1
-        vec_1=vec_2
-        vec_2=temp
-        return (vec_1, vec_2)
-
-    @abc.abstractclassmethod
     def getBlockRange(self):
-        pass
+        """nparray of MCVectors is returned in a list -->  [nparray([MCVector, MCVector, ... , MCVector])]"""
+        return self._block_array
 
 
 class TactileInput(InputInterface):
@@ -73,38 +88,12 @@ class TactileInput(InputInterface):
         end_coord:              MCVector      End coordinate (MC World Coordinate) for input block range
         """
         #convert World to mcpi Vecs
-        self._start_block = start_coord.get_MCWorld_Vec()
-        self._end_block = end_coord.get_MCWorld_Vec()        
-        assert self._end_block.y==self._end_block.y, f"virtual input pad must be defined on a flat plane where start and end y block coordinates are the same"
+        self._start_block = start_coord
+        self._end_block = end_coord      
+        assert self._end_block.get_MCWorld_Vec().y==self._end_block.get_MCWorld_Vec().y, f"virtual input pad must be defined on a flat plane where start and end y block coordinates are the same"
         self._MC = MC[0]
         self._pressed=False
         self._constructVirtualPadFromEndBlocks()
-
-    def _constructVirtualPadFromEndBlocks(self):
-        """
-        Pads can be defined with arbitrary dimensions.  While we hope they exist as a single slick or a line of blocks, we will define them as planes with two corner blocks (start_block_ and end_block).  This function will build an np.array of MCVectors that contains all the blocks in the virtual pad, which is an xy plane.
-        """
-        #re-order blocks so that start block is less or equal to end block
-        if self._end_block.x<self._start_block.x: 
-            self._start_block, self._end_block=self._vec_swap(self._start_block, self._end_block)
-        if self._end_block.z<self._start_block.z:
-            self._start_block, self._end_block=self._vec_swap(self._start_block, self._end_block)
-
-
-        x_range = self._end_block.x - self._start_block.x+1
-        z_range = self._end_block.z-self._start_block.z+1
-        self._block_array = np.empty((x_range,z_range), dtype=object)
-        for x in range(x_range):
-            for z in range(z_range):
-                self._block_array[x][z]=vec3.Vec3(self._start_block.x+x, self._start_block.y, self._start_block.z+z)
-
-
-
-    def getPressed(self):
-        """
-        
-        """
-        pass
 
     def scanInput(self):
         player_ids = Minecraft(self._MC).getPlayerEntityIds()
@@ -113,19 +102,10 @@ class TactileInput(InputInterface):
             
         pass
 
-    def getBlockRange(self):
+    def getInputValue():
         pass
 
-    def setBlockRange(self, start_coord, end_coord):
-        """
-        This takes a start and end MC World Coordinate (can be the same coordinage for tactile button) and stores input block range as start and end coordinates of input
-        
-        start_coord:            MCWorldVec      Start coordinate (MC World Coordinate) for input block range
-        end_coord:              MCWorldVec      End coordinate (MC World Coordinate) for input block range
-        """
-        pass
 
-    def getBlockRange(self):
-        pass
+
 
 

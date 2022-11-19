@@ -40,5 +40,12 @@ print("Hello Minecraft!")
 from pong import input
 from pong.vector import MCVector
 
-my_controller = input.TactileInput([mc],MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 78, 39958)), MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 79, 39954)))
+myrange=-3
+for i in range(0,myrange,1 if myrange>=0 else -1):
+    print(i)
+
+start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39521, 79, 39958))
+end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 79, 39958))
+my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
 print("Hello")
+
