@@ -6,6 +6,7 @@ from mcpi.minecraft import Minecraft
 from pong.render import PixelArray
 from pong.render import Renderer
 from mcpi import vec3
+import time
 
 
 my_file= open( "server.pkl", "rb" ) 
@@ -44,8 +45,14 @@ myrange=-3
 for i in range(0,myrange,1 if myrange>=0 else -1):
     print(i)
 
-start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39521, 79, 39958))
-end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39522, 79, 39958))
-my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39955))
+end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39962))
+mc = Minecraft.create(server_ip,server_port)
+
+my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
+while 1:
+    my_controller.scanInput()
+    print(my_controller.getInputValue())
+    time.sleep(.1)
 print("Hello")
 

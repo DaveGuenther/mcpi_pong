@@ -70,5 +70,14 @@ class MCVector:
     def get_MCWorld_Vec(self):
         return self.__world_vec
 
+    def isEqual(self, other_MCVector):
+        """
+        Returns true if x, y, and z elements of both vectors match
+        """
+        return True if (
+            (self.get_MCWorld_Vec().x==other_MCVector.get_MCWorld_Vec().x)&
+            (self.get_MCWorld_Vec().y==other_MCVector.get_MCWorld_Vec().y)&
+            (self.get_MCWorld_Vec().z==other_MCVector.get_MCWorld_Vec().z)) else False
+
 
 
