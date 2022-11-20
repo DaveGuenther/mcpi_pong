@@ -2,6 +2,7 @@ import unittest
 from pong import utility
 from pong.vector import MCVector
 from mcpi import vec3
+from pong import input
 
 #used to create Faux MineCarft instance so we can test server communications in a black box without a running server
 class Minecraft:
@@ -88,6 +89,7 @@ class TestInput(unittest.TestCase):
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
         my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
         lerp_val = my_controller.scanInput()
+        print("HERE IS YOUR LERP VALUE: ", lerp_val)
         self.assertAlmostEqual(lerp_val, 0.0)
 
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39962)) # player at end of platform
@@ -101,3 +103,5 @@ class TestInput(unittest.TestCase):
         pass
 
 
+if __name__ == '__main__':
+    unittest.main()
