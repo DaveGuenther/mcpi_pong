@@ -143,6 +143,7 @@ class RangeInput(InputInterface):
                     end=(self._end_block.get_MCWorld_Vec().x*self._axis.x)+(self._end_block.get_MCWorld_Vec().y*self._axis.y)+(self._end_block.get_MCWorld_Vec().z*self._axis.z)
 
                     self.__range_input_val = lerp(start=start, end=end, pos=pos)
+                    break
 
     def getInputValue(self):
         return self.__range_input_val
