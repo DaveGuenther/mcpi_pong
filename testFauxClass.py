@@ -6,7 +6,7 @@ class Minecraft:
 
     class FauxEntity:
         def __init__(self):
-            self.player_pos = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39962))
+            self.player_pos = MCVector.from_MCWorld_Vec(vec3.Vec3(0,0,0))
 
         def getTilePos(self, player):
             
@@ -23,6 +23,7 @@ class Minecraft:
 start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39955))
 end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39962))
 mc = Minecraft()
+mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
 my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
 my_controller.scanInput()
 print(my_controller.getInputValue())

@@ -122,6 +122,7 @@ class RangeInput(InputInterface):
 
     def scanInput(self):
         #self.__pressed=False
+
         try:
             player_ids = self._MC.getPlayerEntityIds()
         except Exception as e: # happens if there are no players on the server
@@ -136,13 +137,14 @@ class RangeInput(InputInterface):
             # look through each block in array and see if player is standing on one of them
             for block in self._block_array:
                 if block.isEqual(tilepos):
-                    
-                    #take dot product with self._axis of start, end, and tilepos blocks in order to get floats that we can lerp into an input range between 0-1
-                    pos=(tilepos.get_MCWorld_Vec().x*self._axis.x)+(tilepos.get_MCWorld_Vec().y*self._axis.y)+(tilepos.get_MCWorld_Vec().z*self._axis.z)
-                    start=(self._start_block.get_MCWorld_Vec().x*self._axis.x)+(self._start_block.get_MCWorld_Vec().y*self._axis.y)+(self._start_block.get_MCWorld_Vec().z*self._axis.z)
-                    end=(self._end_block.get_MCWorld_Vec().x*self._axis.x)+(self._end_block.get_MCWorld_Vec().y*self._axis.y)+(self._end_block.get_MCWorld_Vec().z*self._axis.z)
 
-                    self.__range_input_val = lerp(start=start, end=end, pos=pos)
+                    #take dot product with self._axis of start, end, and tilepos blocks in order to get floats that we can lerp into an input range between 0-1
+                    block_pos=(tilepos.get_MCWorld_Vec().x*self._axis.x)+(tilepos.get_MCWorld_Vec().y*self._axis.y)+(tilepos.get_MCWorld_Vec().z*self._axis.z)
+                    block_start=(self._start_block.get_MCWorld_Vec().x*self._axis.x)+(self._start_block.get_MCWorld_Vec().y*self._axis.y)+(self._start_block.get_MCWorld_Vec().z*self._axis.z)
+                    block_end=(self._end_block.get_MCWorld_Vec().x*self._axis.x)+(self._end_block.get_MCWorld_Vec().y*self._axis.y)+(self._end_block.get_MCWorld_Vec().z*self._axis.z)
+
+                    self.__range_input_val = lerp(start=block_start, end=block_end, pos=block_pos)
+
                     break
 
     def getInputValue(self):

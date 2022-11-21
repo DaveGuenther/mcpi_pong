@@ -88,17 +88,19 @@ class TestInput(unittest.TestCase):
         mc = Minecraft()
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
         my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
-        lerp_val = my_controller.scanInput()
-        print("HERE IS YOUR LERP VALUE: ", lerp_val)
+        my_controller.scanInput()
+        lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 0.0)
 
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39962)) # player at end of platform
-        lerp_val = my_controller.scanInput()
+        my_controller.scanInput()
+        lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 1.0)
 
-        mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39958)) # player at end of platform
-        lerp_val = my_controller.scanInput()
-        self.assertAlmostEqual(lerp_val, 0.5)
+        mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39958)) # player somewhere near middle of controller
+        my_controller.scanInput()
+        lerp_val=my_controller.getInputValue()
+        self.assertAlmostEqual(lerp_val, 0.42857142)
                 
         pass
 
