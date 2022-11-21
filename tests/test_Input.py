@@ -91,14 +91,12 @@ class TestInput(unittest.TestCase):
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39537,83,39956))
 
         mc = Minecraft()
-        with self.assertRaises(MCVectorError) as cm:
+        with self.assertRaises(RuntimeError):
             input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        
+        with self.assertRaises(RuntimeError):
+            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
 
-
-
-#        self.assertRaises(MCVectorError, input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord))
-#        self.assertRaises(MCVectorError, input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord))
-   
 
     def testInputBlockLineY(self):
 
@@ -107,7 +105,15 @@ class TestInput(unittest.TestCase):
         start_block(x,y1,z)
         end_block(x,y2,z)
         """
-        pass  
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955))
+
+        mc = Minecraft()
+        with self.assertRaises(RuntimeError):
+            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        
+        with self.assertRaises(RuntimeError):
+            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord) 
 
     def testInputCuboid(self):
 
@@ -116,7 +122,15 @@ class TestInput(unittest.TestCase):
         start_block(x1,y1,z1)
         end_block(x1,y2,z2)
         """
-        pass  
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39956))
+
+        mc = Minecraft()
+        with self.assertRaises(RuntimeError):
+            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        
+        with self.assertRaises(RuntimeError):
+            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)  
 
     def testRangeInputInstance(self):
         """
@@ -144,7 +158,7 @@ class TestInput(unittest.TestCase):
         lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 0.42857142)
                 
-        pass
+
 
 
 if __name__ == '__main__':
