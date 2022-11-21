@@ -4,8 +4,8 @@ from pong.vector import MCVector
 from mcpi import vec3
 from pong import input
 
-#used to create Faux MineCarft instance so we can test server communications in a black box without a running server
 class Minecraft:
+    #used to create Faux MineCarft instance so we can test server communications in a black box without a running server
 
     class FauxEntity:
         def __init__(self):
@@ -23,6 +23,11 @@ class Minecraft:
     def getPlayerEntityIds(self):
         return [0,1]
 
+
+class MCVectorError(RuntimeError): 
+    # used to test for exceptions defined in the input class
+    pass
+
 # test cases
 class TestInput(unittest.TestCase):
     def testInputSingleBlock(self):
@@ -31,8 +36,15 @@ class TestInput(unittest.TestCase):
         start_block(x,y,z)
         end_block(x,y,z)           
         """
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
 
-        pass
+        mc = Minecraft()
+        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInput)
+
+        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInput)
 
     def testInputBlockLineX(self):
 
@@ -41,7 +53,15 @@ class TestInput(unittest.TestCase):
         start_block(x1,y,z)
         end_block(x2,y,z)
         """
-        pass    
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39537,83,39955))
+
+        mc = Minecraft()
+        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInput)
+
+        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInput)
 
     def testInputBlockLineZ(self):
 
@@ -50,7 +70,15 @@ class TestInput(unittest.TestCase):
         start_block(x,y,z1)
         end_block(x,y,z2)
         """
-        pass
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39956))
+
+        mc = Minecraft()
+        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInput)
+
+        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInput)
 
     def testInputPlaneXZ(self):
 
@@ -59,7 +87,18 @@ class TestInput(unittest.TestCase):
         start_block(x1,y,z1)
         end_block(x2,y,z2)
         """
-        pass    
+        start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
+        end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39537,83,39956))
+
+        mc = Minecraft()
+        with self.assertRaises(MCVectorError) as cm:
+            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+
+
+
+#        self.assertRaises(MCVectorError, input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord))
+#        self.assertRaises(MCVectorError, input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord))
+   
 
     def testInputBlockLineY(self):
 
@@ -80,8 +119,11 @@ class TestInput(unittest.TestCase):
         pass  
 
     def testRangeInputInstance(self):
+        """
+        Tests for RangeInput defining a line of blocks and testing for a player block at the beginning, middle, and end of that line to check linear interpolation values (0-1)
+        """
 
-        player_id = 0  #just need some integer here
+        #player_id = 0  #just need some integer here
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39962))
 
