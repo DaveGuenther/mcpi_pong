@@ -3,7 +3,7 @@ from mcpi import vec3
 from .vector import MCVector
 import numpy as np
 from .coordinate_tools import CoordinateTools
-
+from . import global_message
 
  
 class Color:
@@ -197,12 +197,27 @@ class Screen:
         width:          int                         Width in pixels of the screen
         height:         int                         Height in pixels of the screen
         """
-        self.__start_position = start_pos
+        # Check argument type requirements
+        if (isinstance(start_pos, MCVector)):
+            self.__start_position = start_pos
+        else:
+            #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
+            err_msg = global_message.type_error_message(MCVector, start_pos)
+            raise TypeError(err_msg)
+        
+        if (isinstance(mc[0], Minecraft)):
+            self.mc_connection = mc[0]
+        else:
+            #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
+            err_msg = global_message.type_error_message(Minecraft, mc[0])
+            raise TypeError(err_msg)
+        
+        
         self.__width=width
         self.__height=height
         self.__front_virtual_page=PixelArray.fromDimensions(self.__width,self.__height)
         self.__back_virtual_page = PixelArray.fromDimensions(self.__width,self.__height)
-        self.mc_connection = mc[0]
+
         self.__clipper=Clipper([self]) 
         
 
@@ -480,6 +495,23 @@ class Renderer:
                                                 - 'screen' coordinates mean that (0,0) is at the top left of the renderer
                                                 - 'cart' coordinates mean that (0,0) is at the middle of the renderer        
         """
+
+        # Check argument type requirements
+        if (isinstance(start_screen_pos, MCVector)):
+            self.__start_position = start_screen_pos
+        else:
+            #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
+            err_msg = global_message.type_error_message(MCVector, start_screen_pos)
+            print(err_msg)
+            raise TypeError(err_msg)
+        
+        if (isinstance(mc[0], Minecraft)):
+            self.mc_connection = mc[0]
+        else:
+            #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
+            err_msg = global_message.type_error_message(Minecraft, mc[0])
+            raise TypeError(err_msg)
+
         self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
         self.__my_cartesian_converter=CoordinateTools([self.__my_screen])
