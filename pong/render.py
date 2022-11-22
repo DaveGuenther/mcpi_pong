@@ -1,5 +1,6 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
+from .vector import MCVector
 import numpy as np
 from .coordinate_tools import CoordinateTools
 
@@ -189,7 +190,7 @@ class Screen:
 
     changes = np.array([])
 
-    def __init__(self, mc:[Minecraft], start_pos:vec3.Vec3, width, height):
+    def __init__(self, mc:[Minecraft], start_pos:MCVector, width, height):
         """
         mc:             [mcpi.minecraft.Minecraft]  This is an mcpi object wrapped into an array so that it can be mutable (the same mcpi object declared in your program is the same one used in this class, not a copy).
         start_pos:      vec3.Vec3                   This represents the x,y,z coordinates of the top left corner of the screen
@@ -241,9 +242,9 @@ class Screen:
                 this_color = Color.get(self.__front_virtual_page.getPoint(x, y))
                 if this_color!=9: # skip if pixel is transparent (9=encoded transparent color)
                     self.mc_connection.setBlock(
-                        self.__start_position.x,
-                        self.__start_position.y-y,
-                        self.__start_position.z+x,
+                        self.__start_position.get_mcpiVec().x,
+                        self.__start_position.get_mcpiVec().y-y,
+                        self.__start_position.get_mcpiVec().z+x,
                         this_color)
 
     def drawObject(self, clipped_sprite, sprite_start_pos):
@@ -469,7 +470,7 @@ class Renderer:
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
 
-    def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int, type='screen'):
+    def __init__(self,mc:[Minecraft],start_screen_pos:MCVector, width:int, height:int, type='screen'):
         """
         mc:                 [Minecraft]     Instance of mcpi.Minecraft wrapped in a list
         start_screen_pos:   vec.Vec3d       This is the mcpi Vec3d of the top left pixel coordinate of the renderer
