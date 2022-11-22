@@ -13,3 +13,5 @@ def get_mcpi_vec_from_world_coords(x, y, z):
     z-=128
     return vec3.Vec3(x,y,z)    
 
+def lerp(start, end, pos):
+    return float(float(pos-start)/float(end-start))

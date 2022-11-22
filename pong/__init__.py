@@ -1,1 +1,1 @@
-# signals pong as an importable module
+# Used to establish pong as package
