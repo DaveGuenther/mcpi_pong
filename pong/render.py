@@ -193,7 +193,7 @@ class Screen:
     def __init__(self, mc:[Minecraft], start_pos:MCVector, width, height):
         """
         mc:             [mcpi.minecraft.Minecraft]  This is an mcpi object wrapped into an array so that it can be mutable (the same mcpi object declared in your program is the same one used in this class, not a copy).
-        start_pos:      vec3.Vec3                   This represents the x,y,z coordinates of the top left corner of the screen
+        start_pos:      MCVector                    This represents the x,y,z coordinates of the top left corner of the screen
         width:          int                         Width in pixels of the screen
         height:         int                         Height in pixels of the screen
         """
