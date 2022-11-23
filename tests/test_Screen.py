@@ -14,7 +14,8 @@ class TestScreen(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,16,32)
 
         self.assertIs(my_screen.mc_connection, mc, f"mcpi objects do not occupy same memory address")
@@ -24,7 +25,8 @@ class TestScreen(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,16,32)
 
         assert_val=np.array(
@@ -83,7 +85,8 @@ class TestScreen(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,8,12)        
 
 
@@ -186,7 +189,8 @@ class TestScreen(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,8,12)        
 
 

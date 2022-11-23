@@ -4,6 +4,7 @@ from pong.vector import MCVector
 from mcpi import vec3
 from pong import input
 from .fake_minecraft import Minecraft
+import pickle
 
 
 class MCVectorError(RuntimeError): 

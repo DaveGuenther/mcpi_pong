@@ -14,7 +14,8 @@ class TestRenderer(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_painter = Renderer([mc], top_left_screen_coord, 8, 12)
 
         self.assertIsInstance(this_painter, Renderer, f"Painter class failed to initialize")
@@ -50,7 +51,8 @@ class TestRenderer(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_painter = Renderer([mc], top_left_screen_coord, 8,12)
 
         this_painter.putPixel((3,4), 6)
@@ -63,7 +65,8 @@ class TestRenderer(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_painter = Renderer([mc], top_left_screen_coord, 8, 12)
 
         this_painter.fillCanvas(7)

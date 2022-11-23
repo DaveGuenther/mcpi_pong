@@ -22,3 +22,6 @@ class Minecraft:
 
     def getPlayerEntityIds(self):
         return [0,1]
+
+    def setBlock(self, x,y,z,color):
+        print("setBlock: ", x, y, z, " color: ",color)
