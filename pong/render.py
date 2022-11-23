@@ -3,7 +3,7 @@ from mcpi import vec3
 from .vector import MCVector
 import numpy as np
 from .coordinate_tools import CoordinateTools
-from . import global_message
+from . import class_mgmt
 
  
 class Color:
@@ -198,18 +198,19 @@ class Screen:
         height:         int                         Height in pixels of the screen
         """
         # Check argument type requirements
-        if (isinstance(start_pos, MCVector)):
+        
+        if (class_mgmt.isinstance(start_pos, MCVector)):
             self.__start_position = start_pos
         else:
             #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
-            err_msg = global_message.type_error_message(MCVector, start_pos)
+            err_msg = class_mgmt.type_error_message(MCVector, start_pos)
             raise TypeError(err_msg)
         
-        if (isinstance(mc[0], Minecraft)):
+        if (class_mgmt.isinstance(mc[0], Minecraft)):
             self.mc_connection = mc[0]
         else:
             #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
-            err_msg = global_message.type_error_message(Minecraft, mc[0])
+            err_msg = class_mgmt.type_error_message(Minecraft, mc[0])
             raise TypeError(err_msg)
         
         
@@ -497,19 +498,21 @@ class Renderer:
         """
 
         # Check argument type requirements
-        if (isinstance(start_screen_pos, MCVector)):
+        if (class_mgmt.isinstance(start_screen_pos, MCVector)):
+        #if (start_screen_pos.__class__.__name__==MCVector.__name__):
             self.__start_position = start_screen_pos
         else:
             #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
-            err_msg = global_message.type_error_message(MCVector, start_screen_pos)
+            err_msg = class_mgmt.type_error_message(MCVector, start_screen_pos)
             print(err_msg)
             raise TypeError(err_msg)
         
-        if (isinstance(mc[0], Minecraft)):
+        if (class_mgmt.isinstance(mc[0], Minecraft)):
+        #if (mc[0].__class__.__name__==Minecraft.__name__):
             self.mc_connection = mc[0]
         else:
             #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
-            err_msg = global_message.type_error_message(Minecraft, mc[0])
+            err_msg = class_mgmt.type_error_message(Minecraft, mc[0])
             raise TypeError(err_msg)
 
         self.__my_screen=Screen(mc,start_screen_pos,width,height)

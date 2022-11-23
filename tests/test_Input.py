@@ -3,25 +3,7 @@ from pong import utility
 from pong.vector import MCVector
 from mcpi import vec3
 from pong import input
-
-class Minecraft:
-    #used to create Faux MineCarft instance so we can test server communications in a black box without a running server
-
-    class FauxEntity:
-        def __init__(self):
-            self.player_pos = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39962))
-
-        def getTilePos(self, player):
-            
-            return self.player_pos.get_mcpiVec()
-    
-        
-
-    def __init__(self):
-        self.entity = Minecraft.FauxEntity()
-
-    def getPlayerEntityIds(self):
-        return [0,1]
+from .fake_minecraft import Minecraft
 
 
 class MCVectorError(RuntimeError): 
@@ -39,7 +21,11 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
 
-        mc = Minecraft()
+        
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         self.assertIsInstance(my_controller, input.TactileInput)
 
@@ -56,7 +42,10 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39537,83,39955))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         self.assertIsInstance(my_controller, input.TactileInput)
 
@@ -73,7 +62,10 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39956))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         self.assertIsInstance(my_controller, input.TactileInput)
 
@@ -90,7 +82,10 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39537,83,39956))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         with self.assertRaises(RuntimeError):
             input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         
@@ -108,7 +103,10 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         with self.assertRaises(RuntimeError):
             input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         
@@ -125,7 +123,10 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39956))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
         with self.assertRaises(RuntimeError):
             input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
         
@@ -141,7 +142,11 @@ class TestInput(unittest.TestCase):
         start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39955))
         end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,83,39962))
 
-        mc = Minecraft()
+        my_file= open( "server.pkl", "rb" ) 
+        server_ip, server_port = pickle.load(my_file)
+        my_file.close()
+        mc = Minecraft.create(server_ip,server_port)
+        
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
         my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
         my_controller.scanInput()

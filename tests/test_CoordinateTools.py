@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pickle
-from mcpi.minecraft import Minecraft
+from .fake_minecraft import Minecraft
 from pong import utility
 from pong.render import Screen
 from pong.coordinate_tools import CoordinateTools

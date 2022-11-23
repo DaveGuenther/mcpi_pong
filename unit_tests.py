@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import pickle
 from pong import utility
-from mcpi.minecraft import Minecraft
+#from mcpi.minecraft import Minecraft
+from tests.fake_minecraft import Minecraft
 from pong.render import PixelArray
 from pong.render import Renderer
 from pong.vector import MCVector
