@@ -1,10 +1,11 @@
 import unittest
 import numpy as np
 import pickle
-from mcpi.minecraft import Minecraft
+from .fake_minecraft import Minecraft
 from pong import utility
 from pong.render import Screen
 from pong.coordinate_tools import CoordinateTools
+from pong.vector import MCVector
 
 
 class TestCartesian_Converter(unittest.TestCase):
@@ -15,7 +16,8 @@ class TestCartesian_Converter(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,16,32)
         
         
@@ -32,7 +34,8 @@ class TestCartesian_Converter(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,16,32)
         
         # invoke class instance
@@ -51,7 +54,8 @@ class TestCartesian_Converter(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         my_screen = Screen([mc],top_left_screen_coord,16,32)
         
         # invoke class instance

@@ -2,9 +2,11 @@ import unittest
 import numpy as np
 import pickle
 from pong import utility
-from mcpi.minecraft import Minecraft
+#from mcpi.minecraft import Minecraft
+from tests.fake_minecraft import Minecraft
 from pong.render import PixelArray
 from pong.render import Renderer
+from pong.vector import MCVector
 from mcpi import vec3
 import time
 
@@ -13,7 +15,7 @@ my_file= open( "server.pkl", "rb" )
 server_ip, server_port = pickle.load(my_file)
 my_file.close()
 mc = Minecraft.create(server_ip,server_port)
-top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958)
 this_painter = Renderer([mc], top_left_screen_coord, 16,32)
 
 this_painter.putPixel((3,4), 6)
@@ -40,6 +42,13 @@ print("Hello Minecraft!")
 
 from pong import input
 from pong.vector import MCVector
+
+
+
+
+
+
+
 
 myrange=-3
 for i in range(0,myrange,1 if myrange>=0 else -1):

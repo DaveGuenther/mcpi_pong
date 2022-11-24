@@ -1,8 +1,9 @@
 from mcpi.minecraft import Minecraft
 from mcpi import vec3
+from .vector import MCVector
 import numpy as np
 from .coordinate_tools import CoordinateTools
-
+from . import class_mgmt
 
  
 class Color:
@@ -189,19 +190,35 @@ class Screen:
 
     changes = np.array([])
 
-    def __init__(self, mc:[Minecraft], start_pos:vec3.Vec3, width, height):
+    def __init__(self, mc:[Minecraft], start_pos:MCVector, width, height):
         """
         mc:             [mcpi.minecraft.Minecraft]  This is an mcpi object wrapped into an array so that it can be mutable (the same mcpi object declared in your program is the same one used in this class, not a copy).
-        start_pos:      vec3.Vec3                   This represents the x,y,z coordinates of the top left corner of the screen
+        start_pos:      MCVector                    This represents the x,y,z coordinates of the top left corner of the screen
         width:          int                         Width in pixels of the screen
         height:         int                         Height in pixels of the screen
         """
-        self.__start_position = start_pos
+        # Check argument type requirements
+        
+        if (class_mgmt.isinstance(start_pos, MCVector)):
+            self.__start_position = start_pos
+        else:
+            #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
+            err_msg = class_mgmt.type_error_message(MCVector, start_pos)
+            raise TypeError(err_msg)
+        
+        if (class_mgmt.isinstance(mc[0], Minecraft)):
+            self.mc_connection = mc[0]
+        else:
+            #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
+            err_msg = class_mgmt.type_error_message(Minecraft, mc[0])
+            raise TypeError(err_msg)
+        
+        
         self.__width=width
         self.__height=height
         self.__front_virtual_page=PixelArray.fromDimensions(self.__width,self.__height)
         self.__back_virtual_page = PixelArray.fromDimensions(self.__width,self.__height)
-        self.mc_connection = mc[0]
+
         self.__clipper=Clipper([self]) 
         
 
@@ -241,9 +258,9 @@ class Screen:
                 this_color = Color.get(self.__front_virtual_page.getPoint(x, y))
                 if this_color!=9: # skip if pixel is transparent (9=encoded transparent color)
                     self.mc_connection.setBlock(
-                        self.__start_position.x,
-                        self.__start_position.y-y,
-                        self.__start_position.z+x,
+                        self.__start_position.get_mcpiVec().x,
+                        self.__start_position.get_mcpiVec().y-y,
+                        self.__start_position.get_mcpiVec().z+x,
                         this_color)
 
     def drawObject(self, clipped_sprite, sprite_start_pos):
@@ -469,7 +486,7 @@ class Renderer:
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
     """
 
-    def __init__(self,mc:[Minecraft],start_screen_pos, width:int, height:int, type='screen'):
+    def __init__(self,mc:[Minecraft],start_screen_pos:MCVector, width:int, height:int, type='screen'):
         """
         mc:                 [Minecraft]     Instance of mcpi.Minecraft wrapped in a list
         start_screen_pos:   vec.Vec3d       This is the mcpi Vec3d of the top left pixel coordinate of the renderer
@@ -479,6 +496,25 @@ class Renderer:
                                                 - 'screen' coordinates mean that (0,0) is at the top left of the renderer
                                                 - 'cart' coordinates mean that (0,0) is at the middle of the renderer        
         """
+
+        # Check argument type requirements
+        if (class_mgmt.isinstance(start_screen_pos, MCVector)):
+        #if (start_screen_pos.__class__.__name__==MCVector.__name__):
+            self.__start_position = start_screen_pos
+        else:
+            #err_msg = "Required object of type <class "+str(MCVector.__module__)+"."+str(MCVector.__name__)+">.  Found object of type "+str(type(start_pos))+" instead."
+            err_msg = class_mgmt.type_error_message(MCVector, start_screen_pos)
+            print(err_msg)
+            raise TypeError(err_msg)
+        
+        if (class_mgmt.isinstance(mc[0], Minecraft)):
+        #if (mc[0].__class__.__name__==Minecraft.__name__):
+            self.mc_connection = mc[0]
+        else:
+            #err_msg = "Required object of type <class 'mcpi.minecraft.Minecraft'>.  Found object of type "+str(type(mc[0]))+" instead."
+            err_msg = class_mgmt.type_error_message(Minecraft, mc[0])
+            raise TypeError(err_msg)
+
         self.__my_screen=Screen(mc,start_screen_pos,width,height)
         self.__clipper=Clipper([self.__my_screen]) 
         self.__my_cartesian_converter=CoordinateTools([self.__my_screen])

@@ -1,7 +1,9 @@
 import unittest
 import numpy as np
 import pickle
-from mcpi.minecraft import Minecraft
+
+from pong.vector import MCVector
+from .fake_minecraft import Minecraft
 from pong import utility
 from pong.render import Screen
 from pong.render import Clipper
@@ -14,7 +16,9 @@ class TestClipper(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) #pixel display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        
         this_screen = Screen([mc],top_left_screen_coord,4,5)
         my_clipper = Clipper([this_screen])
         
@@ -62,7 +66,8 @@ class TestClipper(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958)
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_screen = Screen([mc],top_left_screen_coord,4,5)
         my_clipper = Clipper([this_screen])
         
@@ -103,7 +108,8 @@ class TestClipper(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) #pixel Display
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_screen = Screen([mc],top_left_screen_coord,4,5)
         my_clipper = Clipper([this_screen])
         
@@ -139,7 +145,8 @@ class TestClipper(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display)
+        #top_left_screen_coord = utility.get_mcpi_vec_from_world_coords(39562, 106, 39958) # pixel display
         this_screen = Screen([mc],top_left_screen_coord,8,12)
         my_clipper = Clipper([this_screen])
         
