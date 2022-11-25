@@ -3,7 +3,14 @@ from pong import utility
 from pong.vector import MCVector
 from mcpi import vec3
 from pong import input
-from .fake_minecraft import Minecraft
+import os
+if int(os.environ['MC_Live_Connection'])==1:
+    from mcpi.minecraft import Minecraft
+    print("importing real MC")
+else:
+    from .fake_minecraft import Minecraft
+    print("importing fame MC")
+
 import pickle
 
 

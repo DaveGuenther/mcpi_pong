@@ -1,11 +1,20 @@
 import unittest
 import numpy as np
 import pickle
-from .fake_minecraft import Minecraft
+#from .fake_minecraft import Minecraft
 from pong import utility
 from pong.render import Screen
 from pong.render import PixelArray
 from pong.vector import MCVector
+import argparse
+import os
+if int(os.environ['MC_Live_Connection'])==1:
+    from mcpi.minecraft import Minecraft
+    print("importing real MC")
+else:
+    from .fake_minecraft import Minecraft
+    print("importing fame MC")
+
 
 
 class TestScreen(unittest.TestCase):
@@ -229,4 +238,5 @@ class TestScreen(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
     unittest.main()
