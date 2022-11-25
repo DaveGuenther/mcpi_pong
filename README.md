@@ -24,7 +24,7 @@ For testing purposes, I've created a fake-minecraft class in the tests/ folder t
 - <code>make test-dry</code> will run all unit tests using the fake-minecraft.Minecraft class.  It will not connect to any server and only holds enough objects/attributes to mimic server functionality for test code behavior.  For example, if setting blocks, instead of setting them in the real MC world, it will simply print to the console for each block set, the X,Y,Z coordinate and blick type.
 
 <h3>Running Pong</h3>
-This part is still under construction..  Still trying to draw pixels!  :)
+This part is still under construction..  Pixels are drawing, but trying to read input from MC World :)
 
 
 
