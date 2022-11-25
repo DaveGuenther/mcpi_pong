@@ -3,7 +3,7 @@
 This is an absolutely silly project...
 
 A simple pong game for mcpi rendered against a screen of blocks in Minecraft.  This is built to be used with mcpi (https://github.com/martinohanlon/mcpi). 
-Players move along "paddles" to control ships on a screen rendered in minecraft for a simple game of pong.  This project creates a basic graphics engine for 2d rasterization of colored wool blocks in MineCraft.  The engine consists of a screen with two virtual pages, and optimized page-flipping so only changed pixels are rendered.
+Players move along strips of blocks in Minecraft to control paddles on a screen rendered in Minecraft for a simple game of pong.  This project creates a basic graphics engine for 2d rasterization of colored wool blocks in MineCraft.  The engine consists of a screen with two virtual pages, and optimized page-flipping so only changed pixels are rendered.
 
 <h3>Prerequisites</h3>
 You must have access to a Minecraft server running spigotmc (https://www.spigotmc.org/).  You can run this against localhost, but you'll need a buddy to join your server for a two-player game
