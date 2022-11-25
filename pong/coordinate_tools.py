@@ -28,8 +28,6 @@ class CoordinateTools:
         offset = np.array([float(self.half_screen_width/self.aspect_ratio),self.half_screen_height])
         cart_coords = np.matmul(cart_coord_matrix,vec)-offset
 
-        #cart_x=(vec[0]-(self.width/2))/(self.screen_width/self.screen_height)
-        #cart_y=(vec[1]-(self.height/2))
         return cart_coords
 
     
@@ -49,6 +47,4 @@ class CoordinateTools:
         )
         offset = np.array([self.half_screen_width, self.half_screen_height])
         screen_coords = np.matmul(screen_coord_matrix,vec)+offset
-        #screen_x=(self.width/2)+(vec[0]*(self.screen_width/self.screen_height))
-        #screen_y=(screen.height/2)+vec[1]
         return screen_coords

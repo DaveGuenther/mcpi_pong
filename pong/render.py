@@ -489,7 +489,7 @@ class Renderer:
     def __init__(self,mc:[Minecraft],start_screen_pos:MCVector, width:int, height:int, type='screen'):
         """
         mc:                 [Minecraft]     Instance of mcpi.Minecraft wrapped in a list
-        start_screen_pos:   vec.Vec3d       This is the mcpi Vec3d of the top left pixel coordinate of the renderer
+        start_screen_pos:   MCVector        This is the mcpi Vec3d of the top left pixel coordinate of the renderer
         width:              int             Width in pixels of Renderer
         height:             int             Height in pixels of Renderer 
         type:               string          Possible values are one of ['screen','cart'].  
