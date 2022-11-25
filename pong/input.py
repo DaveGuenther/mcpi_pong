@@ -52,8 +52,9 @@ class InputInterface(abc.ABC):
         else:
             raise MCVectorError('Failed to initialize a virtual controller surface from start and end coordiates.  Start and end vector y values must match.  Similarly one other axis in both vectors must match.')
         self._axis = axis
+        self._length = abs(blockrange)+1
         #create array of vec3.Vec3 coordinates
-        self._block_array = np.empty(abs(blockrange)+1, dtype=object)
+        self._block_array = np.empty(self._length, dtype=object)
         for offset,i in zip(range(0,blockrange+increment,increment),range(0,abs(blockrange)+1,1)):
             self._block_array[i]=MCVector.from_MCWorld_Vec(vec3.Vec3(start_block.x+(offset*axis.x), start_block.y+(offset*axis.y), start_block.z+(offset*axis.z)))
 
@@ -119,9 +120,12 @@ class RangeInput(InputInterface):
 
     def _concreteInit(self):
         self.__range_input_val=.5
+        self.__last_range_input_val=.5
 
     def scanInput(self):
         #self.__pressed=False
+
+        self.__last_range_input_val=self.__range_input_val
 
         try:
             player_ids = self._MC.getPlayerEntityIds()
