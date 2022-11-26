@@ -6,11 +6,43 @@ import numpy as np
 import abc
 
 
+
 class MCVectorError(RuntimeError):
     pass
 
-class InputInterface(abc.ABC):
-    def __init__(self, MC:[Minecraft], start_coord:MCVector, end_coord:MCVector):
+class InputScanner():
+    """
+    Input in pong works in two steps.  First InputScanner will query player locations once each gameloop and store them.  Then InputParserInterace will
+    query InputScanner to test player positions with blocks.
+    """
+    def __init__(self, MC:[Minecraft]):
+        self.__player_info={}
+        self.__player_ids=[]
+        self.__mc_connection = MC[0]
+
+    def scanMC_Player_Positions(self):
+        try:
+            self.__player_ids = self.__mc_connection.getPlayerEntityIds()
+        except Exception as e: # happens if there are no players on the server
+            self.__player_ids =[]
+            self.__player_info={}
+
+        
+        for player in self.__player_ids:
+            temp_tile=self.__mc_connection.entity.getTilePos(player)
+            tilepos = MCVector.from_mcpi_Vec(
+                vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
+            self.__player_info.update({player:tilepos})
+
+    def getScannedPlayerIDs(self):
+        return self.__player_ids
+
+    def getScannedPlayerPositions(self):
+        return self.__player_info
+
+
+class InputParserInterface(abc.ABC):
+    def __init__(self, MC:[Minecraft], scanner:[InputScanner], start_coord:MCVector, end_coord:MCVector):
         """
         This takes a start and end MC World Coordinate (can be the same coordinage for tactile button) and stores input block range as start and end coordinates of input
 
@@ -23,6 +55,7 @@ class InputInterface(abc.ABC):
         self._end_block = end_coord      
         assert self._end_block.get_MCWorld_Vec().y==self._end_block.get_MCWorld_Vec().y, f"virtual input pad must be defined on a flat plane where start and end y block coordinates are the same"
         self._MC = MC[0]
+        self._scanner = scanner[0]
         self._constructVirtualPadFromEndBlocks()
         self._concreteInit()
     
@@ -66,7 +99,7 @@ class InputInterface(abc.ABC):
         pass
 
     @abc.abstractclassmethod
-    def scanInput(self):
+    def readInputScanner(self):
         """
         Get input data by querying MC and stores the input value (accessible by getInvputValue())
         """
@@ -89,23 +122,22 @@ class InputInterface(abc.ABC):
         return self._block_array
 
 
-class TactileInput(InputInterface):
+class TactileInputParser(InputParserInterface):
     
     def _concreteInit(self):
         pass
 
-    def scanInput(self):
+    def readInputScanner(self):
         self.__pressed=False
-        try:
-            player_ids = self._MC.getPlayerEntityIds()
-        except Exception as e: # happens if there are no players on the server
-            player_ids =[]
-        
+        #try:
+        #    player_ids = self._MC.getPlayerEntityIds()
+        #except Exception as e: # happens if there are no players on the server
+        #    player_ids =[]
+       # 
         # check where each player on the server is standing
-        for player in player_ids:
-            temp_tile=self._MC.entity.getTilePos(player)
-            tilepos = MCVector.from_mcpi_Vec(
-                vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
+        for player in self._scanner.getScannedPlayerIDs():
+            #temp_tile=self._MC.entity.getTilePos(player)
+            tilepos = self._scanner.getScannedPlayerPositions()[player]
             
             # look through each block in array and see if player is standing on one of them
             for block in self._block_array:
@@ -116,27 +148,26 @@ class TactileInput(InputInterface):
     def getInputValue(self):
         return self.__pressed
 
-class RangeInput(InputInterface):
+class RangeInputParser(InputParserInterface):
 
     def _concreteInit(self):
         self.__range_input_val=.5
         self.__last_range_input_val=.5
 
-    def scanInput(self):
+    def readInputScanner(self):
         #self.__pressed=False
 
         self.__last_range_input_val=self.__range_input_val
 
-        try:
-            player_ids = self._MC.getPlayerEntityIds()
-        except Exception as e: # happens if there are no players on the server
-            player_ids =[]
+        #try:
+        #    player_ids = self._MC.getPlayerEntityIds()
+        #except Exception as e: # happens if there are no players on the server
+        #    player_ids =[]
         
         # check where each player on the server is standing
-        for player in player_ids:
-            temp_tile=self._MC.entity.getTilePos(player)
-            tilepos = MCVector.from_mcpi_Vec(
-                vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
+        for player in self._scanner.getScannedPlayerIDs():
+            #temp_tile=self._MC.entity.getTilePos(player)
+            tilepos = self._scanner.getScannedPlayerPositions()[player]
             
             # look through each block in array and see if player is standing on one of them
             for block in self._block_array:

@@ -45,6 +45,7 @@ from pong.vector import MCVector
 
 mc = Minecraft.create(server_ip,server_port)
 this_painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart')
+this_input_scanner = input.InputScanner([mc])
 
 # define p1 paddle sprite
 p1_sprite = PixelArray(np.array(
@@ -55,10 +56,13 @@ p1_sprite = PixelArray(np.array(
 # p1 controller
 p1_input_start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39955))
 p1_input_end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39962))
-p1_controller = input.RangeInput([mc],start_coord=p1_input_start_coord, end_coord=p1_input_end_coord)
+p1_controller = input.RangeInputParser([mc],[this_input_scanner],start_coord=p1_input_start_coord, end_coord=p1_input_end_coord)
 
+p1_button_start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,87,39959))
+p1_button_end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,87,39959))
+p1_button_controller = input.TactileInputParser([mc],[this_input_scanner],start_coord=p1_button_start_coord, end_coord=p1_button_end_coord)
 
-# define p1 paddle sprite
+# define p2 paddle sprite
 p2_sprite = PixelArray(np.array(
     [
         [16,16,16,16]
@@ -69,17 +73,27 @@ p2_pos = np.array([0,14])
 # p2 controller
 p2_input_start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39969))
 p2_input_end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 83, 39976))
-p2_controller = input.RangeInput([mc],start_coord=p2_input_start_coord, end_coord=p2_input_end_coord)
+p2_controller = input.RangeInputParser([mc],[this_input_scanner],start_coord=p2_input_start_coord, end_coord=p2_input_end_coord)
+
+p2_button_start_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,87,39973))
+p2_button_end_coord = MCVector.from_MCWorld_Vec(vec3.Vec3(39536,87,39973))
+p2_button_controller = input.TactileInputParser([mc],[this_input_scanner],start_coord=p2_button_start_coord, end_coord=p2_button_end_coord)
 
 while 1:
+
     #Scan MC input
-    p1_controller.scanInput()
-    p2_controller.scanInput()
+    this_input_scanner.scanMC_Player_Positions()
+    
+    #Parse MC Input for each controller based on Scanner Results
+    p1_controller.readInputScanner()
+    p2_controller.readInputScanner()
+    p1_button_controller.readInputScanner()
+    p2_button_controller.readInputScanner()
     
     #adjust ships based on input
     p1_pos[0] = (this_painter.getScreenWidth()-p1_sprite.getWidth())*p1_controller.getInputValue()-8  # doing screen_width(16)-ship_length (4) makes it so that ship can easily move from edge to edge
     p2_pos[0] = (this_painter.getScreenWidth()-p2_sprite.getWidth())*p2_controller.getInputValue()-8
-    print("P1:",p1_controller.getInputValue(), p1_pos[0],"   P2:",p2_controller.getInputValue(),p2_pos[0])
+    print("P1:",p1_controller.getInputValue(), p1_pos[0]," b:",p1_button_controller.getInputValue(),"        P2:",p2_controller.getInputValue(),p2_pos[0],"  b:",p2_button_controller.getInputValue())
     
     #clear canvas
     this_painter.fillCanvas(0)
