@@ -34,13 +34,16 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        
-        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.TactileInput)
+        scanner = input.InputScanner([mc])
 
-        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.RangeInput)
+        
+        my_controller = input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInputParser)
+
+        my_controller = input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInputParser)
         mc.conn.socket.close()
+
     def testInputBlockLineX(self):
 
         """
@@ -55,11 +58,12 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.TactileInput)
+        scanner = input.InputScanner([mc])
+        my_controller = input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInputParser)
 
-        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.RangeInput)
+        my_controller = input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInputParser)
         mc.conn.socket.close()
     def testInputBlockLineZ(self):
 
@@ -75,11 +79,13 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        my_controller = input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.TactileInput)
+        scanner = input.InputScanner([mc])
 
-        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
-        self.assertIsInstance(my_controller, input.RangeInput)
+        my_controller = input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.TactileInputParser)
+
+        my_controller = input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        self.assertIsInstance(my_controller, input.RangeInputParser)
         mc.conn.socket.close()
     def testInputPlaneXZ(self):
 
@@ -95,11 +101,13 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
+        scanner = input.InputScanner([mc])
+
         with self.assertRaises(RuntimeError):
-            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+            input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
         
         with self.assertRaises(RuntimeError):
-            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
+            input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
         mc.conn.socket.close()
 
     def testInputBlockLineY(self):
@@ -116,11 +124,13 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        with self.assertRaises(RuntimeError):
-            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+        scanner = input.InputScanner([mc])
         
         with self.assertRaises(RuntimeError):
-            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord) 
+            input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        
+        with self.assertRaises(RuntimeError):
+            input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord) 
         mc.conn.socket.close()
 
     def testInputCuboid(self):
@@ -137,11 +147,13 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
+        scanner = input.InputScanner([mc])
+
         with self.assertRaises(RuntimeError):
-            input.TactileInput([mc],start_coord=start_coord, end_coord=end_coord)
+            input.TactileInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
         
         with self.assertRaises(RuntimeError):
-            input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)  
+            input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)  
         mc.conn.socket.close()
 
 

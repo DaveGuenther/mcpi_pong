@@ -27,20 +27,35 @@ class TestInput(unittest.TestCase):
         server_ip, server_port = pickle.load(my_file)
         my_file.close()
         mc = Minecraft.create(server_ip,server_port)
-        
+
+        print("Set mc.entity.player_pos")
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
-        my_controller = input.RangeInput([mc],start_coord=start_coord, end_coord=end_coord)
-        my_controller.scanInput()
+
+
+        scanner = input.InputScanner([mc])
+
+        my_controller = input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        #scan all player positions
+        scanner.scanMC_Player_Positions()
+        #read scanner results
+        my_controller.readInputScanner()
         lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 0.0)
 
+        
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39962)) # player at end of platform
-        my_controller.scanInput()
+        #scan all player positions
+        scanner.scanMC_Player_Positions()
+        #read scanner results
+        my_controller.readInputScanner()
         lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 1.0)
 
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39958)) # player somewhere near middle of controller
-        my_controller.scanInput()
+        #scan all player positions
+        scanner.scanMC_Player_Positions()
+        #read scanner results
+        my_controller.readInputScanner()
         lerp_val=my_controller.getInputValue()
         self.assertAlmostEqual(lerp_val, 0.42857142)
                 
