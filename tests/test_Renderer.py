@@ -6,7 +6,7 @@ if int(os.environ['MC_Live_Connection'])==1:
     from mcpi.minecraft import Minecraft
     print("importing real MC")
 else:
-    from .fake_minecraft import Minecraft
+    from .mock_minecraft import Minecraft
     print("importing fame MC")
 from pong import utility
 from pong.render import Renderer
@@ -25,6 +25,7 @@ class TestRenderer(unittest.TestCase):
         this_painter = Renderer([mc], top_left_screen_coord, 8, 12)
 
         self.assertIsInstance(this_painter, Renderer, f"Painter class failed to initialize")
+        mc.conn.socket.close()
 
     def test_paintSprite_getPixel_flipVirtualPage(self):
         my_file= open( "server.pkl", "rb" ) 
@@ -51,6 +52,7 @@ class TestRenderer(unittest.TestCase):
         ret_val = this_painter.getColorAt((4,6))
 
         self.assertEqual(ret_val, 3,f"Pixel color values do not match")
+        mc.conn.socket.close()
 
     def test_putPixel_getPixel(self):
         my_file= open( "server.pkl", "rb" ) 
@@ -65,6 +67,7 @@ class TestRenderer(unittest.TestCase):
         ret_val = this_painter.getColorAt((3,4),1)
 
         self.assertEqual(ret_val, 6,f"Pixel color values do not match")
+        mc.conn.socket.close()
 
     def test_fillCanvas(self):
         my_file= open( "server.pkl", "rb" ) 
@@ -78,6 +81,7 @@ class TestRenderer(unittest.TestCase):
         this_painter.fillCanvas(7)
         ret_val = this_painter.getColorAt((3,4),1)        
         self.assertEqual(ret_val, 7)
+        mc.conn.socket.close()
 
 if __name__ == '__main__':
     unittest.main()

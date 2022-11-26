@@ -25,3 +25,8 @@ class Minecraft:
 
     def setBlock(self, x,y,z,color):
         print("setBlock: ", x, y, z, " color: ",color)
+
+    class conn:
+        class socket:
+            def close():
+                pass

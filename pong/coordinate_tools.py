@@ -20,12 +20,12 @@ class CoordinateTools:
         """
         cart_coord_matrix=np.array(
             [
-                [float(1/self.aspect_ratio),0],
-                [0,1]
+                [1,0],
+                [0,-1]
             ]
         )
 
-        offset = np.array([float(self.half_screen_width/self.aspect_ratio),self.half_screen_height])
+        offset = np.array([self.half_screen_width,-1*self.half_screen_height])
         cart_coords = np.matmul(cart_coord_matrix,vec)-offset
 
         return cart_coords
