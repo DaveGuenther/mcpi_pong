@@ -41,10 +41,11 @@ class CoordinateTools:
         """
         screen_coord_matrix = np.array(
             [
-                [self.aspect_ratio, 0],
-                [0,1]
+                [1, 0],
+                [0,-1]
             ]
         )
         offset = np.array([self.half_screen_width, self.half_screen_height])
         screen_coords = np.matmul(screen_coord_matrix,vec)+offset
-        return screen_coords
+        #screen_coords = vec+offset
+        return screen_coords.astype(int)

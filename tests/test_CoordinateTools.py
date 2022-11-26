@@ -49,9 +49,9 @@ class TestCartesian_Converter(unittest.TestCase):
 
         #perform test
         out_coords=my_coord_tools.cartToScreen(np.array([4,-2]))
-
+        print("COORDS OUT",out_coords)
         # assert unittest
-        self.assertTrue((out_coords==np.array([10,14])).all())
+        self.assertTrue((out_coords==np.array([12,18])).all())
 
     def testScreenToCart(self):
         
