@@ -8,7 +8,7 @@ import numpy as np
 from pong.render import Screen
 from pong import utility
 import time
-from mcpi_block_structure.blockstructure import BlockStructure
+from pong.mcpi_block_structure.blockstructure import BlockStructure
 
 server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
 mc = Minecraft.create(server_ip,server_port)
@@ -23,13 +23,27 @@ p2_paddle_nw_bot_corner = utility.get_mcpi_vec_from_world_coords(39522, 78, 3996
 
 
 # paddle storage
-#my_paddle = BlockStructure(mc)
-#start_vec = my_paddle.get_mcpi_vec_from_world_coords(39522, 78, 39968)
-#end_vec = my_paddle.get_mcpi_vec_from_world_coords(39538, 88, 39977)
 
-#my_paddle.get_structure(start_vec, end_vec)
+my_paddle = BlockStructure(mc)
+start_vec = my_paddle.get_mcpi_vec_from_world_coords(39522, 87, 39968)
+end_vec = my_paddle.get_mcpi_vec_from_world_coords(39538, 97, 39977)
 
-#my_paddle.write_to_file("my_paddle.pkl")
+
+my_paddle.get_structure(start_vec, end_vec)
+
+my_paddle.write_to_file("p2_paddle.pkl")
+
+
+my_paddle = BlockStructure(mc)
+start_vec = my_paddle.get_mcpi_vec_from_world_coords(39522, 87, 39954)
+end_vec = my_paddle.get_mcpi_vec_from_world_coords(39538, 97, 39963)
+
+
+my_paddle.get_structure(start_vec, end_vec)
+
+my_paddle.write_to_file("p1_paddle.pkl")
+
+
 
 #screen storage
 my_screen_object = BlockStructure(mc)
@@ -45,6 +59,6 @@ my_screen_object.write_to_file("my_screen.pkl")
 
 #paddle.set_structure(p1_paddle_nw_bot_corner)
 
-screen = BlockStructure(mc)
-screen.read_from_file("my_screen.pkl")
-screen.set_structure(start_vec)
+#screen = BlockStructure(mc)
+#screen.read_from_file("screen.pkl")
+#screen.set_structure(start_vec)

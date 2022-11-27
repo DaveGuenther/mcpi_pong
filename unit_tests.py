@@ -50,7 +50,7 @@ this_input_scanner = input.InputScanner([mc])
 # define p1 paddle sprite
 p1_sprite = PixelArray(np.array(
     [
-        [16,16,16,16]
+        [4,4,4,4]
     ]))
 
 # p1 controller
@@ -65,7 +65,7 @@ p1_button_controller = input.TactileInputParser([mc],[this_input_scanner],start_
 # define p2 paddle sprite
 p2_sprite = PixelArray(np.array(
     [
-        [16,16,16,16]
+        [4,4,4,4]
     ]))
 p1_pos = np.array([0,-14])
 p2_pos = np.array([0,14])

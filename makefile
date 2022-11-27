@@ -12,7 +12,7 @@ test:
 install:
 	pip install numpy
 	pip install mcpi
-	cd mcpi_block_structure; git checkout main; git pull
+	cd pong/mcpi_block_structure; git checkout main; git pull
 
 
 default: install
