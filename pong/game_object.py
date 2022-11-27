@@ -1,6 +1,41 @@
 import numpy as np
 import abc
 from .render import PixelArray
+from .render import Renderer
+from .matrix_tools import MatrixTools
+
+
+class Ball:
+    def __init__(self, painter:[Renderer], cart_pos=np.array([0,0]), direction=np.array([0,1]), speed=1,orthogonal_force=0, color=4):
+        self.__cart_pos=cart_pos
+        self.__sprite=PixelArray.fromDimensions(1,1)
+        self.__sprite.fillArray(color)
+        self.__direction_unit_vec2=MatrixTools.getUnitVector(direction)
+        self.__speed_scalar=speed
+        #self.__orthogonal_force_unit_vec2=MatrixTools.getUnitVector(
+        #    MatrixTools.getOrthogonalForceVector(self.__direction_unit_vec2, 1))
+        self.__orthogonal_force=orthogonal_force # scalar float:  <0 is 90deg CCW force, >0 is 90deg CW force
+        self.__painter = painter[0]
+        self.__last_cart_pos = self.__cart_pos
+
+    def updatePos(self):
+        #print("start pos:",self.__cart_pos)
+        #print("dir: ",self.__direction_unit_vec2)
+        # get new direction after figuring in orthogonal force
+        if self.__orthogonal_force!=0:
+            orthogonal_force_unit_vec = MatrixTools.getOrthogonalForceUnitVector(self.__direction_unit_vec2, self.__orthogonal_force)
+            new_dir = self.__direction_unit_vec2+orthogonal_force_unit_vec
+            self.__direction_unit_vec2 = MatrixTools.getUnitVector(new_dir)
+        
+        #get new position by applying speed to new direction vector
+        new_pos = self.__cart_pos+(self.__direction_unit_vec2*self.__speed_scalar)
+        self.__last_cart_pos=self.__cart_pos
+        self.__cart_pos=new_pos
+
+        #print("new pos:",new_pos)
+
+    def draw(self):
+        self.__painter.paintSprite(self.__sprite, self.__cart_pos)
 
 
 class GameObjectInterface(abc.ABC):

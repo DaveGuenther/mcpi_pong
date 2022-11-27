@@ -9,6 +9,7 @@ from pong.vector import MCVector
 from pong.render import Renderer
 from pong.render import PixelArray
 from pong.controller import Controller
+from pong.game_object import Ball
 from pong import utility
 import time
 from pong import input
@@ -80,14 +81,20 @@ p2_paddle = Controller(
     p2_sprite, p2_pos # Screen Sprite and Screen position
 ) 
 
-input_objects = [p1_paddle, p2_paddle]
-movable_objects = [p1_paddle, p2_paddle]
-drawable_screen_objects = [p1_paddle, p2_paddle]
+start_pos = np.array([0,0])
+start_direction = np.array([0,1])
+ball_speed=1
+ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
+ball2 = Ball([painter], start_pos, start_direction, ball_speed, .19, 15)
+
+input_objects = []
+movable_objects = [ ball1, ball2]
+drawable_screen_objects = [ball1, ball2]
 
 while 1:
 
     #Scan MC input
-    input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
+    #input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
     
     #Parse MC Input for each controller based on Scanner Results
     for input_object in input_objects:
@@ -96,11 +103,6 @@ while 1:
     #Update object positions
     for movable_object in movable_objects:
         movable_object.updatePos()
-
-
-
-    
-    
         
     #clear canvas
     painter.fillCanvas(0)
