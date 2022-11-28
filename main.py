@@ -41,6 +41,7 @@ screen_obj.set_structure(screen_nw_bot_corner.get_MCWorld_Vec())
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
 input_scanner = input.InputScanner([mc])
 
+#define collidable edges
 
 
 # p1 controller
@@ -85,10 +86,12 @@ start_pos = np.array([0,0])
 start_direction = np.array([0,1])
 ball_speed=1
 ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
-ball2 = Ball([painter], start_pos, start_direction, ball_speed, .19, 15)
+ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
 
 input_objects = []
-movable_objects = [ ball1, ball2]
+movable_objects = [ball1, ball2]
+colliders = [ball1, ball2]
+collidable_objects = []
 drawable_screen_objects = [ball1, ball2]
 
 while 1:

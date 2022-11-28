@@ -5,6 +5,11 @@ from .render import Renderer
 from .matrix_tools import MatrixTools
 
 
+#class Wall:
+#    def __init__(self, start_pos, end_pos):
+#        pass
+
+
 class Ball:
     def __init__(self, painter:[Renderer], cart_pos=np.array([0,0]), direction=np.array([0,1]), speed=1,orthogonal_force=0, color=4):
         self.__cart_pos=cart_pos
