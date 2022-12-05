@@ -35,12 +35,13 @@ class LineSegment:
         self.__calcIntercept()
 
 
-    def __init__(self, p0, p1):
+    def __init__(self, p0, p1, normal):
         """
         LineSegment Class is responsible for containing data and formula around definining a linesegment, determining it's slope, intercept, and also whether it collides with another segment.
 
         p0      np.array()      Array with x,y positions of first point in segment
-        p1      np.array()      Array with x,y positions of the second point in segment
+        p1      np.array()      Array with x,y positions of the second point in segment (only appli)
+        normal  np.array()      Array with x,y positions reflecting the normal vector of the line segment
         """
         self.__p=[p0, p1]
         self.setPoints(p0, p1)
