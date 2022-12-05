@@ -4,7 +4,7 @@ class LineSegment:
         """
         Orders the points p[0] and p[1] ascending first by x, then by y
         """
-        if((self.__p[0].x > self.__p[1].x)|(self.__p[0].y>self.__p[1].y)):
+        if((self.__p[0][0] > self.__p[1][0])|(self.__p[0][1]>self.__p[1][1])):
             p_temp=self.__p[1]
             self.__p[1]=self.__p[0]
             self.__p[0]=p_temp
@@ -13,13 +13,13 @@ class LineSegment:
         """
         Calculates the slope of the line segment
         """
-        self.__slope=(self.__p[1].y-self.__p[0].y)/(self.__p[1].x-p[0].x)
+        self.__slope=(self.__p[1][1]-self.__p[0][1])/(self.__p[1][0]-self.__p[0][0])
 
     def __calcIntercept(self):
         """
         Calculates the y intercept at x=0
         """
-        self.__intercept=self.__p[0].y/(self.__slope*self.__p[0].x)
+        self.__intercept=self.__p[0][1]-(self.__slope*self.__p[0][0])
 
     def setPoints(self, p0, p1):
         """
@@ -30,9 +30,9 @@ class LineSegment:
         """
         self.__p[0]=p0
         self.__p[1]=p1
-        self.__orderPoints(self)
-        self.__calcSlope(self)
-        self.__calcIntercept(self)
+        self.__orderPoints()
+        self.__calcSlope()
+        self.__calcIntercept()
 
 
     def __init__(self, p0, p1):
@@ -43,7 +43,7 @@ class LineSegment:
         p1      np.array()      Array with x,y positions of the second point in segment
         """
         self.__p=[p0, p1]
-        setPoints(self, p0, p1)
+        self.setPoints(p0, p1)
 
     def getSlope(self):
         return self.__slope
@@ -51,9 +51,11 @@ class LineSegment:
     def getIntercept(self):
         return self.__intercept
 
-    def xInterceptWith(self, other:LineSegment):
+    def xInterceptWith(self, other):
         """
         Calculates the x intercept with the other segment or returns False if the segments don't intercept
+
+        other       LineSegment         This is an instance of an other line segment by which to test for intersection with this one.
         """
         if (self.getSlope()!=other.getSlope()):
             x=(other.getIntercept()-self.getIntercept())/(self.getSlope()-other.getSlope())
@@ -64,4 +66,3 @@ class LineSegment:
         Given an x value on the line defined by this line segment, this function returns the respective y value at that x location
         """
         return self.__slope*x + self.__intercept
-        
