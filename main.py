@@ -48,6 +48,7 @@ input_scanner = input.InputScanner([mc])
 p1_joystick_start_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39955))
 p1_joystick_end_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39962))
 p1_ready_button_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 96, 39959))
+
 # define p1 paddle sprite
 p1_pos = np.array([0,-14])
 p1_sprite = PixelArray(np.array(
