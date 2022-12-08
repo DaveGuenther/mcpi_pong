@@ -2,14 +2,20 @@ import numpy as np
 
 class LineSegment:
 
-    def __orderPoints(self):
+    def orderPoints(self, axis):
         """
-        Orders the points p[0] and p[1] ascending first by x, then by y
+        Orders the points p[0] and p[1] ascending first by axis ascending
         """
-        if((self.__p[0][0] > self.__p[1][0])|(self.__p[0][1]>self.__p[1][1])):
-            p_temp=self.__p[1]
-            self.__p[1]=self.__p[0]
-            self.__p[0]=p_temp
+        if axis=='x':
+            if((self.__p[0][0] > self.__p[1][0])):
+                p_temp=self.__p[1]
+                self.__p[1]=self.__p[0]
+                self.__p[0]=p_temp
+        if axis=='y':
+            if ((self.__p[0][1]>self.__p[1][1])):
+                p_temp=self.__p[1]
+                self.__p[1]=self.__p[0]
+                self.__p[0]=p_temp            
 
     def __calcSlope(self):
         """
@@ -38,7 +44,7 @@ class LineSegment:
         """
         self.__p[0]=p0
         self.__p[1]=p1
-        self.__orderPoints()
+        self.orderPoints('x')
         self.__calcSlope()
         self.__calcIntercept()
 
@@ -79,6 +85,8 @@ class LineSegment:
 
         other       LineSegment         This is an instance of an other line segment by which to test for intersection with this one.
         """
+        self.orderPoints('x')
+        other.orderPoints('x')
         if (self.getSlope()!=other.getSlope()): # make sure line segments are not parallel
             if (self.getSlope()=='vertical'): # this line segment is a vertical line
                 if other.getSlope()==0: #other line segment is horizontal
@@ -95,12 +103,22 @@ class LineSegment:
                     other_point = other.getPoints()
                     if ((self.__p[0][0] <= other_point[0][0]) & 
                         (other_point[0][0] <= self.__p[1][0])): # test if this vertical line intersects with other horizontal line
-                        return other_point[0][0]
+                        
+                        # Sort by y values and check if line intersects
+                        other.orderPoints('y')
+                        other_point = other.getPoints()
+                        if ((other_point[0][1]<=self.__p[0][1])&
+                            (self.__p[1][1] <= other_point[0][1])):
+                            return other_point[0][0]
+                        else:
+                            return 'invalid'
                     else:
                         return 'invalid'
                 else: #other horizontal segment isn't horizontal                
-                
-                    return other.getPoints()[0][0] # for a vertical line segment x1=x2, so return either point's x value
+                    if ((self.__p[0][0]<=other.getPoints()[0][0])&
+                        (other.getPoints()[0][0] <= self.__p[1][0])):
+                        return other.getPoints()[0][0] # for a vertical line segment x1=x2, so return either point's x value
+                    else: return 'invalid'
             else: #neither line is vertical and we calculate a standard intercept
                 x=(other.getIntercept()-self.getIntercept())/(self.getSlope()-other.getSlope())
                 return x
@@ -117,8 +135,11 @@ class LineSegment:
         if self.__slope=='vertical':
             other_point = other.getPoints()
             if ((other_point[0][0] <= self.__p[0][0]) & 
-                (self.__p[0][0] <= other_point[1][0])): # test if this vertical line intersects with other horizontal line
-                return other_point[0][1]
+                (self.__p[0][0] <= other_point[1][0])): # test if this vertical line intersects with other line
+                if (other_point[0][1]==other_point[1][1]):
+                    return other_point[0][1] # other line is horizontal
+                else:
+                    return other.getYfromX(x) # other line is not horizontal
             else: 
                 return 'invalid'
         elif x!='invalid':
