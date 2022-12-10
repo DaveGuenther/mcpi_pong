@@ -93,7 +93,15 @@ class LineSegment:
                     other_point = other.getPoints()
                     if ((other_point[0][0] <= self.__p[0][0]) & 
                         (self.__p[0][0] <= other_point[1][0])): # test if this vertical line intersects with other horizontal line
-                        return self.__p[0][0]
+                        
+                        # Sort by y values and check if line intersects
+                        other.orderPoints('y')
+                        other_point = other.getPoints()
+                        if ((self.__p[0][1] <= other_point[0][1])&
+                            (other_point[0][1] <= self.__p[1][1])):
+                            return self.__p[0][0]
+                        else:
+                            return 'invalid'
                     else:
                         return 'invalid'
                 else: #other horizontal segment isn't horizontal
