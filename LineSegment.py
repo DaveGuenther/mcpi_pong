@@ -1,5 +1,8 @@
 from pong.line_segment import LineSegment
 import numpy as np
+def edgeFacingHeading(heading, edge_normal):
+    val = np.dot(heading, edge_normal)
+    return True if val<0 else False
 
 A = LineSegment(np.array([4,2]),np.array([2,4]))
 B = LineSegment(np.array([1,2]),np.array([4,4]))
@@ -69,8 +72,31 @@ print(x)
 from pong.matrix_tools import MatrixTools
 import numpy as np
 
-A = LineSegment(np.array([-2,2]),np.array([-2,-1])) # Vertical
-B = LineSegment(np.array([-1,1]),np.array([1,1])) # Horizontal
-A_Heading = MatrixTools.getUnitVector(np.array([0,3]))
-B_Normal = MatrixTools.getUnitVector(np.array([-.7,-.7]))
+A0=np.array([1,-1])
+A1=np.array([-1,1])
+B0=np.array([-2,2])
+B1=np.array([-2,-1])
 
+A = LineSegment(A0,A1) # Diag Ball
+B = LineSegment(B0,B1) # Horizontal
+A_Heading = MatrixTools.getUnitVector(A1-A0) # heading to edge at 45 degs
+B_Normal = MatrixTools.getUnitVector(np.array([3,0])) # facing right
+
+print(A_Heading)
+print(B_Normal)
+print(edgeFacingHeading(A_Heading, B_Normal))
+
+## Switch ball heading to parallel with edge
+A0=np.array([1,-1])
+A1=np.array([1,1])
+B0=np.array([-2,2])
+B1=np.array([-2,-1])
+
+A = LineSegment(A0,A1) # vert ball
+B = LineSegment(B0,B1) # Horizontal
+A_Heading = MatrixTools.getUnitVector(A1-A0) # heading parallel to edge
+B_Normal = MatrixTools.getUnitVector(np.array([3,0])) # facing right
+
+print(A_Heading)
+print(B_Normal)
+print(edgeFacingHeading(A_Heading, B_Normal))
