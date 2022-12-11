@@ -8,7 +8,7 @@ import numpy as np
 from pong.vector import MCVector
 from pong.render import Renderer
 from pong.render import PixelArray
-from pong.controller import Controller
+from pong.game_object import Controller
 from pong.game_object import Ball
 from pong import utility
 import time

@@ -86,3 +86,4 @@ class MatrixTools:
         """
         This multiplies all values in a matrix by the scalar value and returns the new matrix
         """
+        

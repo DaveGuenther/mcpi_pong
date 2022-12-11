@@ -1,5 +1,9 @@
 from pong.line_segment import LineSegment
 import numpy as np
+from pong.game_object import GameObject
+from pong.game_object import Wall
+
+
 def edgeFacingHeading(heading, edge_normal):
     val = np.dot(heading, edge_normal)
     return True if val<0 else False
@@ -100,3 +104,9 @@ B_Normal = MatrixTools.getUnitVector(np.array([3,0])) # facing right
 print(A_Heading)
 print(B_Normal)
 print(edgeFacingHeading(A_Heading, B_Normal))
+
+
+
+sub_obj=Wall('Dave')
+print(sub_obj.getCartPos())
+main_obj=GameObject()
