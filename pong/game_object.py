@@ -66,7 +66,8 @@ class Ball(GameObject):
         self.__orthogonal_force=orthogonal_force # scalar float:  <0 is 90deg CCW force, >0 is 90deg CW force
         self.__painter = painter[0]
         self.__last_cart_pos = self.__cart_pos
-        self.__heading= self.__cart_pos-self.__last_cart_pos
+        self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
 
     def updatePos(self):
         #print("start pos:",self.__cart_pos)
@@ -81,26 +82,40 @@ class Ball(GameObject):
         new_pos = self.__cart_pos+(self.__direction_unit_vec2*self.__speed_scalar)
         self.__last_cart_pos=self.__cart_pos
         self.__cart_pos=new_pos
-        self.__heading=self.__cart_pos-self.__last_cart_pos
+        self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
 
         #print("new pos:",new_pos)
 
-    def getHeading(self):
-        return self.__heading
+    def getHeadingUnitVec(self):
+        return self.__heading_unit_vec
+
+    def getHeadingSegment(self):
+        return self.__headingSegment
 
     def draw(self):
         self.__painter.paintSprite(self.__sprite, self.__cart_pos)
+    
+    def collide(self, edge):
+        print('Ball Collided with edge!')
+
+class Edge():
+    def __init__(self, segment:[LineSegment], normal_vec):
+        self.__segment = segment[0]
+        self.__normal = normal_vec[0]
+    
+    def getSegment(self):
+        return self.__segment
+
+    def getNormal(self):
+        return self.__normal
+    
 
 class Rectangle(GameObject):
     """
     GameObject.Rectangle defines a collection of four edges and their normals.
     """
-    def __init__(self, upper_left_coord, bottom_right_coord, normal_facing_out=True):
-        """
-        upper_left_coord:           np.array([x,y])     Cartesian Coordinate of upper left end of rectangle
-        bottom_right_coord:         np.array([x,y])     Cartesian Coordinate of lower right end of rectangle
-        normal_facing_out:          bool                Boolean value to determine whether to make normals face out or in.  Default=True (this would treat the rect where everything inside is solid)
-        """
+    def _SetRectangle(self, top_left_coord, bottom_right_coord, normal_facing_out=True):
         #  A         B
         #   +-------+
         #   |       |
@@ -109,36 +124,30 @@ class Rectangle(GameObject):
         #   +-------+
         #  C         D
 
-        A = upper_left_coord
-        B = np.array([bottom_right_coord[0],upper_left_coord[1]])
+        A = top_left_coord
+        B = np.array([bottom_right_coord[0],top_left_coord[1]])
         C = np.array([top_left_coord[0],bottom_right_coord[1]])
         D = bottom_right_coord
-        self.__line_segments = np.array([
-            LineSegment(A, B),
-            LineSegment(B, D),
-            LineSegment(C, D),
-            LineSegment(A, C)])
+        normal_invertor = 1 if normal_facing_out else -1
+        self.__line_segments = [
+            Edge([LineSegment(A, B)],[np.array([0,1])*normal_invertor]),
+            Edge([LineSegment(B, D)],[np.array([1,0])*normal_invertor]),
+            Edge([LineSegment(C, D)],[np.array([0,-1])*normal_invertor]),
+            Edge([LineSegment(A, C)],[np.array([-1,0])*normal_invertor])
+        ]
+                  
 
-        if normal_facing_out:
-            # Rectangle is solid inside
-            self.__normals = np.array([
-                np.array([0,1]),
-                np.array([1,0]),
-                np.array([0,-1]),
-                np.array([-1,0])])
-        else:
-            # Rectangle is solid outside
-            self.__normals = np.array([
-                np.array([0,-1]),
-                np.array([-1,0]),
-                np.array([0,1]),
-                np.array([1,0])])            
- 
-    def getSegments():
+    def __init__(self, top_left_coord, bottom_right_coord, normal_facing_out=True):
+        """
+        top_left_coord:             np.array([x,y])     Cartesian Coordinate of upper left end of rectangle
+        bottom_right_coord:         np.array([x,y])     Cartesian Coordinate of lower right end of rectangle
+        normal_facing_out:          bool                Boolean value to determine whether to make normals face out or in.  Default=True (this would treat the rect where everything inside is solid)
+        """
+        self._SetRectangle(top_left_coord, bottom_right_coord, normal_facing_out)
+
+    def getSegments(self):
         return self.__line_segments
 
-    def getNormals():
-        return self.__normals
 
 class Controller(Rectangle):
     """

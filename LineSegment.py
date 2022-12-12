@@ -1,7 +1,7 @@
 from pong.line_segment import LineSegment
 import numpy as np
 from pong.game_object import GameObject
-from pong.game_object import Wall
+from pong.game_object import Edge
 
 
 def edgeFacingHeading(heading, edge_normal):
@@ -106,7 +106,21 @@ print(B_Normal)
 print(edgeFacingHeading(A_Heading, B_Normal))
 
 
+A0=np.array([2,2])
+A1=np.array([1,-2])
+B0=np.array([2,1])
+B1=np.array([-1,-2])
+A = LineSegment(A0,A1) # vert ball
+B = LineSegment(B0,B1) # Horizontal
+x = A.interceptWith(B)
+print(A0-x)
+print(A1-x)
+print(B0-x)
+print(B1-x)
 
+my_edge = Edge([B],B_Normal)
+my_segment = my_edge.getSegment()
 sub_obj=Wall('Dave')
 print(sub_obj.getCartPos())
 main_obj=GameObject()
+

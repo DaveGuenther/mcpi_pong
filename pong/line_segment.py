@@ -129,7 +129,11 @@ class LineSegment:
                     else: return 'invalid'
             else: #neither line is vertical and we calculate a standard intercept
                 x=(other.getIntercept()-self.getIntercept())/(self.getSlope()-other.getSlope())
-                return x
+                if ((self.__p[0][0]<=x)&
+                    (x <= self.__p[1][0])):
+                    return x
+                else:
+                    return 'invalid'
         else:
             return 'invalid'
 
