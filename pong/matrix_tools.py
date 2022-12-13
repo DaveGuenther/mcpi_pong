@@ -7,7 +7,7 @@ class MatrixTools:
     def getVectorLength(vector):
         """
         Returns the length of a scaled vector
-        vector          tuple           This is a 2d vector representing the input vector
+        vector          np.array          This is a 2d vector representing the input vector
         """
         vec_length = math.sqrt(vector[0]**2+vector[1]**2)
         return vec_length
@@ -15,10 +15,10 @@ class MatrixTools:
     def getUnitVector(non_unit_vector):
         """
         Returns the unit vector of the input vector
-        vector          tuple           This is a 2d vector representing the input vector
+        vector          np.array           This is a 2d vector representing the input vector
         """
         vec_length = MatrixTools.getVectorLength(non_unit_vector)
-        out_vec = (non_unit_vector[0]/vec_length, non_unit_vector[1]/vec_length)
+        out_vec = np.array([non_unit_vector[0]/vec_length, non_unit_vector[1]/vec_length])
         return out_vec
 
     def rotateVector(deg_theta:float, unit_vector):
@@ -44,7 +44,7 @@ class MatrixTools:
         non_unit_vector         np.array        2D vector that represents the current direction and magnitude
         force                   float           Negative value is a 90 deg CCW force, Positive is a 90deg CW force.  0 is no lateral force
         """
-        force_vec=(0,0)
+        force_vec=np.array([0,0])
         if force !=0:
             #non_unit_vector = np.array(non_unit_vector)
             vec_length = MatrixTools.getVectorLength(non_unit_vector)
@@ -62,3 +62,28 @@ class MatrixTools:
                 force_vec = MatrixTools.rotateVector(-90, force_vec)
                 force_vec=force_vec*force_length
         return force_vec
+
+    def getOrthogonalForceUnitVector(unit_vector, force:float):
+        """
+        This method will take a unit_vector input and an orthogonal force scalar and provide the scaled orgthogonal force vector.  If the force value is negative, the force vector will be 90 deg CCW from the input vector.  f the force value is positive, the force vector will be 90 deg CW from the input vector.
+
+        unit_vector             np.array        2D vector that represents the current direction
+        force                   float           Negative value is a 90 deg CCW (orthogonal) force, Positive is a 90deg CW (orthogonal) force.  0 is no lateral force
+        """
+        force_vec = unit_vector
+        if force !=0:
+            if force<0: 
+                #force is 90 deg CCW from input vector
+                force_vec = MatrixTools.rotateVector(90, force_vec)
+                force_vec=force_vec*force*-1
+            elif force >0:
+                #force is 90 deg CW from input vector
+                force_vec = MatrixTools.rotateVector(-90, force_vec)
+                force_vec=force_vec*force
+        return force_vec
+
+    def multiplyMatrixByScalar(matrix, scalar:float):
+        """
+        This multiplies all values in a matrix by the scalar value and returns the new matrix
+        """
+        

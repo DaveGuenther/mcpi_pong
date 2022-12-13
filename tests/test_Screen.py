@@ -12,7 +12,7 @@ if int(os.environ['MC_Live_Connection'])==1:
     from mcpi.minecraft import Minecraft
     print("importing real MC")
 else:
-    from .fake_minecraft import Minecraft
+    from .mock_minecraft import Minecraft
     print("importing fame MC")
 
 
@@ -28,6 +28,7 @@ class TestScreen(unittest.TestCase):
         my_screen = Screen([mc],top_left_screen_coord,16,32)
 
         self.assertIs(my_screen.mc_connection, mc, f"mcpi objects do not occupy same memory address")
+        mc.conn.socket.close()
 
     def test_fillActivePage(self):
         my_file= open( "server.pkl", "rb" ) 
@@ -86,6 +87,7 @@ class TestScreen(unittest.TestCase):
         my_screen.fill(9)
         data = my_screen.getBackVirtualPage()
         self.assertIsNone(np.testing.assert_array_equal(data.getData(),assert_val))
+        mc.conn.socket.close()
         
 
 
@@ -129,6 +131,7 @@ class TestScreen(unittest.TestCase):
         my_screen.drawObject(sprite,sprite_start_pos)
         data = my_screen.getBackVirtualPage()
         self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
+        mc.conn.socket.close()
 
 
     def test_flipVirtualPage(self):
@@ -171,6 +174,7 @@ class TestScreen(unittest.TestCase):
         my_screen.flipVirtualPage()
         data = my_screen.getBackVirtualPage()
         self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
+        
 
         assert_val=np.array(
             [
@@ -191,6 +195,7 @@ class TestScreen(unittest.TestCase):
 
         data = my_screen.getFrontVirtualPage()
         self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
+        mc.conn.socket.close()
 
 
     def test_removeUnchangedBlocksFromRedraw(self):
@@ -234,6 +239,7 @@ class TestScreen(unittest.TestCase):
         my_screen.removeUnchangedBlocksFromRedraw()
         data = my_screen.getBackVirtualPage()
         self.assertIsNone(np.testing.assert_array_equal(data.getData().T,assert_val))
+        mc.conn.socket.close()
 
 
 

@@ -6,7 +6,7 @@ if int(os.environ['MC_Live_Connection'])==1:
     from mcpi.minecraft import Minecraft
     print("importing real MC")
 else:
-    from .fake_minecraft import Minecraft
+    from .mock_minecraft import Minecraft
     print("importing fame MC")
 from pong import utility
 from pong.render import Screen
@@ -32,6 +32,7 @@ class TestCartesian_Converter(unittest.TestCase):
 
         # assert unittest
         self.assertIsInstance(my_coord_tools, CoordinateTools)
+        mc.conn.socket.close()
 
     def testCartToScreen(self):
         
@@ -51,7 +52,8 @@ class TestCartesian_Converter(unittest.TestCase):
         out_coords=my_coord_tools.cartToScreen(np.array([4,-2]))
 
         # assert unittest
-        self.assertTrue((out_coords==np.array([10,14])).all())
+        self.assertTrue((out_coords==np.array([12,18])).all())
+        mc.conn.socket.close()
 
     def testScreenToCart(self):
         
@@ -68,10 +70,11 @@ class TestCartesian_Converter(unittest.TestCase):
         my_coord_tools=CoordinateTools([my_screen])
 
         #perform test
-        out_coords=my_coord_tools.screenToCart(np.array([10,14]))
-
+        out_coords=my_coord_tools.screenToCart(np.array([12,18]))
+        print(out_coords)
         # assert unittest
         self.assertTrue((out_coords==np.array([4,-2])).all())
+        mc.conn.socket.close()
 
 
 if __name__ == '__main__':

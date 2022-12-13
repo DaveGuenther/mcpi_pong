@@ -484,6 +484,13 @@ class Clipper:
 class Renderer:
     """
     This class accepts a Minecraft connection object (wrapped in an array) as well as a top-left start coordinate that will define the screen, creates a Screen and Clipper object, and then manages the application of sprites through the clipper onto the screen.
+    mc:                 [Minecraft]     Instance of mcpi.Minecraft wrapped in a list
+    start_screen_pos:   MCVector        This is the mcpi Vec3d of the top left pixel coordinate of the renderer
+    width:              int             Width in pixels of Renderer
+    height:             int             Height in pixels of Renderer 
+    type:               string          Possible values are one of ['screen','cart'].  
+                                            - 'screen' coordinates mean that (0,0) is at the top left of the renderer
+                                            - 'cart' coordinates mean that (0,0) is at the middle of the renderer
     """
 
     def __init__(self,mc:[Minecraft],start_screen_pos:MCVector, width:int, height:int, type='screen'):
@@ -558,5 +565,9 @@ class Renderer:
     
     def flipVirtualPage(self):
         self.__my_screen.flipVirtualPage()
+    
+    def getScreenWidth(self):
+        return self.__my_screen.getWidth()
 
-   
+    def getScreenHeight(self):
+        return self.__my_screen.getHeight()

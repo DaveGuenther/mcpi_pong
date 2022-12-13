@@ -8,7 +8,7 @@ if int(os.environ['MC_Live_Connection'])==1:
     from mcpi.minecraft import Minecraft
     print("importing real MC")
 else:
-    from .fake_minecraft import Minecraft
+    from .mock_minecraft import Minecraft
     print("importing fame MC")
 from pong import utility
 from pong.render import Screen
@@ -64,6 +64,7 @@ class TestClipper(unittest.TestCase):
         clipped_sprite,sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(this_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.getData(),my_sprite_array.T))
+        mc.conn.socket.close()
 
 
 
@@ -106,6 +107,7 @@ class TestClipper(unittest.TestCase):
         clipped_sprite, sprite_start_pos = my_clipper.clipSpriteWithSingleEdge(clipped_sprite, sprite_start_pos, screen_edge, screen_edge_normal_vec)
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.getData(),top_left_assert.T))
+        mc.conn.socket.close()
 
 
 
@@ -145,6 +147,7 @@ class TestClipper(unittest.TestCase):
 
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.getData(),bot_right_assert.T), f"clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(3,4),f"Sprite Start Position is incorrect")
+        mc.conn.socket.close()
 
     def test_clip_sprite_with_all_edges(self):
         my_file= open( "server.pkl", "rb" ) 
@@ -275,6 +278,7 @@ class TestClipper(unittest.TestCase):
         clipped_sprite, sprite_start_pos = my_clipper.clipObjectWithScreenEdges(this_sprite, sprite_start_pos)
         self.assertIsNone(np.testing.assert_array_equal(clipped_sprite.getData(),assert_val.T), f"Assert 11: clipped sprite does not match")
         self.assertEqual(sprite_start_pos,(0,0),f"Assert 11: Sprite Start Position is incorrect")
+        mc.conn.socket.close()
 
 
 
