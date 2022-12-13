@@ -172,6 +172,8 @@ class Controller(Rectangle):
         self.__sprite_screen_pos = sprite_screen_pos
         self.__painter = painter[0]
         self.__half_screen_width = int(self.__painter.getScreenWidth()/2)
+        self.__rect = Rectangle(sprite_screen_pos,np.array([sprite_screen_pos[0]+controller_sprite.getWidth(),sprite_screen_pos[1]-controller_sprite.getHeight()]))
+
 
     def readScannerInput(self):
         if self.__controller_state=='unloaded':
@@ -198,4 +200,5 @@ class Controller(Rectangle):
     def draw(self):
         self.__painter.paintSprite(self.__sprite, self.__sprite_screen_pos)
 
-
+    def getColliderRect(self):
+        return self.__rect

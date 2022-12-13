@@ -9,7 +9,9 @@ from pong.vector import MCVector
 from pong.render import Renderer
 from pong.render import PixelArray
 from pong.game_object import Controller
+from pong.game_object import Rectangle
 from pong.game_object import Ball
+from pong.game_object import Edge
 from pong import utility
 import time
 from pong import input
@@ -89,20 +91,35 @@ ball_speed=1
 ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
 ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
 
-input_objects = []
+
+# Initialize Screen Collision Bounding Box
+my_screen_bounds = Rectangle(np.array([-8,16]),np.array([8,-16]),normal_facing_out=False)
+
+input_objects = [p1_paddle, p2_paddle]
 movable_objects = [ball1, ball2]
 colliders = [ball1, ball2]
-collidable_objects = []
-drawable_screen_objects = [ball1, ball2]
+collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
+drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 
 while 1:
 
     #Scan MC input
-    #input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
+    input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
     
     #Parse MC Input for each controller based on Scanner Results
     for input_object in input_objects:
         input_object.readScannerInput()
+
+    # handle collisions
+    for ball in colliders:
+        heading = ball.getHeadingUnitVec()
+        for this_rectangle in collidable_rectangles:
+            for edge in this_rectangle.getSegments():
+                normal = edge.getNormal()
+                if edgeFacingHeading(heading, normal):
+                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
+                    if (type(intersection)!=bool):
+                        collider.collide(edge)
 
     #Update object positions
     for movable_object in movable_objects:

@@ -27,7 +27,7 @@ ball_speed=1
 ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
 ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
 
-# Initialize Edges
+# Initialize Screen Collision Bounding Box
 my_screen_bounds = Rectangle(np.array([-8,16]),np.array([8,-16]),normal_facing_out=False)
 dave = np.array([1,0])
 
@@ -45,13 +45,13 @@ while 1:
     #for input_object in input_objects:
     #    input_object.readScannerInput()
 
-    for collider in colliders:
-        heading = collider.getHeadingUnitVec()
+    for ball in colliders:
+        heading = ball.getHeadingUnitVec()
         for this_rectangle in collidable_rectangles:
             for edge in this_rectangle.getSegments():
                 normal = edge.getNormal()
                 if edgeFacingHeading(heading, normal):
-                    intersection = collider.getHeadingSegment().interceptWith(edge.getSegment())
+                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
                     if (type(intersection)!=bool):
                         collider.collide(edge)
 
