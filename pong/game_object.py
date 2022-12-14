@@ -20,7 +20,7 @@ class GameObject():
     sprite:         PixelArray                  This is the 2x2 image of the sprite 
     """
     def __init__(self):
-        raise Exception("Cannot Instantiate GameObject directly!  Instead use one one of the subclasses")
+        raise RuntimeError("Cannot Instantiate GameObject directly!  Instead use one one of the subclasses")
 
 
     def getCartPos(self):
