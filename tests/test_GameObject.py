@@ -1,105 +1,49 @@
 import unittest
 import numpy as np
+import pickle
+import os
+from pong.vector import MCVector
+from pong.render import Renderer
 from pong.render import PixelArray
-import pong.game_object as GO
+from pong.game_object import GameObject
+from pong.game_object import Ball
+from pong.game_object import Rectangle
+
+if int(os.environ['MC_Live_Connection'])==1:
+    from mcpi.minecraft import Minecraft
+    print("importing real MC")
+else:
+    from .mock_minecraft import Minecraft
+    print("importing fame MC")
 
 class TestGameObjectInterface(unittest.TestCase):
+    """
+    Tests that instantiating GameObject directly raises a RuntimeError
+    """
     def testInstanceGameObject(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_base_object = GO.GameObject(np.array([0,1]), my_sprite)
-        self.assertIsInstance(my_base_object, GO.GameObject)
+        self.assertRaises(RuntimeError, lambda:GameObject())
 
-    def testInstanceMovableVirtualGameObject(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_VirtualObject = GO.MovableVirtualGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1)
-        self.assertIsInstance(my_VirtualObject, GO.MovableVirtualGameObject)
+    def TestBallObject(self):
+        """
+        Tests instantiation of Ball object
+        """
+        # connect to active server
+        server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
+        mc = Minecraft.create(server_ip,server_port)
 
-    def testInstanceMovablePhysicalGameObject(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_InputGameObject = GO.MovablePhysicalGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1, my_PC_Minecraft_Controller)
-        self.assertIsInstance(my_InputGameObject, GO.MovablePhysicalGameObject)
+        #Initialize subsystems
+        top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display..  Display is facing west
+        painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
 
-    def testGameObjectSetGet(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_base_object = GO.GameObject(np.array([0,1]), my_sprite)
-        my_assert_sprite = PixelArray(np.array(
-            [
-                [1,7,5],
-                [7,2,3],
-                [7,4,7]
-            ]
-        ))
-        assert_pos=np.array([3,4])
-        my_base_object.setCartPos(assert_pos)
-        my_base_object.setSprite(my_assert_sprite)
-        self.assertTrue((my_base_object.getCartPos()==assert_pos).all()) 
-        self.assertTrue((my_base_object.getSprite().getData()==my_assert_sprite.getData()).all())
+        # Initialize Ball
+        start_pos = np.array([0,0])
+        start_direction = np.array([0,1])
+        ball_speed=1
+        ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
 
-    def testMovableVirtualGameObjectSetGet(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_VirtualObject = GO.MovableVirtualGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1)
-        my_VirtualObject.setSpeed(5)
-        my_VirtualObject.setDirection(np.array([5,3]))
-        my_VirtualObject.setLateralForceVector(-0.33)
-        self.assertEqual(my_VirtualObject.getLateralForceVector(), -0.33)
-        self.assertTrue((my_VirtualObject.getDirection()==np.array([5,3])).all())
-        self.assertTrue((my_VirtualObject.getSprite().getData()==my_sprite.getData()).all())
-        self.assertTrue((my_VirtualObject.getCartPos()==np.array([0,1])).all())
-        self.assertEqual(my_VirtualObject.getSpeed(),5)
+        self.assertIsInstance(ball1, Ball, f"Painter class failed to initialize")
+        mc.conn.socket.close()
 
 
-    def testMovablePhysicalGameObjectSetGet(self):
-        my_sprite = PixelArray(np.array(
-            [
-                [1,0,5],
-                [0,2,3],
-                [0,4,0]
-            ]
-        ))
-        my_PC_Minecraft_Controller=None
-        my_InputGameObject = GO.MovablePhysicalGameObject(np.array([0,1]), my_sprite, 10, np.array([1,0]), 1, None)
-        my_InputGameObject.setSpeed(5)
-        my_InputGameObject.setDirection(np.array([5,3]))
-        my_InputGameObject.setLateralForceVector(-0.33)
-        self.assertEqual(my_InputGameObject.getLateralForceVector(), -0.33)
-        self.assertTrue((my_InputGameObject.getDirection()==np.array([5,3])).all())
-        self.assertTrue((my_InputGameObject.getSprite().getData()==my_sprite.getData()).all())
-        self.assertTrue((my_InputGameObject.getCartPos()==np.array([0,1])).all())
-        self.assertEqual(my_InputGameObject.getSpeed(),5)
-        self.assertIsNone(my_InputGameObject.getInput())
-
+if __name__=='__main__':
+    unittest.main()
