@@ -144,7 +144,9 @@ class LineSegment:
         other:      LineSegment     The other line segment that you are testing intersection with
         x:          float           This is the return value from __xInterceptWith()
         """
-        if self.__slope=='vertical':
+        if x=='invalid':
+            return 'invalid'
+        elif self.__slope=='vertical':
             other_point = other.getPoints()
             if ((other_point[0][0] <= self.__p[0][0]) & 
                 (self.__p[0][0] <= other_point[1][0])): # test if this vertical line intersects with other line
@@ -154,10 +156,16 @@ class LineSegment:
                     return other.getYfromX(x) # other line is not horizontal
             else: 
                 return 'invalid'
-        elif x!='invalid':
-            return self.getYfromX(x)
+        elif other.getSlope()=='vertical':
+            other.orderPoints('y')
+            other_point = other.getPoints()
+            if ((other_point[0][1] <= self.__p[1][1])&
+                (self.__p[1][1] <= other_point[1][1])):
+                return self.getYfromX(x)
+            else:
+                return 'invalid'
         else:
-            return 'invalid'
+            return self.getYfromX(x)
 
 
 

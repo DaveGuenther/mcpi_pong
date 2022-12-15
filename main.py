@@ -12,6 +12,7 @@ from pong.game_object import Controller
 from pong.game_object import Rectangle
 from pong.game_object import Ball
 from pong.game_object import Edge
+from pong.collision import CollisionHandler
 from pong import utility
 import time
 from pong import input
@@ -100,6 +101,7 @@ movable_objects = [ball1, ball2]
 colliders = [ball1, ball2]
 collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
 drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
+collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
 while 1:
 
@@ -111,15 +113,16 @@ while 1:
         input_object.readScannerInput()
 
     # handle collisions
-    for ball in colliders:
-        heading = ball.getHeadingUnitVec()
-        for this_rectangle in collidable_rectangles:
-            for edge in this_rectangle.getSegments():
-                normal = edge.getNormal()
-                if edgeFacingHeading(heading, normal):
-                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
-                    if (type(intersection)!=bool):
-                        collider.collide(edge)
+    collision_handler.testCollisions()
+#    for ball in colliders:
+#        heading = ball.getHeadingUnitVec()
+#        for this_rectangle in collidable_rectangles:
+#            for edge in this_rectangle.getSegments():
+#                normal = edge.getNormal()
+#                if edgeFacingHeading(heading, normal):
+#                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
+#                    if (type(intersection)!=bool):
+#                        collider.collide(edge)
 
     #Update object positions
     for movable_object in movable_objects:
