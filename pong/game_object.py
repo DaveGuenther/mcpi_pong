@@ -4,7 +4,6 @@ from .render import Renderer
 from .matrix_tools import MatrixTools
 from . import class_mgmt
 from .line_segment import LineSegment
-
 from mcpi.minecraft import Minecraft
 from . import input
 from .mcpi_block_structure.blockstructure import BlockStructure
@@ -67,7 +66,7 @@ class Ball(GameObject):
         self.__painter = painter[0]
         self.__last_cart_pos = self.__cart_pos
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
-        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
     def updatePos(self):
         #print("start pos:",self.__cart_pos)
@@ -83,7 +82,7 @@ class Ball(GameObject):
         self.__last_cart_pos=self.__cart_pos
         self.__cart_pos=new_pos
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
-        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
         #print("new pos:",new_pos)
 
@@ -96,7 +95,11 @@ class Ball(GameObject):
     def draw(self):
         self.__painter.paintSprite(self.__sprite, self.__cart_pos)
     
-    def collide(self, edge):
+    def collide(self, edge, intersection_point):
+        """
+        edge:                   LineSegment         This is the edge that the ball (self) has collided with
+        intersection_point:     np.array([x,y])     This is the point that the ball (self) intersects with the edge
+        """
         print('Ball Collided with edge!')
 
 class Edge():

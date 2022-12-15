@@ -114,15 +114,6 @@ while 1:
 
     # handle collisions
     collision_handler.testCollisions()
-#    for ball in colliders:
-#        heading = ball.getHeadingUnitVec()
-#        for this_rectangle in collidable_rectangles:
-#            for edge in this_rectangle.getSegments():
-#                normal = edge.getNormal()
-#                if edgeFacingHeading(heading, normal):
-#                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
-#                    if (type(intersection)!=bool):
-#                        collider.collide(edge)
 
     #Update object positions
     for movable_object in movable_objects:

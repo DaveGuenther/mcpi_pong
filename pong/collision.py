@@ -1,5 +1,7 @@
 import numpy as np
 
+
+
 class CollisionHandler:
     def __init__(self, colliders, collidables):
         self.__colliders = colliders[0]
@@ -16,6 +18,7 @@ class CollisionHandler:
                 for edge in this_rectangle.getSegments():
                     normal = edge.getNormal()
                     if self.__edgeFacingHeading(heading, normal):
-                        intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
-                        if (type(intersection)!=bool):
-                            ball.collide(edge)        
+                        intersection_point = ball.getHeadingSegment().interceptWith(edge.getSegment())
+                        if (type(intersection_point)!=bool):
+                            ball.collide(edge, intersection_point)        
+
