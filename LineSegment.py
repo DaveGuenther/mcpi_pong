@@ -105,6 +105,18 @@ print(A_Heading)
 print(B_Normal)
 print(edgeFacingHeading(A_Heading, B_Normal))
 
+A0=np.array([0,0])
+A1=np.array([.13864784,.99034175])
+B0=np.array([0,-14])
+B1=np.array([0,-15])
+A = LineSegment(A0,A1) # vert ball
+B = LineSegment(B0,B1) # Horizontal
+x = A.interceptWith(B)
+print(A0-x)
+print(A1-x)
+print(B0-x)
+print(B1-x)
+
 
 A0=np.array([2,2])
 A1=np.array([1,-2])

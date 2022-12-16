@@ -4,7 +4,6 @@ from .render import Renderer
 from .matrix_tools import MatrixTools
 from . import class_mgmt
 from .line_segment import LineSegment
-
 from mcpi.minecraft import Minecraft
 from . import input
 from .mcpi_block_structure.blockstructure import BlockStructure
@@ -67,7 +66,7 @@ class Ball(GameObject):
         self.__painter = painter[0]
         self.__last_cart_pos = self.__cart_pos
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
-        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
     def updatePos(self):
         #print("start pos:",self.__cart_pos)
@@ -83,7 +82,7 @@ class Ball(GameObject):
         self.__last_cart_pos=self.__cart_pos
         self.__cart_pos=new_pos
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
-        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos)
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
         #print("new pos:",new_pos)
 
@@ -96,8 +95,69 @@ class Ball(GameObject):
     def draw(self):
         self.__painter.paintSprite(self.__sprite, self.__cart_pos)
     
-    def collide(self, edge):
-        print('Ball Collided with edge!')
+    def collide(self, edge, intercept):
+        """
+        edge:                   LineSegment         This is the edge that the ball (self) has collided with
+        intercept:              np.array([x,y])     This is the point that the ball (self) intersects with the edge
+
+        
+        This function sets a new heading and current direction for the ball after colliding with an edge.  
+        
+        """
+        edge_screen=edge.getSegment()
+        #subtract intercept from both secments
+        origin_ball=LineSegment(self.__last_cart_pos-intercept, self.__cart_pos-intercept, directional=True)
+        origin_edge=LineSegment(edge_screen.getPoints()[0]-intercept, edge_screen.getPoints()[1]-intercept)
+
+        if edge_screen.getSlope()=='vertical':
+            #rotate ball by -90 deg
+            ball_vec_end_in_edge_space = MatrixTools.rotateVector(-90, origin_ball.getPoints()[1])
+            
+            #flip y coord of ball endpoint
+            ball_vec_end_in_edge_space[1]=ball_vec_end_in_edge_space[1]*-1
+
+            #rotate ball by 90 deg
+            new_ball_end_in_screen_space = MatrixTools.rotateVector(90, ball_vec_end_in_edge_space)
+
+        elif edge_screen.getSlope()==0:
+            
+            #flip y coord of ball endpoint
+            new_ball_end_in_screen_space=origin_ball.getPoints()[1]
+            new_ball_end_in_screen_space[1]=new_ball_end_in_screen_space[1]*-1    
+            
+        else:
+            #slope is either positive or negative but not vertical or horizontal
+            
+            #use a non-zero edge point
+            edge_point_to_calc_theta=0
+            if (origin_ball.getPoints()[0][0]==0)|(origin_ball.getPoints()[0][1]==0):
+                edge_point_to_calc_theta=1
+            
+            #calculate negative theta form edge point
+            neg_theta = -1*(180/math.pi)*math.atan(
+                float(origin_edge.getPoints()[edge_point_to_calc_theta][1])/
+                float(origin_edge.getPoints()[edge_point_to_calc_theta][0]))
+
+            #Rotate ball by neg_theta
+            ball_vec_end_in_edge_space = MatrixTools.rotateVector(neg_theta, origin_ball.getPoints()[1])
+
+            #Flip y coord of ball endpoint
+            ball_vec_end_in_edge_space[1]=ball_vec_end_in_edge_space[1]*-1
+
+            #rotate ball by pos_theta
+            pos_theta = neg_theta*-1
+            new_ball_end_in_screen_space = MatrixTools.rotateVector(pos_theta, ball_vec_end_in_edge_space)             
+
+
+        #add intercept to ball_vec
+        reflected_ball_vec = LineSegment(intercept, new_ball_end_in_screen_space+intercept,directional=True)
+
+        self.__last_cart_pos=intercept
+        self.__cart_pos=reflected_ball_vec.getPoints()[1]
+        self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
+        self.__direction_unit_vec2=MatrixTools.getUnitVector(self.__heading_unit_vec)
+        self.__headingSegment = reflected_ball_vec
+
 
 class Edge():
     def __init__(self, segment:[LineSegment], normal_vec):

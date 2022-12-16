@@ -35,7 +35,7 @@ class LineSegment:
         else:
             self.__intercept='vertical'
 
-    def setPoints(self, p0, p1):
+    def setPoints(self, p0, p1, directional=False):
         """
         Given two points p0, and p1, this function sets the new line segment data, orders the points, and calculates slope/intercept for the segment
         
@@ -44,14 +44,15 @@ class LineSegment:
         """
         self.__p[0]=p0
         self.__p[1]=p1
-        self.orderPoints('x')
+        if directional==False:
+            self.orderPoints('x')
         self.__calcSlope()
         self.__calcIntercept()
 
     def getPoints(self):
         return self.__p
 
-    def __init__(self, p0, p1):
+    def __init__(self, p0, p1, directional=False):
         """
         LineSegment Class is responsible for containing data and formula around definining a linesegment, determining it's slope, intercept, and also whether it collides with another segment.
 
@@ -60,7 +61,7 @@ class LineSegment:
         heading     np.array()      Array with x,y positions reflecting the normal vector of the line segment
         """
         self.__p=[p0, p1]
-        self.setPoints(p0, p1)
+        self.setPoints(p0, p1, directional)
 
     def getSlope(self):
         return self.__slope
@@ -144,7 +145,9 @@ class LineSegment:
         other:      LineSegment     The other line segment that you are testing intersection with
         x:          float           This is the return value from __xInterceptWith()
         """
-        if self.__slope=='vertical':
+        if x=='invalid':
+            return 'invalid'
+        elif self.__slope=='vertical':
             other_point = other.getPoints()
             if ((other_point[0][0] <= self.__p[0][0]) & 
                 (self.__p[0][0] <= other_point[1][0])): # test if this vertical line intersects with other line
@@ -154,10 +157,16 @@ class LineSegment:
                     return other.getYfromX(x) # other line is not horizontal
             else: 
                 return 'invalid'
-        elif x!='invalid':
-            return self.getYfromX(x)
+        elif other.getSlope()=='vertical':
+            other.orderPoints('y')
+            other_point = other.getPoints()
+            if ((other_point[0][1] <= self.__p[1][1])&
+                (self.__p[1][1] <= other_point[1][1])):
+                return self.getYfromX(x)
+            else:
+                return 'invalid'
         else:
-            return 'invalid'
+            return self.getYfromX(x)
 
 
 

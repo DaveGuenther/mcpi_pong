@@ -12,6 +12,7 @@ from pong.game_object import Controller
 from pong.game_object import Rectangle
 from pong.game_object import Ball
 from pong.game_object import Edge
+from pong.collision import CollisionHandler
 from pong import utility
 import time
 from pong import input
@@ -29,15 +30,15 @@ p2_paddle_nw_bot_corner = MCVector.from_MCWorld_XYZ(39522, 87, 39968) # player 2
 
 paddle1 = BlockStructure(mc)
 paddle1.read_from_file("assets/p1_paddle.pkl")
-paddle1.set_structure(p1_paddle_nw_bot_corner.get_MCWorld_Vec())
+paddle1.set_structure(p1_paddle_nw_bot_corner.get_mcpiVec())
 
 paddle2 = BlockStructure(mc)
 paddle2.read_from_file("assets/p2_paddle.pkl")
-paddle2.set_structure(p2_paddle_nw_bot_corner.get_MCWorld_Vec())
+paddle2.set_structure(p2_paddle_nw_bot_corner.get_mcpiVec())
 
 screen_obj = BlockStructure(mc)
 screen_obj.read_from_file("assets/screen.pkl")
-screen_obj.set_structure(screen_nw_bot_corner.get_MCWorld_Vec())
+screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
 
 #Initialize subsystems
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
@@ -96,10 +97,11 @@ ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
 my_screen_bounds = Rectangle(np.array([-8,16]),np.array([8,-16]),normal_facing_out=False)
 
 input_objects = [p1_paddle, p2_paddle]
-movable_objects = [ball1, ball2]
+movable_objects = [ball1, ball2, p1_paddle, p2_paddle]
 colliders = [ball1, ball2]
 collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
 drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
+collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
 while 1:
 
@@ -110,20 +112,12 @@ while 1:
     for input_object in input_objects:
         input_object.readScannerInput()
 
-    # handle collisions
-    for ball in colliders:
-        heading = ball.getHeadingUnitVec()
-        for this_rectangle in collidable_rectangles:
-            for edge in this_rectangle.getSegments():
-                normal = edge.getNormal()
-                if edgeFacingHeading(heading, normal):
-                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
-                    if (type(intersection)!=bool):
-                        collider.collide(edge)
-
     #Update object positions
     for movable_object in movable_objects:
         movable_object.updatePos()
+
+    # handle collisions
+    collision_handler.testCollisions()
         
     #clear canvas
     painter.fillCanvas(0)

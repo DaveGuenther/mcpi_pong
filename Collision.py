@@ -1,74 +1,87 @@
 import numpy as np
 from mcpi.minecraft import Minecraft
 import pickle
+import math
+from pong.line_segment import LineSegment
 from pong.game_object import Rectangle
 from pong.game_object import Ball
 from pong.game_object import Edge
-from pong.render import Renderer
-from pong.vector import MCVector
+from pong.matrix_tools import MatrixTools
 
-def edgeFacingHeading(heading, edge_normal):
-    val = np.dot(heading, edge_normal)
-    return True if val<0 else False
+def getReflectedRay(ball_screen, edge_screen, intercept):
+    #subtract intercept from both secments
+    origin_ball=LineSegment(ball_screen.getPoints()[0]-intercept, ball_screen.getPoints()[1]-intercept, directional=True)
+    origin_edge=LineSegment(edge_screen.getPoints()[0]-intercept, edge_screen.getPoints()[1]-intercept)
 
-# connect to active server
-server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
-mc = Minecraft.create(server_ip,server_port)
-
-#Initialize subsystems
-
-top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display..  Display is facing west
-painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
-
-# Initialize Balls
-start_pos = np.array([0,0])
-start_direction = np.array([0,1])
-ball_speed=1
-ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
-ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
-
-# Initialize Screen Collision Bounding Box
-my_screen_bounds = Rectangle(np.array([-8,16]),np.array([8,-16]),normal_facing_out=False)
-dave = np.array([1,0])
-
-colliders = [ball1, ball2]
-movable_objects=[ball1, ball2]
-collidable_rectangles = [my_screen_bounds]
-drawable_screen_objects = [ball1, ball2]
-
-while 1:
-
-    #Scan MC input
-    #input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
-    
-    #Parse MC Input for each controller based on Scanner Results
-    #for input_object in input_objects:
-    #    input_object.readScannerInput()
-
-    for ball in colliders:
-        heading = ball.getHeadingUnitVec()
-        for this_rectangle in collidable_rectangles:
-            for edge in this_rectangle.getSegments():
-                normal = edge.getNormal()
-                if edgeFacingHeading(heading, normal):
-                    intersection = ball.getHeadingSegment().interceptWith(edge.getSegment())
-                    if (type(intersection)!=bool):
-                        collider.collide(edge)
-
-    #Update object positions
-    for movable_object in movable_objects:
-        movable_object.updatePos()
+    if edge_screen.getSlope()=='vertical':
+        #rotate ball by -90 deg
+        ball_vec_end_in_edge_space = MatrixTools.rotateVector(-90, origin_ball.getPoints()[1])
         
-    #clear canvas
-    painter.fillCanvas(0)
-    
-    #place sprites
-    for drawable_object in drawable_screen_objects:
-        drawable_object.draw()
-    
-    #show screen
-    painter.flipVirtualPage()
-    #time.sleep(.05)
+        #flip y coord of ball endpoint
+        ball_vec_end_in_edge_space[1]=ball_vec_end_in_edge_space[1]*-1
+
+        #rotate ball by 90 deg
+        new_ball_end_in_screen_space = MatrixTools.rotateVector(90, ball_vec_end_in_edge_space)
+
+    elif edge_screen.getSlope()==0:
+        
+        #flip y coord of ball endpoint
+        new_ball_end_in_screen_space=origin_ball.getPoints()[1]
+        new_ball_end_in_screen_space[1]=new_ball_end_in_screen_space[1]*-1    
+        
+    else:
+        #slope is either positive or negative but not vertical or horizontal
+        
+        #use a non-zero edge point
+        edge_point_to_calc_theta=0
+        if (origin_ball.getPoints()[0][0]==0)|(origin_ball.getPoints()[0][1]==0):
+            edge_point_to_calc_theta=1
+        
+        #calculate negative theta form edge point
+        neg_theta = -1*(180/math.pi)*math.atan(
+            float(origin_edge.getPoints()[edge_point_to_calc_theta][1])/
+            float(origin_edge.getPoints()[edge_point_to_calc_theta][0]))
+
+        #Rotate ball by neg_theta
+        ball_vec_end_in_edge_space = MatrixTools.rotateVector(neg_theta, origin_ball.getPoints()[1])
+
+        #Flip y coord of ball endpoint
+        ball_vec_end_in_edge_space[1]=ball_vec_end_in_edge_space[1]*-1
+
+        #rotate ball by pos_theta
+        pos_theta = neg_theta*-1
+        new_ball_end_in_screen_space = MatrixTools.rotateVector(pos_theta, ball_vec_end_in_edge_space)             
 
 
-            
+    #add intercept to ball_vec
+    reflected_ball_vec = LineSegment(intercept, new_ball_end_in_screen_space+intercept,directional=True)
+    return reflected_ball_vec
+
+
+ball_screen=LineSegment(np.array([1,-1]),np.array([-2,2]),directional=True)
+edge_screen=LineSegment(np.array([-1,2]),np.array([-1,-2]))
+intercept = np.array([-1,1])
+
+vert_reflected_ray = getReflectedRay(ball_screen, edge_screen, intercept)
+
+
+hor_case_ball_screen = LineSegment(np.array([2,2]),np.array([-2,-1]),directional=True)
+hor_case_edge_screen = LineSegment(np.array([-2,0]),np.array([2,0]))
+hor_case_intercept = np.array([-0.5,0])
+
+hor_reflected_ray = getReflectedRay(hor_case_ball_screen, hor_case_edge_screen, hor_case_intercept)
+
+pos_case_ball_screen = LineSegment(np.array([1,-2]),np.array([2,2]),directional=True)
+pos_case_edge_screen = LineSegment(np.array([2,2]),np.array([-1,-2]))
+pos_case_intercept = np.array([1.5,0.5])
+
+pos_reflected_ray = getReflectedRay(pos_case_ball_screen, pos_case_edge_screen, pos_case_intercept)
+
+neg_case_ball_screen = LineSegment(np.array([0,-1]),np.array([-2,3]),directional=True)
+neg_case_edge_screen = LineSegment(np.array([-2,2]),np.array([1,-1]))
+neg_case_intercept = np.array([-1,1])
+
+neg_reflected_ray = getReflectedRay(neg_case_ball_screen, neg_case_edge_screen, neg_case_intercept)
+
+
+print('hello')
