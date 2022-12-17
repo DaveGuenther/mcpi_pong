@@ -14,6 +14,7 @@ from pong.game_object import Ball
 from pong.game_object import Edge
 from pong.collision import CollisionHandler
 from pong import utility
+from pong.notification import Notification
 import time
 from pong import input
 
@@ -40,12 +41,17 @@ screen_obj = BlockStructure(mc)
 screen_obj.read_from_file("assets/screen.pkl")
 screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
 
+
 #Initialize subsystems
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
 input_scanner = input.InputScanner([mc])
 
-#define collidable edges
+#initialize notification sprites
+p1_waiting = Notification([painter],np.array([-3,14]),'p1_waiting',flashing=True)
+p2_waiting = Notification([painter],np.array([-3,-4]),'p2_waiting',flashing=True)
 
+
+#define collidable edges
 
 # p1 controller
 p1_joystick_start_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39955))
@@ -100,7 +106,7 @@ input_objects = [p1_paddle, p2_paddle]
 movable_objects = [ball1, ball2, p1_paddle, p2_paddle]
 colliders = [ball1, ball2]
 collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
-drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
+drawable_in_game_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
 game_state='setup'
@@ -108,8 +114,9 @@ game_state='setup'
 while 1:
 
     if game_state == 'setup':
+        p1_waiting.draw()
+        p2_waiting.draw()
         
-        pass
 
     if game_state == 'transition-setup-game':
         pass
@@ -133,11 +140,11 @@ while 1:
         painter.fillCanvas(0)
         
         #place sprites
-        for drawable_object in drawable_screen_objects:
+        for drawable_object in drawable_in_game_screen_objects:
             drawable_object.draw()
         
-        #show screen
-        painter.flipVirtualPage()
-        #time.sleep(.05)
+    #show screen
+    painter.flipVirtualPage()
+    #time.sleep(.05)
 print("Hello")
 

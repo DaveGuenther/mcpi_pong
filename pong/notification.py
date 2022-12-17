@@ -1,81 +1,92 @@
 import numpy as np
 from .render import PixelArray
+from .timer import SquareWave
 
 class Notification:
 
     __data={
         'p1_waiting':PixelArray(np.array(
             [
-                [9,2,2,2,9],
-                [2,9,9,9,2],
-                [9,9,9,9,2],
-                [9,9,9,9,2],
-                [9,9,9,2,9],
-                [9,9,2,9,9],
-                [9,9,2,9,9],
-                [9,9,9,9,9],
-                [9,9,2,9,9]
+                [0,2,2,2,0],
+                [2,0,0,0,2],
+                [0,0,0,0,2],
+                [0,0,0,0,2],
+                [0,0,0,2,0],
+                [0,0,2,0,0],
+                [0,0,2,0,0],
+                [0,0,0,0,0],
+                [0,0,2,0,0]
             ])),
         'p2_waiting':PixelArray(np.array(
             [
-                [ 9,15,15,15, 9],
-                [15, 9, 9, 9,15],
-                [ 9, 9, 9, 9,15],
-                [ 9, 9, 9, 9,15],
-                [ 9, 9, 9,15, 9],
-                [ 9, 9,15, 9, 9],
-                [ 9, 9,15, 9, 9],
-                [ 9, 9, 9, 9, 9],
-                [ 9, 9,15, 9, 9]
+                [ 0,15,15,15, 0],
+                [15, 0, 0, 0,15],
+                [ 0, 0, 0, 0,15],
+                [ 0, 0, 0, 0,15],
+                [ 0, 0, 0,15, 0],
+                [ 0, 0,15, 0, 0],
+                [ 0, 0,15, 0, 0],
+                [ 0, 0, 0, 0, 0],
+                [ 0, 0,15, 0, 0]
             ])),
         'p1_loaded':PixelArray(np.array(
             [
-                [ 9, 9, 2, 9, 9],
-                [ 9, 2, 2, 2, 9],
-                [ 9, 2, 2, 2, 9],
-                [ 9, 9, 2, 9, 9],
-                [ 9, 2, 2, 2, 9],
-                [ 2, 9, 2, 9, 2],
-                [ 2, 9, 2, 9, 2],
-                [ 9, 9, 2, 9, 9],
-                [ 9, 2, 9, 2, 9],
-                [ 2, 2, 9, 2, 2]
+                [ 0, 0, 2, 0, 0],
+                [ 0, 2, 2, 2, 0],
+                [ 0, 2, 2, 2, 0],
+                [ 0, 0, 2, 0, 0],
+                [ 0, 2, 2, 2, 0],
+                [ 2, 0, 2, 0, 2],
+                [ 2, 0, 2, 0, 2],
+                [ 0, 0, 2, 0, 0],
+                [ 0, 2, 0, 2, 0],
+                [ 2, 2, 0, 2, 2]
             ])),
         'p2_loaded':PixelArray(np.array(
             [
-                [ 9, 9,15, 9, 9],
-                [ 9,15,15,15, 9],
-                [ 9,15,15,15, 9],
-                [ 9, 9,15, 9, 9],
-                [ 9,15,15,15, 9],
-                [15, 9,15, 9,15],
-                [15, 9,15, 9,15],
-                [ 9, 9,15, 9, 9],
-                [ 9,15, 9,15, 9],
-                [15,15, 9,15,15]
+                [ 0, 0,15, 0, 0],
+                [ 0,15,15,15, 0],
+                [ 0,15,15,15, 0],
+                [ 0, 0,15, 0, 0],
+                [ 0,15,15,15, 0],
+                [15, 0,15, 0,15],
+                [15, 0,15, 0,15],
+                [ 0, 0,15, 0, 0],
+                [ 0,15, 0,15, 0],
+                [15,15, 0,15,15]
             ]))
         }
        
-    def __init__(self, painter, x:float, y:float, bitmap='p1_waiting'):
+    def __init__(self, painter, cart_pos, bitmap='p1_waiting', flashing=False, period=1000):
+        """
+        painter:        [Renderer]          Renderer instance.  This is placed in a list as a pointer
+        cart_pos:       np.array([x,y])     Cartesian point to the top left of the sprite
+        bitmap:         string              dictionary lookup of preloaded sprite to use
+        flashing:       bool                True if the bitmap needs to flash on the screen, False if it should just be displayed
+        period:         int                 Period in ms for flashing bitmaps
+        """
         self.__painter = painter[0]
-        self.__cart_x = x
-        self.__cart_y = y
+        self.__cart_pos = cart_pos
         self.__bitmap = self.__data[bitmap]
+        self.__flashing = flashing
+        if flashing:
+            self.__timer = SquareWave(period)
+            self.__bitmap_off = PixelArray.fromDimensions(self.__bitmap.getWidth(), self.__bitmap.getHeight())
 
 
-    def put_char(character, x=4, y=10, transparent=False):
-        """
-        
-        :param character: (single character string)  This is the character that will be printed on the screen
-        :param x: (int) This is the x position on the display for the top left corner of the character
-        :param y: (int) this is the y position on the display for the top left corner of the character
-        
-        """
-        #:param center(x, y):  (tuple) This is the screen coordinates of the center of the character to be displayed
-        #:param scale=1: (float) 1 is unity scale.  <1 is smaller and >1 is bigger
-        #:param rot: (float) degrees to rotate CCW
-    
-        
-        char_array = self.data[character]
-        
+
+
+    def draw(self):
+        if self.__flashing:
+            # show/hide graphic based on timer state
+            self.__timer.update()
+            if self.__timer.getState()==True:
+                # draw the sprite
+                self.__painter.paintSprite(self.__bitmap, self.__cart_pos)
+            else:
+                # remove the sprite
+                self.__painter.paintSprite(self.__bitmap_off, self.__cart_pos)
+        else:
+            # image is static
+            self.__painter.paintSprite(self.__bitmap, self.__cart_pos)
         
