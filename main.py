@@ -151,14 +151,14 @@ while 1: # start game loop
             p2_waiting.removeImage()
             p2_loaded.removeImage()
             p1_paddle.dropIn()
-            p2_paddle.dropIn()
+            #p2_paddle.dropIn()
             game_state = 'transition-setup-game'
         
 
     if game_state == 'transition-setup-game':
         
         p1_paddle.readScannerInput()
-        #p2_paddle.readScannerInput()        
+        p2_paddle.readScannerInput()        
         if (p1_paddle.getControllerState()=='ingame'):#&(p2.paddle.getControllerState()=='ingame'):
             game_state='in_game'
 
