@@ -14,8 +14,9 @@ from pong.game_object import Ball
 from pong.game_object import Edge
 from pong.collision import CollisionHandler
 from pong import utility
+from pong.notification import Notification
 import time
-from pong import input
+from pong import input_object
 
 # connect to active server
 server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
@@ -40,12 +41,14 @@ screen_obj = BlockStructure(mc)
 screen_obj.read_from_file("assets/screen.pkl")
 screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
 
+
 #Initialize subsystems
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
-input_scanner = input.InputScanner([mc])
+input_scanner = input_object.InputScanner([mc])
 
+
+### 'in-game' setup
 #define collidable edges
-
 
 # p1 controller
 p1_joystick_start_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39955))
@@ -86,6 +89,17 @@ p2_paddle = Controller(
     p2_sprite, p2_pos # Screen Sprite and Screen position
 ) 
 
+### 'setup' game state initialization
+
+#initialize notification sprites
+p1_waiting = Notification([painter],np.array([-3,14]),'p1_waiting',flashing=True)
+p2_waiting = Notification([painter],np.array([-3,-4]),'p2_waiting',flashing=True)
+p1_loaded = Notification([painter], np.array([-3,15]), 'p1_loaded',flashing=False)
+p2_loaded = Notification([painter], np.array([-3,-3]), 'p2_loaded',flashing=False)
+
+
+### 'setup-transition-game' setup
+
 start_pos = np.array([0,0])
 start_direction = np.array([0,1])
 ball_speed=1
@@ -100,32 +114,74 @@ input_objects = [p1_paddle, p2_paddle]
 movable_objects = [ball1, ball2, p1_paddle, p2_paddle]
 colliders = [ball1, ball2]
 collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
-drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
+drawable_in_game_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
-while 1:
+game_state='setup'
 
-    #Scan MC input
-    input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
-    
-    #Parse MC Input for each controller based on Scanner Results
-    for input_object in input_objects:
-        input_object.readScannerInput()
+while 1: # start game loop
 
-    #Update object positions
-    for movable_object in movable_objects:
-        movable_object.updatePos()
-
-    # handle collisions
-    collision_handler.testCollisions()
+    if game_state == 'setup':
+        #Scan MC input
+        input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
         
-    #clear canvas
-    painter.fillCanvas(0)
-    
-    #place sprites
-    for drawable_object in drawable_screen_objects:
-        drawable_object.draw()
-    
+        #Parse MC Input for each controller based on Scanner Results
+        p1_paddle.readScannerInput()
+        p2_paddle.readScannerInput()
+        if p1_paddle.getControllerState()=='loaded':
+
+            p1_waiting.removeImage()
+            p1_loaded.draw()
+        else:
+
+            p1_loaded.removeImage()
+            p1_waiting.draw()
+
+        if p2_paddle.getControllerState()=='loaded':
+
+            p2_waiting.removeImage()
+            p2_loaded.draw()
+        else:
+            p2_loaded.removeImage()
+            p2_waiting.draw()
+
+        if (p1_paddle.getControllerState()=='loaded'):#&(p2.paddle.getControllerState()=='loaded'):
+            p1_waiting.removeImage()
+            p1_loaded.removeImage()
+            p2_waiting.removeImage()
+            p2_loaded.removeImage()
+            p1_paddle.dropIn()
+            p2_paddle.dropIn()
+            game_state = 'transition-setup-game'
+        
+
+    if game_state == 'transition-setup-game':
+        
+        p1_paddle.readScannerInput()
+        #p2_paddle.readScannerInput()        
+        if (p1_paddle.getControllerState()=='ingame'):#&(p2.paddle.getControllerState()=='ingame'):
+            game_state='in_game'
+
+    if game_state == 'in_game':
+
+        #Parse MC Input for each controller based on Scanner Results
+        for input_object in input_objects:
+            input_object.readScannerInput()
+
+        #Update object positions
+        for movable_object in movable_objects:
+            movable_object.updatePos()
+
+        # handle collisions
+        collision_handler.testCollisions()
+            
+        #clear canvas
+        painter.fillCanvas(0)
+        
+        #place sprites
+        for drawable_object in drawable_in_game_screen_objects:
+            drawable_object.draw()
+        
     #show screen
     painter.flipVirtualPage()
     #time.sleep(.05)

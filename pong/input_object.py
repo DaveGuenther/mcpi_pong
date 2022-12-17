@@ -20,6 +20,13 @@ class InputScanner():
         self.__player_ids=[]
         self.__mc_connection = MC[0]
 
+    def getMC_Player_Pos_By_ID(self, player_id):
+            temp_tile=self.__mc_connection.entity.getTilePos(player_id)
+            tilepos = MCVector.from_mcpi_Vec(
+                vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
+            return tilepos
+            #self.__player_info.update({player:tilepos})
+
     def scanMC_Player_Positions(self):
         try:
             self.__player_ids = self.__mc_connection.getPlayerEntityIds()
@@ -27,12 +34,14 @@ class InputScanner():
             self.__player_ids =[]
             self.__player_info={}
 
-        
         for player in self.__player_ids:
-            temp_tile=self.__mc_connection.entity.getTilePos(player)
-            tilepos = MCVector.from_mcpi_Vec(
-                vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
+            tilepos=self.getMC_Player_Pos_By_ID(player)
+            #temp_tile=self.__mc_connection.entity.getTilePos(player)
+            #tilepos = MCVector.from_mcpi_Vec(
+            #    vec3.Vec3(temp_tile.x, temp_tile.y-1, temp_tile.z))
             self.__player_info.update({player:tilepos})
+
+
 
     def getScannedPlayerIDs(self):
         return self.__player_ids
@@ -106,6 +115,7 @@ class InputParserInterface(abc.ABC):
         pass
 
 
+
     def setBlockRange(self, start_coord:MCVector, end_coord:MCVector):
         """
         This takes a start and end MC World Coordinate (can be the same coordinate for tactile button) and stores input block range as start and end coordinates of input
@@ -125,6 +135,8 @@ class InputParserInterface(abc.ABC):
 class TactileInputParser(InputParserInterface):
     
     def _concreteInit(self):
+        self.__player=False
+        self.__player_is_registered=False
         pass
 
     def readInputScanner(self):
@@ -135,15 +147,41 @@ class TactileInputParser(InputParserInterface):
         #    player_ids =[]
        # 
         # check where each player on the server is standing
-        for player in self._scanner.getScannedPlayerIDs():
-            #temp_tile=self._MC.entity.getTilePos(player)
-            tilepos = self._scanner.getScannedPlayerPositions()[player]
-            
-            # look through each block in array and see if player is standing on one of them
-            for block in self._block_array:
-                if block.isEqual(tilepos):
-                    self.__pressed=True
-                    break
+        if self.__player_is_registered==True: # only query position of registered player
+                player = self.__player
+                tilepos = self._scanner.getMC_Player_Pos_By_ID(player)
+                #tilepos = self._scanner.getScannedPlayerPositions()[player]
+
+                # look through each block in array and see if player is standing on one of them
+                for block in self._block_array:
+                    if block.isEqual(tilepos):
+                        self.__pressed=True
+                        break
+        else: # query positions of ALL players on the server to see if anyone is standing on this block
+            for player in self._scanner.getScannedPlayerIDs():
+                #temp_tile=self._MC.entity.getTilePos(player)
+                tilepos = self._scanner.getScannedPlayerPositions()[player]
+                
+                # look through each block in array and see if player is standing on one of them
+                for block in self._block_array:
+                    if block.isEqual(tilepos):
+                        self.__pressed=True
+                        self.__player = player
+                        break
+
+    def assignPlayer(self, player=None):
+        """
+        This function will look at the player currently standing on this tactile block and register future inputs from that user
+        player:      int     id of player in the MC server
+        
+        If this function is not called, then readInputScanner will always read all player positions on the server (slow)
+        """
+        if player is not None:
+            self.__player=player
+        self.__player_is_registered=True 
+
+    def getAssignedPlayer(self):
+        return self.__player
 
     def getInputValue(self):
         return self.__pressed
@@ -153,6 +191,8 @@ class RangeInputParser(InputParserInterface):
     def _concreteInit(self):
         self.__range_input_val=.5
         self.__last_range_input_val=.5
+        self.__player=False
+        self.__player_is_registered=False
 
     def readInputScanner(self):
         #self.__pressed=False
@@ -164,10 +204,10 @@ class RangeInputParser(InputParserInterface):
         #except Exception as e: # happens if there are no players on the server
         #    player_ids =[]
         
-        # check where each player on the server is standing
-        for player in self._scanner.getScannedPlayerIDs():
-            #temp_tile=self._MC.entity.getTilePos(player)
-            tilepos = self._scanner.getScannedPlayerPositions()[player]
+        if self.__player_is_registered==True: # player has been registered..  only query that player's position
+            player = self.__player
+            tilepos = self._scanner.getMC_Player_Pos_By_ID(player)
+            #tilepos = self._scanner.getScannedPlayerPositions()[player]
             
             # look through each block in array and see if player is standing on one of them
             for block in self._block_array:
@@ -181,6 +221,39 @@ class RangeInputParser(InputParserInterface):
                     self.__range_input_val = lerp(start=block_start, end=block_end, pos=block_pos)
 
                     break
+        else: # player has not been registered.  Query ALL player positions on the server
+            # check where each player on the server is standing
+            for player in self._scanner.getScannedPlayerIDs():
+                
+                
+                tilepos = self._scanner.getScannedPlayerPositions()[player]
+                
+                # look through each block in array and see if player is standing on one of them
+                for block in self._block_array:
+                    if block.isEqual(tilepos):
+
+                        #take dot product with self._axis of start, end, and tilepos blocks in order to get floats that we can lerp into an input range between 0-1
+                        block_pos=(tilepos.get_MCWorld_Vec().x*self._axis.x)+(tilepos.get_MCWorld_Vec().y*self._axis.y)+(tilepos.get_MCWorld_Vec().z*self._axis.z)
+                        block_start=(self._start_block.get_MCWorld_Vec().x*self._axis.x)+(self._start_block.get_MCWorld_Vec().y*self._axis.y)+(self._start_block.get_MCWorld_Vec().z*self._axis.z)
+                        block_end=(self._end_block.get_MCWorld_Vec().x*self._axis.x)+(self._end_block.get_MCWorld_Vec().y*self._axis.y)+(self._end_block.get_MCWorld_Vec().z*self._axis.z)
+
+                        self.__range_input_val = lerp(start=block_start, end=block_end, pos=block_pos)
+
+                        break
+
+    def assignPlayer(self, player=None):
+        """
+        This function will look at the player currently standing on this tactile block and register future inputs from that user
+        player:      int     id of player in the MC server
+        
+        If this function is not called, then readInputScanner will always read all player positions on the server (slow)
+        """
+        if player is not None:
+            self.__player=player
+        self.__player_is_registered=True 
+
+    def getAssignedPlayer(self):
+        return self.__player
 
     def getInputValue(self):
         return self.__range_input_val
