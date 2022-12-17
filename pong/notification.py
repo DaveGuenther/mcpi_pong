@@ -68,12 +68,14 @@ class Notification:
         self.__painter = painter[0]
         self.__cart_pos = cart_pos
         self.__bitmap = self.__data[bitmap]
+        self.__bitmap_off = PixelArray.fromDimensions(self.__bitmap.getWidth(), self.__bitmap.getHeight())
         self.__flashing = flashing
         if flashing:
             self.__timer = SquareWave(period)
-            self.__bitmap_off = PixelArray.fromDimensions(self.__bitmap.getWidth(), self.__bitmap.getHeight())
 
 
+    def removeImage(self):
+        self.__painter.paintSprite(self.__bitmap_off, self.__cart_pos)
 
 
     def draw(self):
@@ -85,7 +87,7 @@ class Notification:
                 self.__painter.paintSprite(self.__bitmap, self.__cart_pos)
             else:
                 # remove the sprite
-                self.__painter.paintSprite(self.__bitmap_off, self.__cart_pos)
+                self.removeImage()
         else:
             # image is static
             self.__painter.paintSprite(self.__bitmap, self.__cart_pos)

@@ -46,11 +46,8 @@ screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
 input_scanner = input.InputScanner([mc])
 
-#initialize notification sprites
-p1_waiting = Notification([painter],np.array([-3,14]),'p1_waiting',flashing=True)
-p2_waiting = Notification([painter],np.array([-3,-4]),'p2_waiting',flashing=True)
 
-
+### 'in-game' setup
 #define collidable edges
 
 # p1 controller
@@ -92,6 +89,17 @@ p2_paddle = Controller(
     p2_sprite, p2_pos # Screen Sprite and Screen position
 ) 
 
+### 'setup' game state initialization
+
+#initialize notification sprites
+p1_waiting = Notification([painter],np.array([-3,14]),'p1_waiting',flashing=True)
+p2_waiting = Notification([painter],np.array([-3,-4]),'p2_waiting',flashing=True)
+p1_loaded = Notification([painter], np.array([-3,15]), 'p1_loaded',flashing=False)
+p2_loaded = Notification([painter], np.array([-3,-3]), 'p2_loaded',flashing=False)
+
+
+### 'setup-transition-game' setup
+
 start_pos = np.array([0,0])
 start_direction = np.array([0,1])
 ball_speed=1
@@ -114,17 +122,35 @@ game_state='setup'
 while 1:
 
     if game_state == 'setup':
-        p1_waiting.draw()
-        p2_waiting.draw()
+        #Scan MC input
+        input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
+        
+        #Parse MC Input for each controller based on Scanner Results
+        p1_paddle.readScannerInput()
+        p2_paddle.readScannerInput()
+        if p1_paddle.getControllerState()=='loaded':
+
+            p1_waiting.removeImage()
+            p1_loaded.draw()
+        else:
+
+            p1_loaded.removeImage()
+            p1_waiting.draw()
+
+        if p2_paddle.getControllerState()=='loaded':
+
+            p2_waiting.removeImage()
+            p2_loaded.draw()
+        else:
+            p2_loaded.removeImage()
+            p2_waiting.draw()
         
 
     if game_state == 'transition-setup-game':
         pass
 
     if game_state == 'in_game':
-        #Scan MC input
-        input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
-        
+
         #Parse MC Input for each controller based on Scanner Results
         for input_object in input_objects:
             input_object.readScannerInput()

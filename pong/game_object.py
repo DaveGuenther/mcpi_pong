@@ -236,11 +236,15 @@ class Controller(Rectangle):
 
 
     def readScannerInput(self):
-        if self.__controller_state=='unloaded':
-            self.__ready_button.readInputScanner()
-            if self.__ready_button.getInputValue()==True:
-                self.__controller_state=='loaded'
+        self.__ready_button.readInputScanner()
+        if self.__ready_button.getInputValue()==True:
+            self.__controller_state='loaded'
+        else:
+            self.__controller_state='unloaded'
         self.__joystick_input.readInputScanner()
+
+    def getControllerState(self):
+        return self.__controller_state
 
     def updatePos(self):
         """
