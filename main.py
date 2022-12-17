@@ -103,31 +103,41 @@ collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddl
 drawable_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
+game_state='setup'
+
 while 1:
 
-    #Scan MC input
-    input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
-    
-    #Parse MC Input for each controller based on Scanner Results
-    for input_object in input_objects:
-        input_object.readScannerInput()
-
-    #Update object positions
-    for movable_object in movable_objects:
-        movable_object.updatePos()
-
-    # handle collisions
-    collision_handler.testCollisions()
+    if game_state == 'setup':
         
-    #clear canvas
-    painter.fillCanvas(0)
-    
-    #place sprites
-    for drawable_object in drawable_screen_objects:
-        drawable_object.draw()
-    
-    #show screen
-    painter.flipVirtualPage()
-    #time.sleep(.05)
+        pass
+
+    if game_state == 'transition-setup-game':
+        pass
+
+    if game_state == 'in_game':
+        #Scan MC input
+        input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
+        
+        #Parse MC Input for each controller based on Scanner Results
+        for input_object in input_objects:
+            input_object.readScannerInput()
+
+        #Update object positions
+        for movable_object in movable_objects:
+            movable_object.updatePos()
+
+        # handle collisions
+        collision_handler.testCollisions()
+            
+        #clear canvas
+        painter.fillCanvas(0)
+        
+        #place sprites
+        for drawable_object in drawable_screen_objects:
+            drawable_object.draw()
+        
+        #show screen
+        painter.flipVirtualPage()
+        #time.sleep(.05)
 print("Hello")
 
