@@ -16,7 +16,7 @@ from pong.collision import CollisionHandler
 from pong import utility
 from pong.notification import Notification
 import time
-from pong import input
+from pong import input_object
 
 # connect to active server
 server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
@@ -44,7 +44,7 @@ screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
 
 #Initialize subsystems
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
-input_scanner = input.InputScanner([mc])
+input_scanner = input_object.InputScanner([mc])
 
 
 ### 'in-game' setup
@@ -119,7 +119,7 @@ collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
 game_state='setup'
 
-while 1:
+while 1: # start game loop
 
     if game_state == 'setup':
         #Scan MC input
@@ -144,10 +144,23 @@ while 1:
         else:
             p2_loaded.removeImage()
             p2_waiting.draw()
+
+        if (p1_paddle.getControllerState()=='loaded'):#&(p2.paddle.getControllerState()=='loaded'):
+            p1_waiting.removeImage()
+            p1_loaded.removeImage()
+            p2_waiting.removeImage()
+            p2_loaded.removeImage()
+            p1_paddle.dropIn()
+            p2_paddle.dropIn()
+            game_state = 'transition-setup-game'
         
 
     if game_state == 'transition-setup-game':
-        pass
+        
+        p1_paddle.readScannerInput()
+        #p2_paddle.readScannerInput()        
+        if (p1_paddle.getControllerState()=='ingame'):#&(p2.paddle.getControllerState()=='ingame'):
+            game_state='in_game'
 
     if game_state == 'in_game':
 

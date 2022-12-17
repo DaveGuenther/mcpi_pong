@@ -1,4 +1,3 @@
-
 import datetime
 
 class SquareWave():
@@ -11,6 +10,7 @@ class SquareWave():
         self.__period = period_length
         self.__state=True
 
+
     def getState(self):
         return self.__state
 
@@ -22,4 +22,30 @@ class SquareWave():
             self.__last_timestamp=now
 
 
+class Delay():
+    def __init__(self, duration=1000):
+        """
+        Initializes a timer counting up to duration in milliseconds.  Must call start() to start/restart the timer).
+        """
+        self.__state=False
+        self.__duration = duration
 
+
+    def start(self, duration=None):
+        """
+        Starts the timer with the given duration in milliseconds.  If this function is called while the timer is already running, it will restart
+        """
+        if duration is not None:
+            self.__duration = duration
+        self.__start_time = datetime.datetime.now()
+        self.__state=True
+
+    def getState(self):
+        """
+        returns True if timer is still running.  Returns false if the timer has ended
+        """
+        now = datetime.datetime.now()
+        diff = now-self.__start_time
+        if diff.seconds*1000>=self.__duration:
+            self.__state=False
+        return self.__state

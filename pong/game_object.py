@@ -5,9 +5,10 @@ from .matrix_tools import MatrixTools
 from . import class_mgmt
 from .line_segment import LineSegment
 from mcpi.minecraft import Minecraft
-from . import input
+from . import input_object
 from .mcpi_block_structure.blockstructure import BlockStructure
 from .vector import MCVector
+from .timer import Delay
 
 
 
@@ -214,34 +215,59 @@ class Controller(Rectangle):
     Associates a blockstructure and screen sprite with an InputInterface object
     mc_block_structure              blockstructure          This is a blockstructure object created from the minecraft world.
     block_structure_start_pos       MCVector                MCVector representation of an x,y,z coordinate of one corner of the cuboid to place in the MC world.  This vector must be at the base of the structure on the NW corner.  If you stand at the corner of the structure and look away from it, and find that you are facing just between north and west, you're on the right corner.
-    input_object                    InputInterface          This is an abstract class, referencing either concrete class TactileInput or RangeInput.  It is the 1d input set of blocks that will be used to capture input from the MC World
+    input_object                    InputInterface          This is an abstract class, referencing either concrete class TactileInput or Rangeinput_object  It is the 1d input set of blocks that will be used to capture input from the MC World
 
     """
     def __init__(
-        self, mc:[Minecraft], input_scanner:[input.InputScanner], painter:[Renderer], #subsystems as pointers
+        self, mc:[Minecraft], input_scanner:[input_object.InputScanner], painter:[Renderer], #subsystems as pointers
         mc_blockstructure:BlockStructure, block_structure_start_pos:MCVector, #MC World Structure for Controller
         joystick_start_block, joystick_end_block, ready_button_block, #MC World block Coords to define virtual input
         controller_sprite:PixelArray, sprite_screen_pos):
 
         self.__block_structure = mc_blockstructure
         self.__block_structure_start_pos = block_structure_start_pos
-        self.__controller_state='unloaded' # one of ['unloaded','loaded','ingame','endgame']
-        self.__joystick_input = input.RangeInputParser(mc,input_scanner,start_coord=joystick_start_block, end_coord=joystick_end_block)
-        self.__ready_button = input.TactileInputParser(mc,input_scanner,start_coord=ready_button_block, end_coord=ready_button_block)
+        self.__controller_state='unloaded' # one of ['unloaded','loaded','dropin,'ingame','endgame']
+        # controller states:
+        # 'unloaded' - this is when the game hasn't started yet and controller is waiting for player to step on ready block
+        # 'loaded' - game hasn't started, but player is standing on ready block (likely waiting for other player to get on block)
+        # 'dropin' - both players are on their ready blocks and the dropIn() is called and drop in timer is started.  This removes the ready block and players fall through to range input pad
+        # 'ingame' - once drop in timer is concluded, ready block is replaced and players are on range pads.  range input is now queried
+
+
+        self.__joystick_input = input_object.RangeInputParser(mc,input_scanner,start_coord=joystick_start_block, end_coord=joystick_end_block)
+        self.__ready_button = input_object.TactileInputParser(mc,input_scanner,start_coord=ready_button_block, end_coord=ready_button_block)
         self.__sprite = controller_sprite
         self.__sprite_screen_pos = sprite_screen_pos
         self.__painter = painter[0]
         self.__half_screen_width = int(self.__painter.getScreenWidth()/2)
         self.__rect = Rectangle(sprite_screen_pos,np.array([sprite_screen_pos[0]+controller_sprite.getWidth(),sprite_screen_pos[1]-controller_sprite.getHeight()]))
+        self.__ready_button_block = ready_button_block
+        self.__mc = mc[0]
 
+    def dropIn(self):
+        self.__ready_button.assignPlayer()
+        self.__drop_in_timer = Delay(2000)
+        self.__drop_in_timer.start()
+        self.__joystick_input.assignPlayer(self.__ready_button.getAssignedPlayer())
+        self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,0)
+        self.__controller_state='dropin'
 
     def readScannerInput(self):
-        self.__ready_button.readInputScanner()
-        if self.__ready_button.getInputValue()==True:
-            self.__controller_state='loaded'
-        else:
-            self.__controller_state='unloaded'
-        self.__joystick_input.readInputScanner()
+
+        if self.__controller_state in ['unloaded','loaded']:
+            self.__ready_button.readInputScanner()
+            if self.__ready_button.getInputValue()==True:
+                self.__controller_state='loaded'
+            else:
+                self.__controller_state='unloaded'
+
+        if self.__controller_state=='dropin':
+            if self.__drop_in_timer.getState()==False:
+                self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,7)
+                self.__controller_state='ingame'
+            
+        if self.__controller_state=='ingame':
+            self.__joystick_input.readInputScanner()
 
     def getControllerState(self):
         return self.__controller_state
