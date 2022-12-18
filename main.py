@@ -108,7 +108,7 @@ p2_loaded = Notification([painter], np.array([-3,-6]), 'p2_loaded',flashing=Fals
 
 start_pos = np.array([0,0])
 start_direction = np.array([-.1,-1])
-ball_speed=1.5
+ball_speed=1
 ball1 = Ball([painter], start_pos, start_direction, ball_speed, 0,  2)
 ball2 = Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15)
 

@@ -108,7 +108,27 @@ class TestInput(unittest.TestCase):
         self.assertFalse(A.interceptWith(B))
         self.assertFalse(B.interceptWith(A))
 
+    def testIntercept8(self):
+        """Based on actual case in game.  These segments should NOT intercept"""
+        A0=np.array([-0.19404463, -12.94044628])
+        A1=np.array([-.34330021, -14.43300207])
+        B0=np.array([-8,-13.9])
+        B1=np.array([-4,-13.9])
+        ball = LineSegment(A0,A1) # ball
+        edge = LineSegment(B0,B1) # edge
+        self.assertFalse(ball.interceptWith(edge))
+        self.assertFalse(edge.interceptWith(ball))
 
+    def testIntercept9(self):
+        """Based on actual case in game.  These segments should NOT intercept"""
+        A0=np.array([0,0])
+        A1=np.array([-0.09950372,-0.99503719])
+        B0=np.array([-9,17])
+        B1=np.array([9,17])
+        ball = LineSegment(A0,A1) # ball
+        edge = LineSegment(B0,B1) # edge
+        self.assertFalse(ball.interceptWith(edge))
+        self.assertFalse(edge.interceptWith(ball))
 
 if __name__ == '__main__':
     unittest.main()

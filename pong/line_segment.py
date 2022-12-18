@@ -130,8 +130,10 @@ class LineSegment:
                     else: return 'invalid'
             else: #neither line is vertical and we calculate a standard intercept
                 x=(other.getIntercept()-self.getIntercept())/(self.getSlope()-other.getSlope())
-                if ((self.__p[0][0]<=x)&
-                    (x <= self.__p[1][0])):
+                if ((other.getPoints()[0][0]<=x)&
+                    (x <= other.getPoints()[1][0])&
+                    (self.__p[0][0]<=x)&
+                    (x<=self.__p[1][0])):
                     return x
                 else:
                     return 'invalid'
@@ -158,6 +160,7 @@ class LineSegment:
             else: 
                 return 'invalid'
         elif other.getSlope()=='vertical':
+
             other.orderPoints('y')
             other_point = other.getPoints()
             if ((other_point[0][1] <= self.__p[1][1])&
@@ -166,7 +169,15 @@ class LineSegment:
             else:
                 return 'invalid'
         else:
-            return self.getYfromX(x)
+            if (other.getSlope()==0):
+                self.orderPoints('y')
+                if ((self.__p[0][1]<=other.getPoints()[0][1])&
+                    (other.getPoints()[0][1]<=self.__p[1][1])):
+                    return self.getYfromX(x)
+                else:
+                    return 'invalid'
+            else:
+                return self.getYfromX(x)
 
 
 
