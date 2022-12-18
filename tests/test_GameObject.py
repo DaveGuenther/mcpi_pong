@@ -23,7 +23,7 @@ class TestGameObjectInterface(unittest.TestCase):
     def testInstanceGameObject(self):
         self.assertRaises(RuntimeError, lambda:GameObject())
 
-    def TestBallObject(self):
+    def testBallObject(self):
         """
         Tests instantiation of Ball object
         """
@@ -44,6 +44,13 @@ class TestGameObjectInterface(unittest.TestCase):
         self.assertIsInstance(ball1, Ball, f"Painter class failed to initialize")
         mc.conn.socket.close()
 
+
+#class TestRectangle(unittest.TestCase):
+#    """
+#    Tests the concrete clipping rectangle class of game object used by paddles and screen edges.  We'll test a number of collision cases and check the resulting ball position and trajectory.
+#    """
+#    def testHorizontalEdgeCollosion(self):
+        
 
 if __name__=='__main__':
     unittest.main()

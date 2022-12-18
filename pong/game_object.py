@@ -178,7 +178,18 @@ class Rectangle(GameObject):
     """
     GameObject.Rectangle defines a collection of four edges and their normals.
     """
-    def _SetRectangle(self, top_left_coord, bottom_right_coord, normal_facing_out=True):
+
+    def _getDimensions(self, top_left_corner, bottom_right_corner):
+        self.__width = bottom_right_corner[0]-top_left_corner[0]
+        self.__height = bottom_right_corner[1]-top_left_corner[1]
+    
+    def _getCornersFromDimensions(self):
+        self.__A = self.__cart_pos
+        self.__B = np.array([self.__cart_pos[0]+self.__width,self.__cart_pos[1]])
+        self.__C = np.array([self.__cart_pos[0],self.__cart_pos[1]+self.__height])
+        self.__D = np.array([self.__cart_pos[0]+self.__width,self.__cart_pos[1]+self.__height])
+
+    def _SetRectangle(self, normal_facing_out=True):
         #  A         B
         #   +-------+
         #   |       |
@@ -187,10 +198,10 @@ class Rectangle(GameObject):
         #   +-------+
         #  C         D
 
-        self.__A = top_left_coord
-        self.__B = np.array([bottom_right_coord[0],top_left_coord[1]])
-        self.__C = np.array([top_left_coord[0],bottom_right_coord[1]])
-        self.__D = bottom_right_coord
+        #self.__A = top_left_coord
+        #self.__B = np.array([bottom_right_coord[0],top_left_coord[1]])
+        #self.__C = np.array([top_left_coord[0],bottom_right_coord[1]])
+        #self.__D = bottom_right_coord
         self.__normal_invertor = 1 if normal_facing_out else -1
         self.__line_segments = [
             Edge([LineSegment(self.__A, self.__B)],[np.array([0,1])*self.__normal_invertor]),
@@ -206,13 +217,16 @@ class Rectangle(GameObject):
         bottom_right_coord:         np.array([x,y])     Cartesian Coordinate of lower right end of rectangle
         normal_facing_out:          bool                Boolean value to determine whether to make normals face out or in.  Default=True (this would treat the rect where everything inside is solid)
         """
-        self._SetRectangle(top_left_coord, bottom_right_coord, normal_facing_out)    
+        self.__cart_pos = top_left_coord
+        self._getDimensions(top_left_coord, bottom_right_coord)
+        self._getCornersFromDimensions()
+        self._SetRectangle(normal_facing_out)    
 
     def setCartPos(self, cart_pos):
-        self.__offset_cart_pos=cart_pos-self.__A
+        self.__cart_pos=cart_pos # set new top left corner of clipping rect
+        self._getCornersFromDimensions() # determine remaining corners
+        self._SetRectangle() # construct new rect
         
-        # create new clip rectangle
-        self._SetRectangle(self.__A+self.__offset_cart_pos, self.__D+self.__offset_cart_pos, True if self.__normal_invertor==1 else False)
 
     def getSegments(self):
         return self.__line_segments
