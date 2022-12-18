@@ -10,11 +10,13 @@ from pong.render import Renderer
 from pong.render import PixelArray
 from pong.game_object import Controller
 from pong.game_object import Rectangle
+from pong.game_object import PlayerRectangle
 from pong.game_object import Ball
 from pong.game_object import Edge
 from pong.collision import CollisionHandler
 from pong import utility
 from pong.notification import Notification
+from pong.event import EndEvent
 import time
 from pong import input_object
 
@@ -48,7 +50,6 @@ input_scanner = input_object.InputScanner([mc])
 
 
 ### 'in-game' setup
-#define collidable edges
 
 # p1 controller
 p1_joystick_start_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39955))
@@ -56,7 +57,7 @@ p1_joystick_end_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39962))
 p1_ready_button_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 96, 39959))
 
 # define p1 paddle sprite
-p1_pos = np.array([0,-14])
+p1_pos = np.array([0,-13.9])
 p1_sprite = PixelArray(np.array(
     [
         [4,4,4,4]
@@ -66,7 +67,8 @@ p1_paddle = Controller(
     [mc], [input_scanner], [painter], #subsystems as pointers
     paddle1,p1_paddle_nw_bot_corner, #MC World Objects
     p1_joystick_start_block, p1_joystick_end_block, p1_ready_button_block, #MC World block Coords to define virtual input
-    p1_sprite, p1_pos # Screen Sprite and Screen position
+    p1_sprite, p1_pos, # Screen Sprite and Screen position
+    player_number=1 # set player number associated with this controller
 ) 
 
 # define p2 paddle sprite
@@ -86,34 +88,41 @@ p2_paddle = Controller(
     [mc], [input_scanner], [painter], #subsystems as pointers
     paddle2,p2_paddle_nw_bot_corner, #MC World Objects
     p2_joystick_start_block, p2_joystick_end_block, p2_ready_button_block, #MC World block Coords to define virtual input
-    p2_sprite, p2_pos # Screen Sprite and Screen position
+    p2_sprite, p2_pos, # Screen Sprite and Screen position
+    player_number=2 # set player number asociated with this controller
 ) 
+
+# define EndGame event
+end_game_event = EndEvent()
 
 ### 'setup' game state initialization
 
 #initialize notification sprites
-p1_waiting = Notification([painter],np.array([-3,14]),'p1_waiting',flashing=True)
-p2_waiting = Notification([painter],np.array([-3,-4]),'p2_waiting',flashing=True)
-p1_loaded = Notification([painter], np.array([-3,15]), 'p1_loaded',flashing=False)
-p2_loaded = Notification([painter], np.array([-3,-3]), 'p2_loaded',flashing=False)
+p1_waiting = Notification([painter],np.array([-3,16]),'p1_waiting',flashing=True)
+p2_waiting = Notification([painter],np.array([-3,-6]),'p2_waiting',flashing=True)
+p1_loaded = Notification([painter], np.array([-3,16]), 'p1_loaded',flashing=False)
+p2_loaded = Notification([painter], np.array([-3,-6]), 'p2_loaded',flashing=False)
 
 
 ### 'setup-transition-game' setup
 
 start_pos = np.array([0,0])
-start_direction = np.array([0,1])
-ball_speed=1
-ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
-ball2 = Ball([painter], start_pos, start_direction, ball_speed, .14, 15)
+start_direction = np.array([-.1,-1])
+ball_speed=1.5
+ball1 = Ball([painter], start_pos, start_direction, ball_speed, 0,  2)
+ball2 = Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15)
 
 
 # Initialize Screen Collision Bounding Box
-my_screen_bounds = Rectangle(np.array([-8,16]),np.array([8,-16]),normal_facing_out=False)
+screen_top = PlayerRectangle(np.array([-9,17]),np.array([9,16]), [p1_paddle], end_game_event, normal_facing_out=True)
+screen_left = Rectangle(np.array([-9,17]),np.array([-8,-17]), normal_facing_out=True)
+screen_bottom = PlayerRectangle(np.array([-9,-17]),np.array([9,-18]), [p2_paddle], end_game_event, normal_facing_out=True)
+screen_right = Rectangle(np.array([8,17]), np.array([9,-17]),normal_facing_out=True)
 
 input_objects = [p1_paddle, p2_paddle]
 movable_objects = [ball1, ball2, p1_paddle, p2_paddle]
 colliders = [ball1, ball2]
-collidable_rectangles = [my_screen_bounds, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
+collidable_rectangles = [screen_top, screen_left, screen_bottom, screen_right, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
 drawable_in_game_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
@@ -175,6 +184,7 @@ while 1: # start game loop
         # handle collisions
         collision_handler.testCollisions()
             
+        
         #clear canvas
         painter.fillCanvas(0)
         
@@ -182,6 +192,12 @@ while 1: # start game loop
         for drawable_object in drawable_in_game_screen_objects:
             drawable_object.draw()
         
+
+    #painter.putPixel((0,-14),3)
+    #painter.putPixel((0,-15.9),3)
+    #painter.putPixel((0,14),3)
+    #painter.putPixel((0,16),3)
+
     #show screen
     painter.flipVirtualPage()
     #time.sleep(.05)

@@ -548,7 +548,7 @@ class Renderer:
         """
         pixel_sprite = PixelArray.fromDimensions(1, 1)
         pixel_sprite.fillArray(color)
-        pixel_pos = self.__my_cartesian_converter.cartToScreen(pixel_pos) if self.__renderer_type=='cart' else pixel_pos
+        #pixel_pos = self.__my_cartesian_converter.cartToScreen(pixel_pos) if self.__renderer_type=='cart' else pixel_pos
         self.paintSprite(pixel_sprite, pixel_pos)
 
     def getColorAt(self, pixel_pos, virtual_page=0):

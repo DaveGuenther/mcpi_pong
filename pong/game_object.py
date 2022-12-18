@@ -9,6 +9,8 @@ from . import input_object
 from .mcpi_block_structure.blockstructure import BlockStructure
 from .vector import MCVector
 from .timer import Delay
+from .event import EndEvent
+
 
 
 
@@ -185,16 +187,16 @@ class Rectangle(GameObject):
         #   +-------+
         #  C         D
 
-        A = top_left_coord
-        B = np.array([bottom_right_coord[0],top_left_coord[1]])
-        C = np.array([top_left_coord[0],bottom_right_coord[1]])
-        D = bottom_right_coord
-        normal_invertor = 1 if normal_facing_out else -1
+        self.__A = top_left_coord
+        self.__B = np.array([bottom_right_coord[0],top_left_coord[1]])
+        self.__C = np.array([top_left_coord[0],bottom_right_coord[1]])
+        self.__D = bottom_right_coord
+        self.__normal_invertor = 1 if normal_facing_out else -1
         self.__line_segments = [
-            Edge([LineSegment(A, B)],[np.array([0,1])*normal_invertor]),
-            Edge([LineSegment(B, D)],[np.array([1,0])*normal_invertor]),
-            Edge([LineSegment(C, D)],[np.array([0,-1])*normal_invertor]),
-            Edge([LineSegment(A, C)],[np.array([-1,0])*normal_invertor])
+            Edge([LineSegment(self.__A, self.__B)],[np.array([0,1])*self.__normal_invertor]),
+            Edge([LineSegment(self.__B, self.__D)],[np.array([1,0])*self.__normal_invertor]),
+            Edge([LineSegment(self.__C, self.__D)],[np.array([0,-1])*self.__normal_invertor]),
+            Edge([LineSegment(self.__A, self.__C)],[np.array([-1,0])*self.__normal_invertor])
         ]
                   
 
@@ -204,10 +206,20 @@ class Rectangle(GameObject):
         bottom_right_coord:         np.array([x,y])     Cartesian Coordinate of lower right end of rectangle
         normal_facing_out:          bool                Boolean value to determine whether to make normals face out or in.  Default=True (this would treat the rect where everything inside is solid)
         """
-        self._SetRectangle(top_left_coord, bottom_right_coord, normal_facing_out)
+        self._SetRectangle(top_left_coord, bottom_right_coord, normal_facing_out)    
+
+    def setCartPos(self, cart_pos):
+        self.__offset_cart_pos=cart_pos-self.__A
+        
+        # create new clip rectangle
+        self._SetRectangle(self.__A+self.__offset_cart_pos, self.__D+self.__offset_cart_pos, True if self.__normal_invertor==1 else False)
 
     def getSegments(self):
         return self.__line_segments
+
+    def collide(self):
+        pass
+
 
 
 class Controller(Rectangle):
@@ -222,7 +234,7 @@ class Controller(Rectangle):
         self, mc:[Minecraft], input_scanner:[input_object.InputScanner], painter:[Renderer], #subsystems as pointers
         mc_blockstructure:BlockStructure, block_structure_start_pos:MCVector, #MC World Structure for Controller
         joystick_start_block, joystick_end_block, ready_button_block, #MC World block Coords to define virtual input
-        controller_sprite:PixelArray, sprite_screen_pos):
+        controller_sprite:PixelArray, sprite_screen_pos, player_number:int):
 
         self.__block_structure = mc_blockstructure
         self.__block_structure_start_pos = block_structure_start_pos
@@ -233,7 +245,7 @@ class Controller(Rectangle):
         # 'dropin' - both players are on their ready blocks and the dropIn() is called and drop in timer is started.  This removes the ready block and players fall through to range input pad
         # 'ingame' - once drop in timer is concluded, ready block is replaced and players are on range pads.  range input is now queried
 
-
+        self.__player_num = player_number
         self.__joystick_input = input_object.RangeInputParser(mc,input_scanner,start_coord=joystick_start_block, end_coord=joystick_end_block)
         self.__ready_button = input_object.TactileInputParser(mc,input_scanner,start_coord=ready_button_block, end_coord=ready_button_block)
         self.__sprite = controller_sprite
@@ -243,6 +255,9 @@ class Controller(Rectangle):
         self.__rect = Rectangle(sprite_screen_pos,np.array([sprite_screen_pos[0]+controller_sprite.getWidth(),sprite_screen_pos[1]-controller_sprite.getHeight()]))
         self.__ready_button_block = ready_button_block
         self.__mc = mc[0]
+
+    def getPlayerNum(self):
+        return self.__player_num
 
     def dropIn(self):
         self.__ready_button.assignPlayer()
@@ -282,6 +297,8 @@ class Controller(Rectangle):
             (self.__painter.getScreenWidth()-self.__sprite.getWidth())*
             self.__joystick_input.getInputValue()-self.__half_screen_width
         )
+        self.__rect.setCartPos(self.__sprite_screen_pos)
+
 
     def getDrawData(self):
         print("P1:",self.__joystick_input.getInputValue(), p1_pos[0]," b:",self.__ready_button.getInputValue())
@@ -292,3 +309,17 @@ class Controller(Rectangle):
 
     def getColliderRect(self):
         return self.__rect
+
+class PlayerRectangle(Rectangle):
+    def __init__(self, top_left_coord, bottom_right_coord, controller:[Controller], end_game_event:[EndEvent], normal_facing_out=True):
+        """
+        top_left_coord:             np.array([x,y])     Cartesian Coordinate of upper left end of rectangle
+        bottom_right_coord:         np.array([x,y])     Cartesian Coordinate of lower right end of rectangle
+        normal_facing_out:          bool                Boolean value to determine whether to make normals face out or in.  Default=True (this would treat the rect where everything inside is solid)
+        """
+        self._SetRectangle(top_left_coord, bottom_right_coord, normal_facing_out)
+        self.__player = controller[0].getPlayerNum()
+        self.__end_event = end_game_event
+
+    def collide(self):
+        self.__end_event.setWinningPlayer(self.__player)

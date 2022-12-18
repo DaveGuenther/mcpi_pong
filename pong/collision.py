@@ -20,5 +20,6 @@ class CollisionHandler:
                     if self.__edgeFacingHeading(heading, normal):
                         intersection_point = ball.getHeadingSegment().interceptWith(edge.getSegment())
                         if (type(intersection_point)!=bool):
-                            ball.collide(edge, intersection_point)        
+                            ball.collide(edge, intersection_point)
+                            this_rectangle.collide()        
 
