@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from .render import PixelArray
 from .render import Renderer
 from .matrix_tools import MatrixTools
@@ -161,6 +162,14 @@ class Ball(GameObject):
         self.__direction_unit_vec2=MatrixTools.getUnitVector(self.__heading_unit_vec)
         self.__headingSegment = reflected_ball_vec
 
+    def resetBall(self):
+        new_direction = np.array([(random.uniform(.5, 1.0)*random.sample([-1,1],1)[0]),(random.uniform(.5, 1.0)*random.sample([-1,1],1)[0])]) # get random numbers from -1 to 1
+        self.__direction_unit_vec2=MatrixTools.getUnitVector(new_direction)
+        self.__last_cart_pos=np.array([0,0])
+        self.__cart_pos=np.array([0,0])
+        self.__orthogonal_force=0
+        self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
+        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
 class Edge():
     def __init__(self, segment:[LineSegment], normal_vec):
@@ -267,7 +276,7 @@ class Controller(Rectangle):
         self.__sprite_screen_pos = sprite_screen_pos
         self.__painter = painter[0]
         self.__half_screen_width = int(self.__painter.getScreenWidth()/2)
-        self.__rect = Rectangle(sprite_screen_pos,np.array([sprite_screen_pos[0]+controller_sprite.getWidth(),sprite_screen_pos[1]-controller_sprite.getHeight()]))
+        self.__rect = Rectangle(sprite_screen_pos+np.array([-.5,0]),np.array([sprite_screen_pos[0]+controller_sprite.getWidth()+.5,sprite_screen_pos[1]-controller_sprite.getHeight()]))
         self.__ready_button_block = ready_button_block
         self.__mc = mc[0]
 
@@ -312,7 +321,7 @@ class Controller(Rectangle):
             (self.__painter.getScreenWidth()-self.__sprite.getWidth())*
             self.__joystick_input.getInputValue()-self.__half_screen_width
         )
-        self.__rect.setCartPos(self.__sprite_screen_pos)
+        self.__rect.setCartPos(self.__sprite_screen_pos+np.array([-.5,0]))
 
 
     def getDrawData(self):
@@ -324,6 +333,12 @@ class Controller(Rectangle):
 
     def getColliderRect(self):
         return self.__rect
+    
+    def resetController(self):
+        """
+        This function is called when the game has concluded and is resetting for new players..
+        """
+        self.__controller_state='unloaded'
 
 class PlayerRectangle(Rectangle):
     def __init__(self, top_left_coord, bottom_right_coord, controller:[Controller], end_game_event:[EndEvent], normal_facing_out=True):
