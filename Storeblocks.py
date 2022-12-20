@@ -26,7 +26,7 @@ p2_paddle_nw_bot_corner = utility.get_mcpi_vec_from_world_coords(39522, 78, 3996
 
 my_paddle = BlockStructure(mc)
 start_vec = my_paddle.get_mcpi_vec_from_world_coords(39522, 87, 39968)
-end_vec = my_paddle.get_mcpi_vec_from_world_coords(39538, 97, 39977)
+end_vec = my_paddle.get_mcpi_vec_from_world_coords(39538, 99, 39977)
 
 
 my_paddle.get_structure(start_vec, end_vec)
