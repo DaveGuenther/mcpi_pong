@@ -187,7 +187,7 @@ while 1: # start game loop
             p2_loaded.removeImage()
             p2_waiting.draw()
 
-        if (p1_paddle.getControllerState()=='loaded'):#&(p2.paddle.getControllerState()=='loaded'):
+        if (p2_paddle.getControllerState()=='loaded'):#&(p1_paddle.getControllerState()=='loaded'):
             #p1_waiting.removeImage()
             #p2_waiting.removeImage()
             p1_paddle.dropIn()
