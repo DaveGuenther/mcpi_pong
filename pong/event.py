@@ -1,6 +1,7 @@
 class EndEvent():
     def __init__(self):
         self.__game_ended=False
+        self.__is_ball_lost=False
 
     def setWinningPlayer(self, player:int):
         """
@@ -18,4 +19,14 @@ class EndEvent():
 
     def reset(self):
         self.__game_ended=False
+        self.__is_ball_lost=False
         self.__winning_player=0
+
+    def isBallLost(self):
+        return self.__is_ball_lost
+
+    def setBallLost(self):
+        """
+        This is called by a Ball class if the ball fails to make a collision with any surface for 10 seconds (it has flown off screen).  It will trigger a game reset.
+        """
+        self.__is_ball_lost=True

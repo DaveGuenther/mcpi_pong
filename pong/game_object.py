@@ -50,7 +50,7 @@ class GameObject():
 
 class Ball(GameObject):
 
-    def __init__(self, painter:[Renderer], cart_pos=np.array([0,0]), direction=np.array([0,1]), speed=1,orthogonal_force=0, color=4):
+    def __init__(self, painter:[Renderer], event_mgr:[EndEvent()], cart_pos=np.array([0,0]), direction=np.array([0,1]), speed=1,orthogonal_force=0, color=4):
         """
         GameObject.Ball is defined as a point in space with a current speed, direction, and orthogonal force.
 
@@ -71,24 +71,32 @@ class Ball(GameObject):
         self.__last_cart_pos = self.__cart_pos
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
         self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
+        self.__event_mgr = event_mgr
+        self.__ball_timeout = Delay(8000) # in the event that collision detection fails on a screen edge and the ball goes out of bounds, it will reset in 10 seconds
+        #timer resets after every ball collision with another object
 
     def updatePos(self):
-        #print("start pos:",self.__cart_pos)
-        #print("dir: ",self.__direction_unit_vec2)
-        # get new direction after figuring in orthogonal force
-        if self.__orthogonal_force!=0:
-            orthogonal_force_unit_vec = MatrixTools.getOrthogonalForceUnitVector(self.__direction_unit_vec2, self.__orthogonal_force)
-            new_dir = self.__direction_unit_vec2+orthogonal_force_unit_vec
-            self.__direction_unit_vec2 = MatrixTools.getUnitVector(new_dir)
-        
-        #get new position by applying speed to new direction vector
-        new_pos = self.__cart_pos+(self.__direction_unit_vec2*self.__speed_scalar)
-        self.__last_cart_pos=self.__cart_pos
-        self.__cart_pos=new_pos
-        self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
-        self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
 
-        #print("new pos:",new_pos)
+        
+        if self.__ball_timeout.getState()==False:
+            # ball has fail collision and been lost for 10 seconds
+            self.__event_mgr.setBallLost()
+        else:
+
+            # get new direction after figuring in orthogonal force
+            if self.__orthogonal_force!=0:
+                orthogonal_force_unit_vec = MatrixTools.getOrthogonalForceUnitVector(self.__direction_unit_vec2, self.__orthogonal_force)
+                new_dir = self.__direction_unit_vec2+orthogonal_force_unit_vec
+                self.__direction_unit_vec2 = MatrixTools.getUnitVector(new_dir)
+            
+            #get new position by applying speed to new direction vector
+            new_pos = self.__cart_pos+(self.__direction_unit_vec2*self.__speed_scalar)
+            self.__last_cart_pos=self.__cart_pos
+            self.__cart_pos=new_pos
+            self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
+            self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
+
+
 
     def getHeadingUnitVec(self):
         return self.__heading_unit_vec
@@ -104,10 +112,12 @@ class Ball(GameObject):
         edge:                   LineSegment         This is the edge that the ball (self) has collided with
         intercept:              np.array([x,y])     This is the point that the ball (self) intersects with the edge
 
-        
         This function sets a new heading and current direction for the ball after colliding with an edge.  
         
         """
+
+        self.__orthogonal_force=edge.getSpeed() #determine spin on ball from speed of edge that it's hitting
+        
         edge_screen=edge.getSegment()
         #subtract intercept from both secments
         origin_ball=LineSegment(self.__last_cart_pos-intercept, self.__cart_pos-intercept, directional=True)
@@ -161,6 +171,7 @@ class Ball(GameObject):
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
         self.__direction_unit_vec2=MatrixTools.getUnitVector(self.__heading_unit_vec)
         self.__headingSegment = reflected_ball_vec
+        self.__ball_timeout.start()
 
     def resetBall(self):
         new_direction = np.array([(random.uniform(.5, 1.0)*random.sample([-1,1],1)[0]),(random.uniform(.5, 1.0)*random.sample([-1,1],1)[0])]) # get random numbers from -1 to 1
@@ -170,17 +181,29 @@ class Ball(GameObject):
         self.__orthogonal_force=0
         self.__heading_unit_vec= self.__cart_pos-self.__last_cart_pos 
         self.__headingSegment = LineSegment(self.__cart_pos,self.__last_cart_pos, directional=True)
+        self.__ball_timeout.start()
 
 class Edge():
     def __init__(self, segment:[LineSegment], normal_vec):
         self.__segment = segment[0]
         self.__normal = normal_vec[0]
+        self.__speed = 0
     
     def getSegment(self):
         return self.__segment
 
     def getNormal(self):
         return self.__normal
+    
+    def setSpeed(self, speed:float):
+        """
+        Sets the speed of an edge.  This is used to determine spin on a ball when colliding with the edge
+        speed:      float       <0(edge moving left or down), 0=no movement, >0(edge moving right or up)
+        """
+        self.__speed=speed
+
+    def getSpeed(self):
+        return self.__speed
     
 
 class Rectangle(GameObject):
@@ -229,7 +252,13 @@ class Rectangle(GameObject):
             Edge([LineSegment(self._A, self._C)],[np.array([-1,0])*self._normal_invertor])
         ]
                   
-
+    def setSpeed(self,speed:float):
+        """
+        Sets the speed of all edges in this rectangle.  This is used to determine spin on a ball when colliding with the edge of a rectangle
+        speed:      float       <0(edge moving left or down), 0=no movement, >0(edge moving right or up)
+        """
+        for edge in self._line_segments:
+            edge.setSpeed(speed)
   
 
     def setCartPos(self, cart_pos):
@@ -277,8 +306,16 @@ class Controller(Rectangle):
         self.__painter = painter[0]
         self.__half_screen_width = int(self.__painter.getScreenWidth()/2)
         self.__rect = Rectangle(sprite_screen_pos+np.array([-.5,0]),np.array([sprite_screen_pos[0]+controller_sprite.getWidth()+.5,sprite_screen_pos[1]-controller_sprite.getHeight()]))
+        self.setSpeed(0)
         self.__ready_button_block = ready_button_block
         self.__mc = mc[0]
+
+    def setSpeed(self,speed:float):
+        """
+        Sets the speed of all edges in this rectangle.  This is used to determine spin on a ball when colliding with the edge of a rectangle
+        speed:      float       <0(edge moving left or down), 0=no movement, >0(edge moving right or up)
+        """
+        self.__rect.setSpeed(speed)
 
     def getPlayerNum(self):
         return self.__player_num
@@ -307,6 +344,9 @@ class Controller(Rectangle):
             
         if self.__controller_state=='ingame':
             self.__joystick_input.readInputScanner()
+            self.setSpeed(self.__joystick_input.getInputValue()-self.__joystick_input.getLastInputValue())
+            print(self.__joystick_input.getInputValue()-self.__joystick_input.getLastInputValue())
+
 
     def getControllerState(self):
         return self.__controller_state

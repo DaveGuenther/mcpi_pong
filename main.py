@@ -100,10 +100,16 @@ end_game_event = EndEvent()
 ### 'setup' game state initialization
 
 #initialize notification sprites
-p1_waiting = Notification([painter],np.array([-3,-8]),'p1_waiting',flashing=True)
-p2_waiting = Notification([painter],np.array([-3,16]),'p2_waiting',flashing=True)
-p1_loaded = Notification([painter], np.array([-3,-6]), 'p1_loaded',flashing=False)
-p2_loaded = Notification([painter], np.array([-3,16]), 'p2_loaded',flashing=False)
+
+p1_waiting = Notification([painter],np.array([3,-8]),'p1_waiting',flashing=True)
+p1_loaded = Notification([painter], np.array([3,-6]), 'p1_loaded',flashing=False)
+p1_p = Notification([painter],np.array([-8,-8]),'P')
+p1_1 = Notification([painter],np.array([-2,-8]),'1')
+
+p2_waiting = Notification([painter],np.array([3,16]),'p2_waiting',flashing=True)
+p2_p = Notification([painter],np.array([-8,16]),'P')
+p2_2 = Notification([painter],np.array([-3,16]),'2')
+p2_loaded = Notification([painter], np.array([3,16]), 'p2_loaded',flashing=False)
 python_logo = Notification([painter],np.array([-6,7]),'python')
 
 ### 'setup-transition-game' setup
@@ -117,7 +123,7 @@ start_direction = np.array(
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0]),
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0])
     ]) # randomize the ball direction
-balls.append(Ball([painter], start_pos, start_direction, ball_speed, 0,  4))
+balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, 0,  4))
 #balls.append(Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15))
 
 
@@ -150,6 +156,9 @@ game_state='setup'
 
 while 1: # start game loop
 
+    if end_game_event.isBallLost()==True:
+        game_state='ball_lost'
+
     if game_state == 'setup':
         #Scan MC input
         input_scanner.scanMC_Player_Positions() # reads positions of all players on server for query by various controllers
@@ -157,6 +166,10 @@ while 1: # start game loop
         #Parse MC Input for each controller based on Scanner Results
         p1_paddle.readScannerInput()
         p2_paddle.readScannerInput()
+        p1_p.draw()
+        p1_1.draw()
+        p2_p.draw()
+        p2_2.draw()
         if p1_paddle.getControllerState()=='loaded':
 
             p1_waiting.removeImage()
@@ -211,7 +224,9 @@ while 1: # start game loop
 
         if transition_msg=='1':
             msg_1.draw()
-            if second_delay.getState()==False:         
+            if second_delay.getState()==False: 
+                for ball in balls:
+                    ball.resetBall()        
                 game_state='in_game'      
         #if (p1_paddle.getControllerState()=='ingame'):#&(p2.paddle.getControllerState()=='ingame'):
 
@@ -262,8 +277,20 @@ while 1: # start game loop
                 controller.resetController()
             end_game_event.reset()
             game_state='setup'
-            for ball in balls:
-                ball.resetBall()
+
+
+    if game_state=='ball_lost':
+        painter.fillCanvas(0)
+        painter.flipVirtualPage()
+        painter.fillCanvas(0)
+        paddle1.set_structure(p1_paddle_nw_bot_corner.get_mcpiVec())
+        paddle2.set_structure(p2_paddle_nw_bot_corner.get_mcpiVec())
+        screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
+        for controller in input_objects:
+            controller.resetController()
+        end_game_event.reset()
+        game_state='setup'
+               
 
     #show screen
     painter.flipVirtualPage()
