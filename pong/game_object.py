@@ -2,6 +2,7 @@ import numpy as np
 import random
 from .render import PixelArray
 from .render import Renderer
+from .render import Color
 from .matrix_tools import MatrixTools
 from . import class_mgmt
 from .line_segment import LineSegment
@@ -10,6 +11,7 @@ from . import input_object
 from .mcpi_block_structure.blockstructure import BlockStructure
 from .vector import MCVector
 from .timer import Delay
+from .timer import SquareWave
 from .event import EndEvent
 
 
@@ -302,6 +304,7 @@ class Controller(Rectangle):
         self.__joystick_input = input_object.RangeInputParser(mc,input_scanner,start_coord=joystick_start_block, end_coord=joystick_end_block)
         self.__ready_button = input_object.TactileInputParser(mc,input_scanner,start_coord=ready_button_block, end_coord=ready_button_block)
         self.__sprite = controller_sprite
+        self.__color = Color.get(self.__sprite.getPoint(0, 0))[1]
         self.__sprite_screen_pos = sprite_screen_pos
         self.__painter = painter[0]
         self.__half_screen_width = int(self.__painter.getScreenWidth()/2)
@@ -309,6 +312,8 @@ class Controller(Rectangle):
         self.setSpeed(0)
         self.__ready_button_block = ready_button_block
         self.__mc = mc[0]
+        self.__start_block_flashing_timer=SquareWave(500)
+
 
     def setSpeed(self,speed:float):
         """
@@ -331,6 +336,12 @@ class Controller(Rectangle):
     def readScannerInput(self):
 
         if self.__controller_state in ['unloaded','loaded']:
+            self.__start_block_flashing_timer.update()
+            if self.__start_block_flashing_timer.getState()==True:
+                self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,7)
+            else:
+                self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,self.__color)
+            
             self.__ready_button.readInputScanner()
             if self.__ready_button.getInputValue()==True:
                 self.__controller_state='loaded'
