@@ -6,7 +6,7 @@ import unittest
 from pong import utility
 from pong.vector import MCVector
 from mcpi import vec3
-from pong import input
+from pong import input_object
 import os
 from .mock_minecraft import Minecraft
 
@@ -32,9 +32,9 @@ class TestInput(unittest.TestCase):
         mc.entity.player_pos=MCVector.from_MCWorld_Vec(vec3.Vec3(39536,84,39955)) # player at start of platform
 
 
-        scanner = input.InputScanner([mc])
+        scanner = input_object.InputScanner([mc])
 
-        my_controller = input.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
+        my_controller = input_object.RangeInputParser([mc],[scanner],start_coord=start_coord, end_coord=end_coord)
         #scan all player positions
         scanner.scanMC_Player_Positions()
         #read scanner results

@@ -130,9 +130,43 @@ print(A1-x)
 print(B0-x)
 print(B1-x)
 
-my_edge = Edge([B],B_Normal)
-my_segment = my_edge.getSegment()
-sub_obj=Wall('Dave')
-print(sub_obj.getCartPos())
-main_obj=GameObject()
 
+
+A0=np.array([-0.19404463, -12.94044628])
+A1=np.array([-.34330021, -14.43300207])
+B0=np.array([-8,-13.9])
+B1=np.array([-4,-13.9])
+ball = LineSegment(A0,A1) # ball
+edge = LineSegment(B0,B1) # edge
+x = ball.interceptWith(edge)
+x = edge.interceptWith(ball)
+print(A0-x)
+print(A1-x)
+print(B0-x)
+print(B1-x)
+
+
+A0=np.array([0,0])
+A1=np.array([-0.09950372,-0.99503719])
+B0=np.array([-9,17])
+B1=np.array([9,17])
+ball = LineSegment(A0,A1) # ball
+edge = LineSegment(B0,B1) # edge
+x = ball.interceptWith(edge)
+print(A0-x)
+print(A1-x)
+print(B0-x)
+print(B1-x)
+
+# add to test cases V V V V V
+A0=np.array([-1.29354835,-12.93548347])
+A1=np.array([-1.39305207,-13.93052066])
+B0=np.array([-1.14285714,-13.9])
+B1=np.array([2.85714286,-13.9])
+ball = LineSegment(A0,A1) # ball
+edge = LineSegment(B0,B1) # edge
+x = ball.interceptWith(edge)
+print(A0-x)
+print(A1-x)
+print(B0-x)
+print(B1-x)

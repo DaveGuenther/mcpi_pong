@@ -258,6 +258,9 @@ class RangeInputParser(InputParserInterface):
     def getInputValue(self):
         return self.__range_input_val
 
+    def getLastInputValue(self):
+        return self.__last_range_input_val
+
 
 
 
