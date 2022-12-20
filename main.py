@@ -187,11 +187,11 @@ while 1: # start game loop
             p2_loaded.removeImage()
             p2_waiting.draw()
 
-        if (p2_paddle.getControllerState()=='loaded'):#&(p1_paddle.getControllerState()=='loaded'):
+        if (p2_paddle.getControllerState()=='loaded')&(p1_paddle.getControllerState()=='loaded'):
             #p1_waiting.removeImage()
             #p2_waiting.removeImage()
             p1_paddle.dropIn()
-            #p2_paddle.dropIn()
+            p2_paddle.dropIn()
             painter.fillCanvas(0)
             transition_msg='start_countdown'
             msg_3 = Notification([painter], np.array([-2,4]),'3')

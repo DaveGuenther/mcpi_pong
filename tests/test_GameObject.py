@@ -8,6 +8,7 @@ from pong.render import PixelArray
 from pong.game_object import GameObject
 from pong.game_object import Ball
 from pong.game_object import Rectangle
+from pong.event import EndEvent
 
 if int(os.environ['MC_Live_Connection'])==1:
     from mcpi.minecraft import Minecraft
@@ -39,7 +40,8 @@ class TestGameObjectInterface(unittest.TestCase):
         start_pos = np.array([0,0])
         start_direction = np.array([0,1])
         ball_speed=1
-        ball1 = Ball([painter], start_pos, start_direction, ball_speed, -.1, 2)
+        end_event = EndEvent()
+        ball1 = Ball([painter], [end_event], start_pos, start_direction, ball_speed, -.1, 2)
 
         self.assertIsInstance(ball1, Ball, f"Painter class failed to initialize")
         mc.conn.socket.close()
