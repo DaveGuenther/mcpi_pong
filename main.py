@@ -115,7 +115,6 @@ python_logo = Notification([painter],np.array([-6,7]),'python')
 ### 'setup-transition-game' setup
 
 start_pos = np.array([0,0])
-#start_direction = np.array([-.1,-1])
 ball_speed=1
 balls=[]
 start_direction = np.array(
@@ -142,14 +141,9 @@ drawable_in_game_screen_objects=[]
 
 input_objects=input_objects + paddles
 movable_objects=balls+paddles
-#input_objects=[p1_paddle, p2_paddle]
-#movable_objects = [ball1, ball2, p1_paddle, p2_paddle]
 colliders = colliders + balls
-#colliders = [ball1, ball2]
 collidable_rectangles = collidable_rectangles + [p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
-#collidable_rectangles = [screen_top, screen_left, screen_bottom, screen_right, p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
 drawable_in_game_screen_objects = drawable_in_game_screen_objects + balls + paddles
-#drawable_in_game_screen_objects = [ball1, ball2, p1_paddle, p2_paddle]
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
 
 game_state='setup'
@@ -187,11 +181,9 @@ while 1: # start game loop
             p2_loaded.removeImage()
             p2_waiting.draw()
 
-        if (p2_paddle.getControllerState()=='loaded'):#&(p1_paddle.getControllerState()=='loaded'):
-            #p1_waiting.removeImage()
-            #p2_waiting.removeImage()
+        if (p2_paddle.getControllerState()=='loaded')&(p1_paddle.getControllerState()=='loaded'):
             p1_paddle.dropIn()
-            #p2_paddle.dropIn()
+            p2_paddle.dropIn()
             painter.fillCanvas(0)
             transition_msg='start_countdown'
             msg_3 = Notification([painter], np.array([-2,4]),'3')
@@ -228,7 +220,6 @@ while 1: # start game loop
                 for ball in balls:
                     ball.resetBall()        
                 game_state='in_game'      
-        #if (p1_paddle.getControllerState()=='ingame'):#&(p2.paddle.getControllerState()=='ingame'):
 
 
     if game_state == 'in_game':

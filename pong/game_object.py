@@ -242,10 +242,6 @@ class Rectangle(GameObject):
 
     def _SetRectangle(self, normal_facing_out=True):
 
-        #self.__A = top_left_coord
-        #self.__B = np.array([bottom_right_coord[0],top_left_coord[1]])
-        #self.__C = np.array([top_left_coord[0],bottom_right_coord[1]])
-        #self.__D = bottom_right_coord
         self._normal_invertor = 1 if normal_facing_out else -1
         self._line_segments = [
             Edge([LineSegment(self._A, self._B)],[np.array([0,1])*self._normal_invertor]),
@@ -338,7 +334,7 @@ class Controller(Rectangle):
         if self.__controller_state in ['unloaded','loaded']:
             self.__start_block_flashing_timer.update()
             if self.__start_block_flashing_timer.getState()==True:
-                self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,7)
+                self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,15)
             else:
                 self.__mc.setBlock(self.__ready_button_block.get_mcpiVec().x,self.__ready_button_block.get_mcpiVec().y,self.__ready_button_block.get_mcpiVec().z,35,self.__color)
             
