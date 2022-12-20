@@ -24,7 +24,11 @@ For testing purposes, I've created a fake-minecraft class in the tests/ folder t
 - <code>make test-dry</code> will run all unit tests using the fake-minecraft.Minecraft class.  It will not connect to any server and only holds enough objects/attributes to mimic server functionality for test code behavior.  For example, if setting blocks, instead of setting them in the real MC world, it will simply print to the console for each block set, the X,Y,Z coordinate and blick type.
 
 <h3>Running Pong</h3>
-This part is still under construction..  Pixels are drawing, but trying to read input from MC World :)
+Once you have configured your server.pkl file, you can start the pong game on your server by running <code>python main.py</code>.  Players on yor server should visit the following Minecraft location to see the pong structures built (39524, 88, 39962).
+
+Pong is a 2 player game.  Each controller also has a loading block at the top that registers the player's ID with the controller during gameplay.  This loading block will flash between black and the player's color.  Both players need to stand on their loading blocks in order to begin.  When both players are standing on their loading blocks, the blocks will disappear and they'll drop into the controller.  Once in the controller, each player will be standing on a colored strip of blocks.  This strip works like a joystick.  Walking right will move that player's paddle to the right.  Walking left will move that player's paddle to the left.  Spin can be applied to the ball during collision if the controller is moving left or right at the time that the collision with a ball occurs.
+
+There is a safety net built in where if for some reason the screen edges fail to register a collision with the ball and it flies off screen, the game will reset if a ball hasn't collided with an edge for at least 10 seconds.
 
 
 
