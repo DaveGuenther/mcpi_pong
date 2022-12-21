@@ -9,10 +9,10 @@ Players move along strips of blocks in Minecraft to control paddles on a screen 
 You must have access to a Minecraft server running spigotmc (https://www.spigotmc.org/).  You can run this against localhost, but you'll need a buddy to join your server for a two-player game
 
 <h3>Installation</h3>
-- This repository contains submodules, in order to correctly clone use <code>git clone --recurse-submodules git@github.com:DaveGuenther/mcpi_pong.git</code>.
-- Install necessary python package dependencies (including mcpi)<br>
+1. This repository contains submodules, in order to correctly clone use <code>git clone --recurse-submodules git@github.com:DaveGuenther/mcpi_pong.git</code>.<br>
+2. Install necessary python package dependencies (including mcpi)<br>
 <code>make install</code><br><br>
-- Once packages are installed, you must let the software know where to find your minecraft server<br>
+3. Once packages are installed, you must let the software know where to find your minecraft server<br>
 <code>python config-server.py</code><br>
 This script will prompt you for your server ip address (you can also use 'localhost') and mcpi port (default is 4711).  Once complete, the script will save this information to a <code>server.pkl</code> file used by the main program to connect to the server.<br>
 
