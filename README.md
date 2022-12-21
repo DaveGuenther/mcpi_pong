@@ -5,6 +5,11 @@ This is an absolutely silly project...
 A simple pong game for mcpi rendered against a screen of blocks in Minecraft.  This is built to be used with mcpi (https://github.com/martinohanlon/mcpi). 
 Players move along strips of blocks in Minecraft to control paddles on a screen rendered in Minecraft for a simple game of pong.  This project creates a basic graphics engine for 2d rasterization of colored wool blocks in MineCraft.  The engine consists of a screen with two virtual pages, and optimized page-flipping so only changed pixels are rendered.
 
+<p align="center"><img src="https://github.com/DaveGuenther/mcpi_pong/blob/main/docs/MC_ingame3.png">
+  <br><i>In-game Screenshot</i>
+</p>
+<br>
+
 <h3>Prerequisites</h3>
 You must have access to a Minecraft server running spigotmc (https://www.spigotmc.org/).  You can run this against localhost, but you'll need a buddy to join your server for a two-player game
 
@@ -26,7 +31,33 @@ For testing purposes, I've created a fake-minecraft class in the tests/ folder t
 <h3>Running Pong</h3>
 Once you have configured your server.pkl file, you can start the pong game on your server by running <code>python main.py</code>.  Players on yor server should visit the following Minecraft location to see the pong structures built (39524, 88, 39962).
 
-Pong is a 2 player game.  Each controller also has a loading block at the top that registers the player's ID with the controller during gameplay.  This loading block will flash between black and the player's color.  Both players need to stand on their loading blocks in order to begin.  When both players are standing on their loading blocks, the blocks will disappear and they'll drop into the controller.  Once in the controller, each player will be standing on a colored strip of blocks.  This strip works like a joystick.  Walking right will move that player's paddle to the right.  Walking left will move that player's paddle to the left.  Spin can be applied to the ball during collision if the controller is moving left or right at the time that the collision with a ball occurs.
+
+
+
+
+
+
+Pong is a 2 player game.  
+<p align="center"><img src="https://github.com/DaveGuenther/mcpi_pong/blob/main/docs/MC_load1.png">
+  <br><i>Pre-load screen</i>
+</p>
+<br>
+Each controller also has a loading block at the top that registers the player's ID with the controller during gameplay.  This loading block will flash between black and the player's color.  
+<p align="center"><img src="https://github.com/DaveGuenther/mcpi_pong/blob/main/docs/MC_loaded.png">
+  <br><i>Player loaded</i>
+</p>
+<br>
+Both players need to stand on their loading blocks in order to begin.  When both players are standing on their loading blocks, the blocks will disappear and they'll drop into the controller.  Once in the controller, each player will be standing on a colored strip of blocks.  This strip works like a joystick.  Walking right will move that player's paddle to the right.  Walking left will move that player's paddle to the left.  Spin can be applied to the ball during collision if the controller is moving left or right at the time that the collision with a ball occurs.
+<p align="center"><img src="https://github.com/DaveGuenther/mcpi_pong/blob/main/docs/MC_ingame1.png">
+  <br><i>In game screenshot 1</i>
+</p>
+<br>
+
+The game ends when the ball contacts either the top or bottom of the screen.
+<p align="center"><img src="https://github.com/DaveGuenther/mcpi_pong/blob/main/docs/MC_end_game.png">
+  <br><i>End game screenshot</i>
+</p>
+<br>
 
 There is a safety net built in where if for some reason the screen edges fail to register a collision with the ball and it flies off screen, the game will reset if a ball hasn't collided with an edge for at least 10 seconds.
 
