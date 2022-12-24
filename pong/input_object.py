@@ -35,8 +35,12 @@ class InputScanner():
             self.__player_info={}
 
         for player in self.__player_ids:
-            tilepos=self.getMC_Player_Pos_By_ID(player)
-            self.__player_info.update({player:tilepos})
+            try:
+                tilepos=self.getMC_Player_Pos_By_ID(player)
+                self.__player_info.update({player:tilepos})
+            except Exception as e:
+                print (e)
+                pass
 
 
 
