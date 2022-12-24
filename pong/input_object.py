@@ -97,6 +97,9 @@ class InputParserInterface(abc.ABC):
         for offset,i in zip(range(0,blockrange+increment,increment),range(0,abs(blockrange)+1,1)):
             self._block_array[i]=MCVector.from_MCWorld_Vec(vec3.Vec3(start_block.x+(offset*axis.x), start_block.y+(offset*axis.y), start_block.z+(offset*axis.z)))
 
+    def reset(self):
+        self._concreteInit()
+
     @abc.abstractclassmethod
     def getInputValue(self):
         """

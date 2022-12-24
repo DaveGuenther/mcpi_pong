@@ -386,6 +386,8 @@ class Controller(Rectangle):
         This function is called when the game has concluded and is resetting for new players..
         """
         self.__controller_state='unloaded'
+        self.__ready_button.reset()
+        self.__joystick_input.reset()
 
 class PlayerRectangle(Rectangle):
     def __init__(self, top_left_coord, bottom_right_coord, controller:[Controller], end_game_event:[EndEvent], normal_facing_out=True):
