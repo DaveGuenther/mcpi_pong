@@ -352,7 +352,7 @@ class Controller(Rectangle):
         if self.__controller_state=='ingame':
             self.__joystick_input.readInputScanner()
             self.setSpeed(self.__joystick_input.getInputValue()-self.__joystick_input.getLastInputValue())
-            print(self.__joystick_input.getInputValue()-self.__joystick_input.getLastInputValue())
+            #print(self.__joystick_input.getInputValue()-self.__joystick_input.getLastInputValue())
 
 
     def getControllerState(self):

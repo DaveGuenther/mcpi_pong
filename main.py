@@ -24,8 +24,12 @@ from pong import input_object
 
 # connect to active server
 server_ip, server_port = pickle.load(open( "server.pkl", "rb" ) )
-mc = Minecraft.create(server_ip,server_port)
+print("Connecting to server: "+str(server_ip)+":"+str(server_port)+"...",end='')
 
+mc = Minecraft.create(server_ip,server_port)
+print("Connected!")
+
+print("Loading MC Objects...",end='')
 # Load positions for game screen and controllers in Minecraft world
 top_left_screen_coord = MCVector.from_MCWorld_XYZ(39562, 106, 39958) # pixel display..  Display is facing west
 screen_nw_bot_corner = MCVector.from_MCWorld_XYZ(39562,74,39957) # Monitor(display) Bottom NW Corner
@@ -43,15 +47,17 @@ paddle2.set_structure(p2_paddle_nw_bot_corner.get_mcpiVec())
 screen_obj = BlockStructure(mc)
 screen_obj.read_from_file("assets/screen.pkl")
 screen_obj.set_structure(screen_nw_bot_corner.get_mcpiVec())
-
+print("Done!")
 
 #Initialize subsystems
+print("Initializing graphics and input subsystems...",end='')
 painter = Renderer([mc], top_left_screen_coord, 16,32,type='cart') 
 input_scanner = input_object.InputScanner([mc])
-
+print("Done!")
 
 ### 'in-game' setup
 
+print("Initializing controllers...",end='')
 # p1 controller
 p1_joystick_start_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39955))
 p1_joystick_end_block = MCVector.from_MCWorld_Vec(vec3.Vec3(39536, 92, 39962))
@@ -94,13 +100,15 @@ p2_paddle = Controller(
     player_number=2 # set player number asociated with this controller
 )
 paddles = paddles+[p1_paddle, p2_paddle]
+print("Done!")
+
 # define EndGame event
 end_game_event = EndEvent()
 
 ### 'setup' game state initialization
 
 #initialize notification sprites
-
+print("Loading game sprites...",end='')
 p1_waiting = Notification([painter],np.array([3,-8]),'p1_waiting',flashing=True)
 p1_loaded = Notification([painter], np.array([3,-6]), 'p1_loaded',flashing=False)
 p1_p = Notification([painter],np.array([-8,-8]),'P')
@@ -111,9 +119,9 @@ p2_p = Notification([painter],np.array([-8,16]),'P')
 p2_2 = Notification([painter],np.array([-3,16]),'2')
 p2_loaded = Notification([painter], np.array([3,16]), 'p2_loaded',flashing=False)
 python_logo = Notification([painter],np.array([-6,7]),'python')
-
+print("Done!")
 ### 'setup-transition-game' setup
-
+print("Initializing balls...",end='')
 start_pos = np.array([0,0])
 ball_speed=1
 balls=[]
@@ -124,15 +132,16 @@ start_direction = np.array(
     ]) # randomize the ball direction
 balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, 0,  4))
 #balls.append(Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15))
-
+print("Done!")
 
 # Initialize Screen Collision Bounding Box
+print("Initializing screen collision boundaries...",end='')
 collidable_rectangles = []
 collidable_rectangles.append(PlayerRectangle(np.array([-9,17]),np.array([9,16]), [p1_paddle], end_game_event, normal_facing_out=True)) # top edge
 collidable_rectangles.append(Rectangle(np.array([-9,17]),np.array([-8,-17]), normal_facing_out=True)) #left edge
 collidable_rectangles.append(PlayerRectangle(np.array([-9,-17]),np.array([9,-18]), [p2_paddle], end_game_event, normal_facing_out=True)) # bottom edge
 collidable_rectangles.append(Rectangle(np.array([8,17]), np.array([9,-17]),normal_facing_out=True)) # right edge
-
+print("Done!")
 
 input_objects = []
 movable_objects = []
@@ -145,7 +154,7 @@ colliders = colliders + balls
 collidable_rectangles = collidable_rectangles + [p1_paddle.getColliderRect(), p2_paddle.getColliderRect()]
 drawable_in_game_screen_objects = drawable_in_game_screen_objects + balls + paddles
 collision_handler = CollisionHandler([colliders], [collidable_rectangles])
-
+print("Setup Complete!")
 game_state='setup'
 
 while 1: # start game loop
