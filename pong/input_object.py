@@ -35,8 +35,12 @@ class InputScanner():
             self.__player_info={}
 
         for player in self.__player_ids:
-            tilepos=self.getMC_Player_Pos_By_ID(player)
-            self.__player_info.update({player:tilepos})
+            try:
+                tilepos=self.getMC_Player_Pos_By_ID(player)
+                self.__player_info.update({player:tilepos})
+            except Exception as e:
+                print ('Player joined/left unexpectedly.  Skipping this query')
+                pass
 
 
 
@@ -97,6 +101,9 @@ class InputParserInterface(abc.ABC):
         for offset,i in zip(range(0,blockrange+increment,increment),range(0,abs(blockrange)+1,1)):
             self._block_array[i]=MCVector.from_MCWorld_Vec(vec3.Vec3(start_block.x+(offset*axis.x), start_block.y+(offset*axis.y), start_block.z+(offset*axis.z)))
 
+    def reset(self):
+        self._concreteInit()
+
     @abc.abstractclassmethod
     def getInputValue(self):
         """
@@ -142,7 +149,10 @@ class TactileInputParser(InputParserInterface):
         # check where each player on the server is standing
         if self.__player_is_registered==True: # only query position of registered player
                 player = self.__player
-                tilepos = self._scanner.getMC_Player_Pos_By_ID(player)
+                try: 
+                    tilepos = self._scanner.getMC_Player_Pos_By_ID(player)
+                except Exception as e:
+                    tilepos=self._start_block
 
                 # look through each block in array and see if player is standing on one of them
                 for block in self._block_array:
@@ -152,7 +162,10 @@ class TactileInputParser(InputParserInterface):
         else: # query positions of ALL players on the server to see if anyone is standing on this block
             for player in self._scanner.getScannedPlayerIDs():
                 #temp_tile=self._MC.entity.getTilePos(player)
-                tilepos = self._scanner.getScannedPlayerPositions()[player]
+                try:
+                    tilepos = self._scanner.getScannedPlayerPositions()[player]
+                except:
+                    tilepos=self._start_block
                 
                 # look through each block in array and see if player is standing on one of them
                 for block in self._block_array:
