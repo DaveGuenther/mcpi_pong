@@ -131,7 +131,7 @@ start_direction = np.array(
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0]),
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0])
     ]) # randomize the ball direction
-balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, orthoginal_force,  4))
+balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, orthogonal_force,  4))
 #balls.append(Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15))
 print("Done!")
 
