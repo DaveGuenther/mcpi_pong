@@ -124,13 +124,14 @@ print("Done!")
 print("Initializing balls...",end='')
 start_pos = np.array([0,0])
 ball_speed=1
+orthogonal_force=random.uniform(0, .2)*random.sample([-1,1],1)[0]
 balls=[]
 start_direction = np.array(
     [
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0]),
         (random.uniform(.5, 1.0)*random.sample([-1,1],1)[0])
     ]) # randomize the ball direction
-balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, 0,  4))
+balls.append(Ball([painter], end_game_event, start_pos, start_direction, ball_speed, orthoginal_force,  4))
 #balls.append(Ball([painter], np.array([1,-1]), start_direction, ball_speed, 0, 15))
 print("Done!")
 
