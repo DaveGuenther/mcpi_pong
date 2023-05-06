@@ -1,9 +1,10 @@
 from mcpi import vec3
 import numpy as np
+import pickle
 from . import constant
 
 class MCVector:
-    WORLD_TO_MCPI_OFFSET = constant.Constant(vec3.Vec3(-32,66,128))
+    WORLD_TO_MCPI_OFFSET = constant.Constant(pickle.load(open( "offset_vector.pkl", "rb" ) ))  # number of X, Y, and Z blocks to add or subtract to go from MC World space to the mcpi vector space.
 
     def __init__(self, world_vec3, mcpi_vec3):
         self.__world_vec=world_vec3
@@ -33,18 +34,18 @@ class MCVector:
 
     def __mcpi_to_world(self, mcpi_vec):
         world_vec = vec3.Vec3(
-            mcpi_vec.x+MCVector.WORLD_TO_MCPI_OFFSET.get().x,
-            mcpi_vec.y+MCVector.WORLD_TO_MCPI_OFFSET.get().y,
-            mcpi_vec.z+MCVector.WORLD_TO_MCPI_OFFSET.get().z
+            mcpi_vec.x-MCVector.WORLD_TO_MCPI_OFFSET.get().x,
+            mcpi_vec.y-MCVector.WORLD_TO_MCPI_OFFSET.get().y,
+            mcpi_vec.z-MCVector.WORLD_TO_MCPI_OFFSET.get().z
         )
 
         return world_vec    
 
     def __world_to_mcpi(self, world_vec):
         mcpi_vec = vec3.Vec3(
-            world_vec.x-MCVector.WORLD_TO_MCPI_OFFSET.get().x,
-            world_vec.y-MCVector.WORLD_TO_MCPI_OFFSET.get().y,
-            world_vec.z-MCVector.WORLD_TO_MCPI_OFFSET.get().z
+            world_vec.x+MCVector.WORLD_TO_MCPI_OFFSET.get().x,
+            world_vec.y+MCVector.WORLD_TO_MCPI_OFFSET.get().y,
+            world_vec.z+MCVector.WORLD_TO_MCPI_OFFSET.get().z
         )
         return mcpi_vec
     
